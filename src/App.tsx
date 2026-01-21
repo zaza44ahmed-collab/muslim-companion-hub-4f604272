@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import AppsPage from "./pages/AppsPage";
 import VideosPage from "./pages/VideosPage";
 import AudioPage from "./pages/AudioPage";
+import QiblaPage from "./pages/QiblaPage";
 import LibraryPage from "./pages/LibraryPage";
 import TasbihPage from "./pages/TasbihPage";
 import AzkarPage from "./pages/AzkarPage";
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/library" element={<LibraryPage />} />
           <Route path="/tasbih" element={<TasbihPage />} />
           <Route path="/azkar" element={<AzkarPage />} />
+          <Route path="/qibla" element={<QiblaPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
