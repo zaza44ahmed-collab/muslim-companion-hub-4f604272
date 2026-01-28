@@ -11,6 +11,7 @@ import QiblaPage from "./pages/QiblaPage";
 import LibraryPage from "./pages/LibraryPage";
 import TasbihPage from "./pages/TasbihPage";
 import AzkarPage from "./pages/AzkarPage";
+import MosquesPage from "./pages/MosquesPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/tasbih" element={<TasbihPage />} />
           <Route path="/azkar" element={<AzkarPage />} />
           <Route path="/qibla" element={<QiblaPage />} />
+          <Route path="/mosques" element={<MosquesPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
