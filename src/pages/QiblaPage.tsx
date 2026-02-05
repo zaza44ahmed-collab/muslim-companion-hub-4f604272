@@ -267,38 +267,49 @@ const QiblaPage = () => {
 };
 
 // Separate Map Component
-const QiblaMap = ({ userLat, userLng, qiblaDirection }: { userLat: number; userLng: number; qiblaDirection: number }) => {
-  const [MapContainer, setMapContainer] = useState<any>(null);
-  const [TileLayer, setTileLayer] = useState<any>(null);
-  const [Marker, setMarker] = useState<any>(null);
-  const [Popup, setPopup] = useState<any>(null);
-  const [Polyline, setPolyline] = useState<any>(null);
+const QiblaMap = ({ userLat, userLng }: { userLat: number; userLng: number; qiblaDirection: number }) => {
+  const [leafletComponents, setLeafletComponents] = useState<{
+    MapContainer: any;
+    TileLayer: any;
+    Marker: any;
+    Popup: any;
+    Polyline: any;
+  } | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
+    
     // Dynamic import for leaflet components
-    import("react-leaflet").then((module) => {
-      setMapContainer(() => module.MapContainer);
-      setTileLayer(() => module.TileLayer);
-      setMarker(() => module.Marker);
-      setPopup(() => module.Popup);
-      setPolyline(() => module.Polyline);
-    });
-
-    // Import leaflet CSS
-    import("leaflet/dist/leaflet.css");
-
-    // Fix for default marker icons
-    import("leaflet").then((L) => {
+    Promise.all([
+      import("react-leaflet"),
+      import("leaflet"),
+      import("leaflet/dist/leaflet.css")
+    ]).then(([reactLeaflet, L]) => {
+      if (!isMounted) return;
+      
+      // Fix for default marker icons
       delete (L.Icon.Default.prototype as any)._getIconUrl;
       L.Icon.Default.mergeOptions({
         iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
         iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
         shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
       });
+      
+      setLeafletComponents({
+        MapContainer: reactLeaflet.MapContainer,
+        TileLayer: reactLeaflet.TileLayer,
+        Marker: reactLeaflet.Marker,
+        Popup: reactLeaflet.Popup,
+        Polyline: reactLeaflet.Polyline,
+      });
     });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  if (!MapContainer || !TileLayer || !Marker || !Popup || !Polyline) {
+  if (!leafletComponents) {
     return (
       <div className="w-full h-full flex items-center justify-center bg-muted">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -306,6 +317,7 @@ const QiblaMap = ({ userLat, userLng, qiblaDirection }: { userLat: number; userL
     );
   }
 
+  const { MapContainer, TileLayer, Marker, Popup, Polyline } = leafletComponents;
   const userPosition: [number, number] = [userLat, userLng];
   const meccaPosition: [number, number] = [MECCA_LAT, MECCA_LNG];
 
