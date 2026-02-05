@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, RotateCcw, Settings } from "lucide-react";
+import { ArrowRight, RotateCcw, Settings, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const adhkarOptions = [
@@ -9,25 +9,103 @@ const adhkarOptions = [
   { id: 3, text: "الله أكبر", target: 34 },
   { id: 4, text: "لا إله إلا الله", target: 100 },
   { id: 5, text: "استغفر الله", target: 100 },
+  { id: 6, text: "سبحان الله وبحمده", target: 100 },
+  { id: 7, text: "لا حول ولا قوة إلا بالله", target: 100 },
 ];
 
 const TasbihPage = () => {
   const [count, setCount] = useState(0);
   const [selectedDhikr, setSelectedDhikr] = useState(adhkarOptions[0]);
   const [totalCount, setTotalCount] = useState(0);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [showRipple, setShowRipple] = useState(false);
+  const audioContextRef = useRef<AudioContext | null>(null);
+
+  // Create click sound using Web Audio API
+  const playClickSound = useCallback(() => {
+    if (!soundEnabled) return;
+
+    try {
+      if (!audioContextRef.current) {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+
+      const ctx = audioContextRef.current;
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(ctx.destination);
+
+      oscillator.frequency.setValueAtTime(800, ctx.currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.05);
+      
+      gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+
+      oscillator.start(ctx.currentTime);
+      oscillator.stop(ctx.currentTime + 0.1);
+    } catch (error) {
+      console.log("Audio not supported");
+    }
+  }, [soundEnabled]);
+
+  // Play completion sound
+  const playCompleteSound = useCallback(() => {
+    if (!soundEnabled) return;
+
+    try {
+      if (!audioContextRef.current) {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+
+      const ctx = audioContextRef.current;
+      const notes = [523.25, 659.25, 783.99]; // C5, E5, G5 chord
+
+      notes.forEach((freq, i) => {
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        oscillator.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.1);
+        gainNode.gain.setValueAtTime(0.2, ctx.currentTime + i * 0.1);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.1 + 0.5);
+
+        oscillator.start(ctx.currentTime + i * 0.1);
+        oscillator.stop(ctx.currentTime + i * 0.1 + 0.5);
+      });
+    } catch (error) {
+      console.log("Audio not supported");
+    }
+  }, [soundEnabled]);
 
   const handleTap = () => {
-    setCount((prev) => prev + 1);
+    const newCount = count + 1;
+    setCount(newCount);
     setTotalCount((prev) => prev + 1);
+    
+    // Visual feedback
+    setShowRipple(true);
+    setTimeout(() => setShowRipple(false), 300);
+    
+    // Sound feedback
+    if (newCount === selectedDhikr.target) {
+      playCompleteSound();
+    } else {
+      playClickSound();
+    }
     
     // Vibration feedback (if supported)
     if (navigator.vibrate) {
-      navigator.vibrate(10);
+      navigator.vibrate(newCount === selectedDhikr.target ? [50, 50, 50] : 10);
     }
   };
 
   const handleReset = () => {
     setCount(0);
+    playClickSound();
   };
 
   const progress = (count / selectedDhikr.target) * 100;
@@ -44,8 +122,12 @@ const TasbihPage = () => {
             </Button>
           </Link>
           <h1 className="text-xl font-bold font-amiri">المسبحة الإلكترونية</h1>
-          <Button variant="ghost" size="icon">
-            <Settings className="h-5 w-5" />
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={() => setSoundEnabled(!soundEnabled)}
+          >
+            {soundEnabled ? <Volume2 className="h-5 w-5" /> : <VolumeX className="h-5 w-5" />}
           </Button>
         </div>
       </header>
@@ -92,6 +174,10 @@ const TasbihPage = () => {
                 : "bg-gradient-to-br from-primary to-emerald-dark shadow-islamic"
             }`}
           >
+            {/* Ripple Effect */}
+            {showRipple && (
+              <div className="absolute inset-0 rounded-full animate-ping bg-white/20" />
+            )}
             {/* Progress Ring */}
             <svg className="absolute inset-0 -rotate-90" viewBox="0 0 100 100">
               <circle
