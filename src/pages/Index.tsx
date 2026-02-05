@@ -3,8 +3,6 @@ import BottomNav from "@/components/layout/BottomNav";
 import DailyQuote from "@/components/home/DailyQuote";
 import PrayerTimes from "@/components/home/PrayerTimes";
 import QuickActions from "@/components/home/QuickActions";
-import FeaturedContent from "@/components/home/FeaturedContent";
-import SeasonalBanner from "@/components/home/SeasonalBanner";
 
 const Index = () => {
   return (
@@ -25,16 +23,6 @@ const Index = () => {
         {/* Prayer Times */}
         <section className="animate-fadeIn" style={{ animationDelay: "200ms" }}>
           <PrayerTimes />
-        </section>
-
-        {/* Seasonal Banner */}
-        <section className="animate-fadeIn" style={{ animationDelay: "300ms" }}>
-          <SeasonalBanner />
-        </section>
-
-        {/* Featured Content */}
-        <section className="animate-fadeIn" style={{ animationDelay: "400ms" }}>
-          <FeaturedContent />
         </section>
       </main>
 
