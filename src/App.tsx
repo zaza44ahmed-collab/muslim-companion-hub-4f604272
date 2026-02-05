@@ -12,6 +12,7 @@ import LibraryPage from "./pages/LibraryPage";
 import TasbihPage from "./pages/TasbihPage";
 import AzkarPage from "./pages/AzkarPage";
 import DuasPage from "./pages/DuasPage";
+import QuranPage from "./pages/QuranPage";
 import MosquesPage from "./pages/MosquesPage";
 import NotFound from "./pages/NotFound";
 
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/tasbih" element={<TasbihPage />} />
           <Route path="/azkar" element={<AzkarPage />} />
           <Route path="/duas" element={<DuasPage />} />
+          <Route path="/quran" element={<QuranPage />} />
           <Route path="/qibla" element={<QiblaPage />} />
           <Route path="/mosques" element={<MosquesPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
