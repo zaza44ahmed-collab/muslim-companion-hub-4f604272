@@ -1,4 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -7,39 +10,39 @@
 @layer base {
   :root {
     /* Islamic Color Palette */
-    --background: 40 30% 97%;
-    --foreground: 160 30% 15%;
+    --background: 240 4% 95%;
+    --foreground: 240 5% 10%;
 
-    --card: 40 25% 95%;
-    --card-foreground: 160 30% 15%;
+    --card: 0 0% 98%;
+    --card-foreground: 240 5% 10%;
 
-    --popover: 40 25% 95%;
-    --popover-foreground: 160 30% 15%;
+    --popover: 240 5% 90%;
+    --popover-foreground: 240 5% 10%;
 
     /* Emerald Green - Primary Islamic Color */
-    --primary: 158 64% 32%;
-    --primary-foreground: 40 30% 97%;
+    --primary: 258 89% 66%;
+    --primary-foreground: 250 100% 97%;
 
     /* Golden Accent */
-    --secondary: 43 74% 49%;
-    --secondary-foreground: 160 30% 15%;
+    --secondary: 240 5% 33%;
+    --secondary-foreground: 0 0% 98%;
 
     /* Warm Sand */
-    --muted: 40 20% 90%;
-    --muted-foreground: 160 15% 40%;
+    --muted: 240 4% 83%;
+    --muted-foreground: 240 5% 10%;
 
     /* Deep Teal Accent */
-    --accent: 174 62% 35%;
-    --accent-foreground: 40 30% 97%;
+    --accent: 269 100% 98%;
+    --accent-foreground: 270 91% 65%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 40 30% 97%;
+    --destructive: 0 72% 50%;
+    --destructive-foreground: 0 85% 97%;
 
-    --border: 40 20% 85%;
-    --input: 40 20% 85%;
-    --ring: 158 64% 32%;
+    --border: 240 4% 83%;
+    --input: 240 4% 83%;
+    --ring: 258 89% 66%;
 
-    --radius: 1rem;
+    --radius: 0.5rem;
 
     /* Custom Islamic Design Tokens */
     --gold: 43 74% 49%;
@@ -62,52 +65,85 @@
     --shadow-glow: 0 0 40px hsl(43 74% 49% / 0.3);
 
     --sidebar-background: 40 25% 95%;
-    --sidebar-foreground: 160 30% 15%;
-    --sidebar-primary: 158 64% 32%;
-    --sidebar-primary-foreground: 40 30% 97%;
-    --sidebar-accent: 40 20% 90%;
-    --sidebar-accent-foreground: 160 30% 15%;
-    --sidebar-border: 40 20% 85%;
-    --sidebar-ring: 158 64% 32%;
+    --sidebar-foreground: 240 5% 10%;
+    --sidebar-primary: 258 89% 66%;
+    --sidebar-primary-foreground: 250 100% 97%;
+    --sidebar-accent: 240 5% 33%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 4% 83%;
+    --sidebar-ring: 258 89% 66%;
+    --chart-1: 255 91% 76%;
+    --chart-2: 270 95% 75%;
+    --chart-3: 234 89% 73%;
+    --chart-4: 258 89% 66%;
+    --chart-5: 240 3% 46%;
+    --sidebar: 0 0% 98%;
+    --font-sans: 'Montserrat', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+    --font-serif: 'Cormorant Garamond', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+    --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+    --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+    --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+    --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+    --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
+    --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
+    --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
+    --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+    --tracking-normal: 0em;
+    --spacing: 0.25rem;
   }
 
   .dark {
-    --background: 160 30% 8%;
-    --foreground: 40 25% 95%;
+    --background: 240 5% 10%;
+    --foreground: 0 0% 98%;
 
-    --card: 160 25% 12%;
-    --card-foreground: 40 25% 95%;
+    --card: 240 3% 15%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 160 25% 12%;
-    --popover-foreground: 40 25% 95%;
+    --popover: 240 5% 26%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 158 55% 45%;
-    --primary-foreground: 160 30% 8%;
+    --primary: 255 91% 76%;
+    --primary-foreground: 261 72% 22%;
 
-    --secondary: 43 74% 55%;
-    --secondary-foreground: 160 30% 8%;
+    --secondary: 240 3% 46%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 160 20% 18%;
-    --muted-foreground: 40 15% 65%;
+    --muted: 240 3% 46%;
+    --muted-foreground: 0 0% 98%;
 
-    --accent: 174 50% 40%;
-    --accent-foreground: 160 30% 8%;
+    --accent: 273 86% 20%;
+    --accent-foreground: 270 95% 75%;
 
-    --destructive: 0 62% 50%;
-    --destructive-foreground: 40 25% 95%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 85% 97%;
 
-    --border: 160 20% 20%;
-    --input: 160 20% 20%;
-    --ring: 158 55% 45%;
+    --border: 240 5% 33%;
+    --input: 240 5% 33%;
+    --ring: 255 91% 76%;
 
     --sidebar-background: 160 25% 10%;
-    --sidebar-foreground: 40 25% 95%;
-    --sidebar-primary: 158 55% 45%;
-    --sidebar-primary-foreground: 160 30% 8%;
-    --sidebar-accent: 160 20% 15%;
-    --sidebar-accent-foreground: 40 25% 95%;
-    --sidebar-border: 160 20% 20%;
-    --sidebar-ring: 158 55% 45%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 255 91% 76%;
+    --sidebar-primary-foreground: 261 72% 22%;
+    --sidebar-accent: 270 95% 75%;
+    --sidebar-accent-foreground: 273 86% 20%;
+    --sidebar-border: 240 5% 33%;
+    --sidebar-ring: 255 91% 76%;
+    --chart-1: 252 94% 85%;
+    --chart-2: 269 97% 85%;
+    --chart-3: 229 93% 81%;
+    --chart-4: 255 91% 76%;
+    --chart-5: 240 3% 46%;
+    --sidebar: 240 3% 15%;
+    --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+    --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+    --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+    --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+    --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
+    --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
+    --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
+    --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
   }
 }
 
