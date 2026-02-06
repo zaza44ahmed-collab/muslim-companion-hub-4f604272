@@ -279,7 +279,8 @@ const VideosPage = () => {
           )}
 
           {/* Info Overlay - always visible */}
-          <div className={`absolute bottom-0 left-0 right-16 p-4 bg-gradient-to-t from-black/90 via-black/60 to-transparent z-30 ${showVideo ? 'opacity-50' : ''}`}>
+          {/* Info Overlay */}
+          <div className={`absolute bottom-0 left-16 right-0 p-4 bg-gradient-to-t from-black/90 via-black/60 to-transparent z-30 ${showVideo ? 'opacity-50' : ''}`}>
             <div className="flex items-center gap-3 mb-3">
               <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
                 <span className="text-xl">{currentReel.thumbnail}</span>
@@ -298,7 +299,8 @@ const VideosPage = () => {
           </div>
 
           {/* Side Actions */}
-          <div className={`absolute right-3 bottom-32 flex flex-col gap-5 z-30 ${showVideo ? 'opacity-50' : ''}`}>
+          {/* Side Actions - Left Side */}
+          <div className={`absolute left-3 bottom-32 flex flex-col gap-5 z-30 ${showVideo ? 'opacity-50' : ''}`}>
             {/* Like */}
             <button
               className="flex flex-col items-center gap-1"
@@ -375,7 +377,8 @@ const VideosPage = () => {
           </div>
 
           {/* Progress Indicator */}
-          <div className="absolute right-1 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 z-30">
+          {/* Progress Indicator - Right Side */}
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 z-30">
             {reels.map((_, index) => (
               <button
                 key={index}
