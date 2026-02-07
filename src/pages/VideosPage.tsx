@@ -360,7 +360,7 @@ const VideosPage = () => {
       </div>
 
       {/* Bottom Navigation */}
-      <BottomNav variant="dark" />
+      <BottomNav />
     </div>
   );
 };
