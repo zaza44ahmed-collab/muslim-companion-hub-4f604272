@@ -1,8 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ArrowRight, MapPin, Navigation, Clock, RefreshCw, Locate } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -39,7 +38,7 @@ interface Mosque {
   address?: string;
 }
 
-interface PrayerTimes {
+interface PrayerTimesData {
   Fajr: string;
   Sunrise: string;
   Dhuhr: string;
@@ -48,18 +47,9 @@ interface PrayerTimes {
   Isha: string;
 }
 
-// Component to recenter map
-const RecenterMap = ({ lat, lng }: { lat: number; lng: number }) => {
-  const map = useMap();
-  useEffect(() => {
-    map.setView([lat, lng], 14);
-  }, [lat, lng, map]);
-  return null;
-};
-
 // Calculate distance between two points using Haversine formula
 const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
-  const R = 6371; // Earth's radius in km
+  const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLon = ((lon2 - lon1) * Math.PI) / 180;
   const a =
@@ -72,23 +62,97 @@ const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: numbe
   return R * c;
 };
 
+// Leaflet Map Component using plain leaflet
+const MosquesMap = ({
+  center,
+  mosques,
+  onMosqueClick,
+  onDirections,
+}: {
+  center: { lat: number; lng: number };
+  mosques: Mosque[];
+  onMosqueClick: (mosque: Mosque) => void;
+  onDirections: (mosque: Mosque) => void;
+}) => {
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<L.Map | null>(null);
+  const markersRef = useRef<L.LayerGroup | null>(null);
+
+  // Initialize map
+  useEffect(() => {
+    if (!mapContainerRef.current || mapRef.current) return;
+
+    const map = L.map(mapContainerRef.current, {
+      center: [center.lat, center.lng],
+      zoom: 14,
+      zoomControl: false,
+    });
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map);
+
+    markersRef.current = L.layerGroup().addTo(map);
+    mapRef.current = map;
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+      markersRef.current = null;
+    };
+  }, []);
+
+  // Update center
+  useEffect(() => {
+    if (mapRef.current) {
+      mapRef.current.setView([center.lat, center.lng], 14);
+    }
+  }, [center.lat, center.lng]);
+
+  // Update markers
+  useEffect(() => {
+    if (!mapRef.current || !markersRef.current) return;
+
+    markersRef.current.clearLayers();
+
+    // User marker
+    L.marker([center.lat, center.lng], { icon: userIcon })
+      .bindPopup("<div style='text-align:center'><strong>موقعك الحالي</strong></div>")
+      .addTo(markersRef.current);
+
+    // Mosque markers
+    mosques.forEach((mosque) => {
+      const marker = L.marker([mosque.lat, mosque.lng], { icon: mosqueIcon })
+        .bindPopup(
+          `<div style="text-align:center;min-width:150px">
+            <strong style="display:block;margin-bottom:4px">${mosque.name}</strong>
+            <span style="font-size:12px;color:#666">${mosque.distance.toFixed(2)} كم</span>
+          </div>`
+        )
+        .addTo(markersRef.current!);
+
+      marker.on("click", () => onMosqueClick(mosque));
+    });
+  }, [center, mosques, onMosqueClick, onDirections]);
+
+  return <div ref={mapContainerRef} className="w-full h-full" />;
+};
+
 const MosquesPage = () => {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [mosques, setMosques] = useState<Mosque[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchingMosques, setSearchingMosques] = useState(false);
-  const [prayerTimes, setPrayerTimes] = useState<PrayerTimes | null>(null);
+  const [prayerTimes, setPrayerTimes] = useState<PrayerTimesData | null>(null);
   const [selectedMosque, setSelectedMosque] = useState<Mosque | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Default location (Cairo)
   const defaultLocation = { lat: 30.0444, lng: 31.2357 };
 
-  // Get user's location
   const getUserLocation = () => {
     setLoading(true);
     setError(null);
-    
+
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -101,8 +165,7 @@ const MosquesPage = () => {
           fetchNearbyMosques(location.lat, location.lng);
           fetchPrayerTimes(location.lat, location.lng);
         },
-        (err) => {
-          console.error("Error getting location:", err);
+        () => {
           setUserLocation(defaultLocation);
           setLoading(false);
           fetchNearbyMosques(defaultLocation.lat, defaultLocation.lng);
@@ -118,11 +181,10 @@ const MosquesPage = () => {
     }
   };
 
-  // Fetch nearby mosques using Overpass API (OpenStreetMap)
   const fetchNearbyMosques = async (lat: number, lng: number) => {
     setSearchingMosques(true);
     try {
-      const radius = 5000; // 5km radius
+      const radius = 5000;
       const query = `
         [out:json][timeout:25];
         (
@@ -142,14 +204,14 @@ const MosquesPage = () => {
       if (!response.ok) throw new Error("Failed to fetch mosques");
 
       const data = await response.json();
-      
+
       const mosquesData: Mosque[] = data.elements
         .map((element: any, index: number) => {
           const mosqueLat = element.lat || element.center?.lat;
           const mosqueLng = element.lon || element.center?.lon;
-          
+
           if (!mosqueLat || !mosqueLng) return null;
-          
+
           return {
             id: element.id || index,
             name: element.tags?.name || element.tags?.["name:ar"] || "مسجد",
@@ -161,7 +223,7 @@ const MosquesPage = () => {
         })
         .filter((m: Mosque | null): m is Mosque => m !== null)
         .sort((a: Mosque, b: Mosque) => a.distance - b.distance)
-        .slice(0, 20); // Limit to 20 nearest mosques
+        .slice(0, 20);
 
       setMosques(mosquesData);
     } catch (err) {
@@ -172,18 +234,17 @@ const MosquesPage = () => {
     }
   };
 
-  // Fetch prayer times using Aladhan API
   const fetchPrayerTimes = async (lat: number, lng: number) => {
     try {
       const today = new Date();
       const date = `${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`;
-      
+
       const response = await fetch(
         `https://api.aladhan.com/v1/timings/${date}?latitude=${lat}&longitude=${lng}&method=5`
       );
-      
+
       if (!response.ok) throw new Error("Failed to fetch prayer times");
-      
+
       const data = await response.json();
       setPrayerTimes(data.data.timings);
     } catch (err) {
@@ -191,7 +252,6 @@ const MosquesPage = () => {
     }
   };
 
-  // Open directions in Google Maps
   const openDirections = (mosque: Mosque) => {
     if (userLocation) {
       const url = `https://www.google.com/maps/dir/${userLocation.lat},${userLocation.lng}/${mosque.lat},${mosque.lng}`;
@@ -268,54 +328,12 @@ const MosquesPage = () => {
                 </div>
               </div>
             ) : (
-              <MapContainer
-                center={[currentLocation.lat, currentLocation.lng]}
-                zoom={14}
-                style={{ height: "100%", width: "100%" }}
-                zoomControl={false}
-              >
-                <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                <RecenterMap lat={currentLocation.lat} lng={currentLocation.lng} />
-                
-                {/* User location marker */}
-                <Marker position={[currentLocation.lat, currentLocation.lng]} icon={userIcon}>
-                  <Popup>
-                    <div className="text-center">
-                      <strong>موقعك الحالي</strong>
-                    </div>
-                  </Popup>
-                </Marker>
-
-                {/* Mosque markers */}
-                {mosques.map((mosque) => (
-                  <Marker
-                    key={mosque.id}
-                    position={[mosque.lat, mosque.lng]}
-                    icon={mosqueIcon}
-                    eventHandlers={{
-                      click: () => setSelectedMosque(mosque),
-                    }}
-                  >
-                    <Popup>
-                      <div className="text-center min-w-[150px]">
-                        <strong className="block mb-1">{mosque.name}</strong>
-                        <span className="text-sm text-gray-600">
-                          {mosque.distance.toFixed(2)} كم
-                        </span>
-                        <button
-                          onClick={() => openDirections(mosque)}
-                          className="mt-2 w-full bg-emerald-600 text-white text-xs py-1 px-2 rounded"
-                        >
-                          الاتجاهات
-                        </button>
-                      </div>
-                    </Popup>
-                  </Marker>
-                ))}
-              </MapContainer>
+              <MosquesMap
+                center={currentLocation}
+                mosques={mosques}
+                onMosqueClick={setSelectedMosque}
+                onDirections={openDirections}
+              />
             )}
           </div>
         </div>
