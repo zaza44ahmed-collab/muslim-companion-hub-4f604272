@@ -60,6 +60,7 @@ const QuickActions = () => {
               "group relative flex flex-col items-center justify-center p-4 rounded-2xl",
               "bg-gradient-to-br shadow-card-islamic hover:shadow-lg",
               "transition-all duration-300 hover:scale-105 hover:-translate-y-1",
+              "border-2 border-secondary/40 hover:border-secondary/70",
               action.color
             )}
             style={{

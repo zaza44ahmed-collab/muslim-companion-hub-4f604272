@@ -29,7 +29,7 @@ const DailyQuote = () => {
   const currentQuote = quotes[currentIndex];
 
   return (
-    <div className="relative overflow-hidden rounded-2xl gradient-islamic p-6 shadow-islamic">
+    <div className="relative overflow-hidden rounded-2xl gradient-islamic p-6 shadow-islamic border-2 border-secondary/30">
       {/* Decorative Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-2 right-2 w-20 h-20 border-2 border-primary-foreground/30 rounded-full" />
