@@ -51,7 +51,7 @@ const PrayerTimes = () => {
   const currentPrayer = prayers[currentPrayerIndex];
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-accent rounded-3xl p-5 shadow-lg">
+    <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-accent rounded-3xl p-5 shadow-lg border-2 border-secondary/30">
       {/* Decorative Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full blur-3xl" />
