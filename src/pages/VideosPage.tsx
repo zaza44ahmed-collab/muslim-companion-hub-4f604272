@@ -11,7 +11,6 @@ const reels = [
     likes: 450000,
     comments: 12400,
     shares: 8900,
-    gradient: "from-emerald-900 via-teal-800 to-cyan-900",
     emoji: "📖",
     audio: "تلاوة الشيخ السديس - سورة يس",
   },
@@ -23,7 +22,6 @@ const reels = [
     likes: 890000,
     comments: 34200,
     shares: 45000,
-    gradient: "from-amber-800 via-orange-900 to-yellow-900",
     emoji: "🌅",
     audio: "أذكار الصباح - مشاري العفاسي",
   },
@@ -35,7 +33,6 @@ const reels = [
     likes: 320000,
     comments: 8700,
     shares: 15600,
-    gradient: "from-violet-900 via-purple-900 to-indigo-900",
     emoji: "🌙",
     audio: "الصوت الأصلي - قصص الأنبياء",
   },
@@ -47,7 +44,6 @@ const reels = [
     likes: 650000,
     comments: 21300,
     shares: 32000,
-    gradient: "from-green-900 via-emerald-900 to-teal-900",
     emoji: "✨",
     audio: "نشيد - طريق الجنة",
   },
@@ -59,7 +55,6 @@ const reels = [
     likes: 720000,
     comments: 18900,
     shares: 27000,
-    gradient: "from-sky-900 via-blue-900 to-indigo-900",
     emoji: "🤲",
     audio: "الصوت الأصلي - أدعية مأثورة",
   },
@@ -71,7 +66,6 @@ const reels = [
     likes: 2000000,
     comments: 67000,
     shares: 89000,
-    gradient: "from-rose-900 via-pink-900 to-fuchsia-900",
     emoji: "📖",
     audio: "سورة الملك - عبدالباسط عبدالصمد",
   },
@@ -171,55 +165,58 @@ const VideosPage = () => {
   const isFollowing = followedAuthors.has(currentReel.author);
 
   return (
-    <div className="fixed inset-0 bg-black">
-      {/* Header - TikTok Style */}
-      <header className="absolute top-0 left-0 right-0 z-50 pt-2">
-        <div className="flex items-center justify-between px-4 h-12">
+    <div className="fixed inset-0 bg-background">
+      {/* Header */}
+      <header className="absolute top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-lg border-b-2 border-secondary/30">
+        <div className="flex items-center justify-between px-4 h-14">
           {/* Search */}
           <button className="p-2">
-            <Search className="h-6 w-6 text-white/80" />
+            <Search className="h-6 w-6 text-foreground/70" />
           </button>
 
           {/* Tabs */}
           <div className="flex items-center gap-6">
-            <button className="text-white/50 text-[15px] font-semibold">متابَعون</button>
+            <button className="text-muted-foreground text-[15px] font-semibold">متابَعون</button>
             <div className="flex flex-col items-center">
-              <button className="text-white text-[15px] font-bold">لك</button>
-              <div className="w-6 h-0.5 bg-white rounded-full mt-1" />
+              <button className="text-foreground text-[15px] font-bold">لك</button>
+              <div className="w-6 h-0.5 bg-secondary rounded-full mt-1" />
             </div>
           </div>
 
           {/* Add */}
           <button className="p-2">
-            <Plus className="h-6 w-6 text-white/80" />
+            <Plus className="h-6 w-6 text-foreground/70" />
           </button>
         </div>
       </header>
 
       {/* Reels Container */}
       <div
-        className="h-full w-full pb-[72px]"
+        className="h-full w-full pt-14 pb-[72px]"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
         <div
-          className={`h-full w-full bg-gradient-to-br ${currentReel.gradient} flex items-center justify-center relative transition-all duration-500`}
+          className="h-full w-full bg-gradient-to-br from-primary/90 via-primary to-primary/80 flex items-center justify-center relative transition-all duration-500"
           onClick={() => handleDoubleTap(currentReel.id)}
         >
+          {/* Islamic Pattern Overlay */}
+          <div className="absolute inset-0 islamic-pattern opacity-30" />
+
           {/* Background Emoji */}
-          <span className="text-[150px] opacity-20 select-none">{currentReel.emoji}</span>
+          <span className="text-[150px] opacity-15 select-none">{currentReel.emoji}</span>
 
           {/* Double Tap Heart */}
           {showHeart && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-40">
-              <Heart className="h-28 w-28 text-red-500 fill-red-500 animate-ping" />
+              <Heart className="h-28 w-28 text-secondary fill-secondary animate-ping" />
             </div>
           )}
 
           {/* Avatar - Right Side */}
           <div className="absolute right-3 bottom-44 flex flex-col items-center z-30">
             <div className="flex flex-col items-center relative">
-              <div className="h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm border-2 border-white flex items-center justify-center text-2xl">
+              <div className="h-12 w-12 rounded-full bg-card/30 backdrop-blur-sm border-2 border-secondary/50 flex items-center justify-center text-2xl">
                 {currentReel.avatar}
               </div>
               {!isFollowing && (
@@ -228,9 +225,9 @@ const VideosPage = () => {
                     e.stopPropagation();
                     toggleFollow(currentReel.author);
                   }}
-                  className="absolute -bottom-2.5 bg-red-500 rounded-full w-5 h-5 flex items-center justify-center"
+                  className="absolute -bottom-2.5 bg-secondary rounded-full w-5 h-5 flex items-center justify-center"
                 >
-                  <Plus className="h-3.5 w-3.5 text-white" />
+                  <Plus className="h-3.5 w-3.5 text-secondary-foreground" />
                 </button>
               )}
             </div>
@@ -248,10 +245,10 @@ const VideosPage = () => {
             >
               <Heart className={`h-8 w-8 transition-all ${
                 likedReels.has(currentReel.id) 
-                  ? "text-red-500 fill-red-500 scale-110" 
-                  : "text-white"
+                  ? "text-destructive fill-destructive scale-110" 
+                  : "text-primary-foreground"
               }`} />
-              <span className="text-white text-[11px] font-semibold">
+              <span className="text-primary-foreground text-[11px] font-semibold">
                 {formatNumber(likeCounts[currentReel.id])}
               </span>
             </button>
@@ -261,8 +258,8 @@ const VideosPage = () => {
               className="flex flex-col items-center gap-1"
               onClick={(e) => e.stopPropagation()}
             >
-              <MessageCircle className="h-8 w-8 text-white" />
-              <span className="text-white text-[11px] font-semibold">
+              <MessageCircle className="h-8 w-8 text-primary-foreground" />
+              <span className="text-primary-foreground text-[11px] font-semibold">
                 {formatNumber(currentReel.comments)}
               </span>
             </button>
@@ -277,10 +274,10 @@ const VideosPage = () => {
             >
               <Bookmark className={`h-8 w-8 transition-all ${
                 savedReels.has(currentReel.id) 
-                  ? "text-yellow-400 fill-yellow-400" 
-                  : "text-white"
+                  ? "text-secondary fill-secondary" 
+                  : "text-primary-foreground"
               }`} />
-              <span className="text-white text-[11px] font-semibold">حفظ</span>
+              <span className="text-primary-foreground text-[11px] font-semibold">حفظ</span>
             </button>
 
             {/* Share */}
@@ -291,32 +288,32 @@ const VideosPage = () => {
                 handleShare(currentReel);
               }}
             >
-              <Share2 className="h-8 w-8 text-white" />
-              <span className="text-white text-[11px] font-semibold">
+              <Share2 className="h-8 w-8 text-primary-foreground" />
+              <span className="text-primary-foreground text-[11px] font-semibold">
                 {formatNumber(currentReel.shares)}
               </span>
             </button>
 
             {/* Spinning disc */}
-            <div className="h-10 w-10 rounded-full border-2 border-white/30 bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center animate-[spin_3s_linear_infinite]">
-              <div className="h-4 w-4 rounded-full bg-white/80" />
+            <div className="h-10 w-10 rounded-full border-2 border-secondary/40 bg-primary/80 flex items-center justify-center animate-[spin_3s_linear_infinite]">
+              <div className="h-4 w-4 rounded-full bg-secondary/80" />
             </div>
           </div>
 
-          {/* Bottom Info - adjusted for left icons */}
+          {/* Bottom Info */}
           <div className="absolute bottom-20 left-16 right-4 p-4 z-30">
             {/* Author */}
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-white font-bold text-[15px]">@{currentReel.author}</span>
+              <span className="text-primary-foreground font-bold text-[15px]">@{currentReel.author}</span>
               {isFollowing ? (
-                <span className="text-[11px] text-white/60 border border-white/30 rounded px-1.5 py-0.5">متابَع</span>
+                <span className="text-[11px] text-primary-foreground/60 border border-primary-foreground/30 rounded px-1.5 py-0.5">متابَع</span>
               ) : (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     toggleFollow(currentReel.author);
                   }}
-                  className="text-[11px] text-white bg-red-500 rounded px-2 py-0.5 font-semibold"
+                  className="text-[11px] text-secondary-foreground bg-secondary rounded px-2 py-0.5 font-semibold"
                 >
                   متابعة
                 </button>
@@ -324,15 +321,15 @@ const VideosPage = () => {
             </div>
 
             {/* Description */}
-            <p className="text-white text-[13px] leading-5 mb-3 line-clamp-2">
+            <p className="text-primary-foreground text-[13px] leading-5 mb-3 line-clamp-2">
               {currentReel.title}
             </p>
 
             {/* Audio */}
             <div className="flex items-center gap-2">
-              <Music2 className="h-3.5 w-3.5 text-white" />
+              <Music2 className="h-3.5 w-3.5 text-primary-foreground" />
               <div className="overflow-hidden max-w-[200px]">
-                <p className="text-white text-[12px] whitespace-nowrap animate-marquee">
+                <p className="text-primary-foreground text-[12px] whitespace-nowrap animate-marquee">
                   {currentReel.audio}
                 </p>
               </div>
@@ -350,8 +347,8 @@ const VideosPage = () => {
                 }}
                 className={`w-1 rounded-full transition-all ${
                   index === currentIndex 
-                    ? "h-6 bg-white" 
-                    : "h-2 bg-white/30"
+                    ? "h-6 bg-secondary" 
+                    : "h-2 bg-primary-foreground/30"
                 }`}
               />
             ))}
