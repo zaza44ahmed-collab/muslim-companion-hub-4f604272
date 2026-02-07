@@ -1,22 +1,12 @@
-import { Clock, MapPin, Moon, Sun, Bell } from "lucide-react";
+import { Clock, MapPin, Moon, Sun, Bell, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
-
-const prayerData = [
-  { name: "الفجر", time: "05:23", icon: "🌙", passed: true },
-  { name: "الشروق", time: "06:45", icon: "🌅", passed: true },
-  { name: "الظهر", time: "12:15", icon: "☀️", passed: false },
-  { name: "العصر", time: "15:30", icon: "🌤️", passed: false },
-  { name: "المغرب", time: "18:02", icon: "🌇", passed: false },
-  { name: "العشاء", time: "19:30", icon: "🌙", passed: false },
-];
+import { usePrayerTimes } from "@/hooks/usePrayerTimes";
 
 const PrayerTimes = () => {
-  const [currentPrayer, setCurrentPrayer] = useState(2);
-  const [timeToNext, setTimeToNext] = useState({ hours: 2, minutes: 15 });
+  const { prayers, currentPrayerIndex, timeToNext, locationName, loading, error } = usePrayerTimes();
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
-    // Check system preference
     const darkModePreference = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const savedMode = localStorage.getItem('theme');
     
@@ -37,19 +27,28 @@ const PrayerTimes = () => {
     }
   };
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTimeToNext(prev => {
-        if (prev.minutes > 0) {
-          return { ...prev, minutes: prev.minutes - 1 };
-        } else if (prev.hours > 0) {
-          return { hours: prev.hours - 1, minutes: 59 };
-        }
-        return prev;
-      });
-    }, 60000);
-    return () => clearInterval(interval);
-  }, []);
+  if (loading) {
+    return (
+      <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-accent rounded-3xl p-5 shadow-lg">
+        <div className="flex flex-col items-center justify-center py-8 gap-3">
+          <Loader2 className="h-8 w-8 text-white animate-spin" />
+          <p className="text-white/80 text-sm">جاري تحميل أوقات الصلاة...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || prayers.length === 0) {
+    return (
+      <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-accent rounded-3xl p-5 shadow-lg">
+        <div className="flex flex-col items-center justify-center py-8 gap-3">
+          <p className="text-white/80 text-sm">{error || "تعذر تحميل أوقات الصلاة"}</p>
+        </div>
+      </div>
+    );
+  }
+
+  const currentPrayer = prayers[currentPrayerIndex];
 
   return (
     <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-accent rounded-3xl p-5 shadow-lg">
@@ -69,7 +68,7 @@ const PrayerTimes = () => {
             <h3 className="font-bold text-lg text-white">أوقات الصلاة</h3>
             <div className="flex items-center gap-1 text-xs text-white/70">
               <MapPin className="h-3 w-3" />
-              <span>القاهرة، مصر</span>
+              <span>{locationName}</span>
             </div>
           </div>
         </div>
@@ -92,13 +91,13 @@ const PrayerTimes = () => {
       <div className="relative bg-white/15 backdrop-blur-md rounded-2xl p-4 mb-4 border border-white/20">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="text-4xl">{prayerData[currentPrayer].icon}</div>
+            <div className="text-4xl">{currentPrayer.icon}</div>
             <div>
               <span className="text-xs text-white/70 block mb-0.5">الصلاة القادمة</span>
               <h4 className="font-bold text-white text-xl font-amiri">
-                {prayerData[currentPrayer].name}
+                {currentPrayer.name}
               </h4>
-              <p className="text-white/80 text-sm">{prayerData[currentPrayer].time}</p>
+              <p className="text-white/80 text-sm">{currentPrayer.time}</p>
             </div>
           </div>
           
@@ -128,9 +127,9 @@ const PrayerTimes = () => {
 
       {/* Prayer Times Grid */}
       <div className="grid grid-cols-6 gap-2">
-        {prayerData.map((prayer, index) => {
-          const isCurrent = index === currentPrayer;
-          const isPassed = index < currentPrayer;
+        {prayers.map((prayer, index) => {
+          const isCurrent = index === currentPrayerIndex;
+          const isPassed = prayer.passed;
           
           return (
             <div
@@ -167,7 +166,7 @@ const PrayerTimes = () => {
       <div className="mt-4 h-1.5 bg-white/20 rounded-full overflow-hidden">
         <div 
           className="h-full bg-gradient-to-r from-secondary to-secondary/70 rounded-full transition-all duration-1000"
-          style={{ width: `${((currentPrayer + 1) / prayerData.length) * 100}%` }}
+          style={{ width: `${((currentPrayerIndex + 1) / prayers.length) * 100}%` }}
         />
       </div>
       <div className="flex justify-between mt-1 text-[10px] text-white/60">
