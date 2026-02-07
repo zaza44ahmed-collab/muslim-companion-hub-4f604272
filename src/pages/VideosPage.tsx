@@ -216,10 +216,9 @@ const VideosPage = () => {
             </div>
           )}
 
-          {/* Right Side Actions (TikTok style) */}
-          <div className="absolute right-3 bottom-36 flex flex-col items-center gap-5 z-30">
-            {/* Avatar + Follow */}
-            <div className="flex flex-col items-center relative mb-2">
+          {/* Avatar - Right Side */}
+          <div className="absolute right-3 bottom-44 flex flex-col items-center z-30">
+            <div className="flex flex-col items-center relative">
               <div className="h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm border-2 border-white flex items-center justify-center text-2xl">
                 {currentReel.avatar}
               </div>
@@ -235,7 +234,10 @@ const VideosPage = () => {
                 </button>
               )}
             </div>
+          </div>
 
+          {/* Left Side Actions */}
+          <div className="absolute left-3 bottom-36 flex flex-col items-center gap-5 z-30">
             {/* Like */}
             <button
               className="flex flex-col items-center gap-1"
@@ -301,8 +303,8 @@ const VideosPage = () => {
             </div>
           </div>
 
-          {/* Bottom Info */}
-          <div className="absolute bottom-20 left-0 right-16 p-4 z-30">
+          {/* Bottom Info - adjusted for left icons */}
+          <div className="absolute bottom-20 left-16 right-4 p-4 z-30">
             {/* Author */}
             <div className="flex items-center gap-2 mb-2">
               <span className="text-white font-bold text-[15px]">@{currentReel.author}</span>
@@ -338,7 +340,7 @@ const VideosPage = () => {
           </div>
 
           {/* Progress dots - right side */}
-          <div className="absolute left-2 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 z-30">
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 z-30">
             {reels.map((_, index) => (
               <button
                 key={index}
