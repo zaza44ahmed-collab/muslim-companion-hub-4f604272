@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Navigation, MapPin, Loader2, AlertCircle, LocateFixed } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -268,48 +268,40 @@ const QiblaPage = () => {
 
 // Separate Map Component
 const QiblaMap = ({ userLat, userLng }: { userLat: number; userLng: number; qiblaDirection: number }) => {
-  const [leafletComponents, setLeafletComponents] = useState<{
-    MapContainer: any;
-    TileLayer: any;
-    Marker: any;
-    Popup: any;
-    Polyline: any;
-  } | null>(null);
+  const leafletRef = useRef<any>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
-    
-    // Dynamic import for leaflet components
+
     Promise.all([
       import("react-leaflet"),
       import("leaflet"),
       import("leaflet/dist/leaflet.css")
     ]).then(([reactLeaflet, L]) => {
       if (!isMounted) return;
-      
-      // Fix for default marker icons
+
       delete (L.Icon.Default.prototype as any)._getIconUrl;
       L.Icon.Default.mergeOptions({
         iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
         iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
         shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
       });
-      
-      setLeafletComponents({
+
+      leafletRef.current = {
         MapContainer: reactLeaflet.MapContainer,
         TileLayer: reactLeaflet.TileLayer,
         Marker: reactLeaflet.Marker,
         Popup: reactLeaflet.Popup,
         Polyline: reactLeaflet.Polyline,
-      });
+      };
+      setIsLoaded(true);
     });
 
-    return () => {
-      isMounted = false;
-    };
+    return () => { isMounted = false; };
   }, []);
 
-  if (!leafletComponents) {
+  if (!isLoaded || !leafletRef.current) {
     return (
       <div className="w-full h-full flex items-center justify-center bg-muted">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -317,7 +309,7 @@ const QiblaMap = ({ userLat, userLng }: { userLat: number; userLng: number; qibl
     );
   }
 
-  const { MapContainer, TileLayer, Marker, Popup, Polyline } = leafletComponents;
+  const { MapContainer, TileLayer, Marker, Popup, Polyline } = leafletRef.current;
   const userPosition: [number, number] = [userLat, userLng];
   const meccaPosition: [number, number] = [MECCA_LAT, MECCA_LNG];
 
