@@ -29,7 +29,7 @@ const DailyQuote = () => {
   const currentQuote = quotes[currentIndex];
 
   return (
-    <div className="relative overflow-hidden rounded-2xl gradient-islamic p-6 shadow-islamic border-2 border-secondary/30">
+    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary to-emerald-dark p-6 shadow-islamic border-2 border-secondary/30">
       {/* Decorative Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-2 right-2 w-20 h-20 border-2 border-primary-foreground/30 rounded-full" />
@@ -39,7 +39,7 @@ const DailyQuote = () => {
 
       <div className="relative z-10">
         <div className="flex items-center gap-2 mb-3">
-          <Sparkles className="h-5 w-5 text-secondary animate-pulse" />
+          <Sparkles className="h-6 w-6 text-secondary animate-pulse" />
           <span className="text-sm font-medium text-primary-foreground/80">
             {currentQuote.source}
           </span>
