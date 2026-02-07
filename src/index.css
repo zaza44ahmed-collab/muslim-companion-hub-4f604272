@@ -13,59 +13,59 @@
 @layer base {
   :root {
     /* Color Palette: #D1AF6E, #EAE7DC, #285155, #172832 */
-    --background: 36 26% 89%;
+    --background: 40 30% 95%;
     --foreground: 204 33% 14%;
 
-    --card: 38 28% 93%;
+    --card: 40 35% 97%;
     --card-foreground: 204 33% 14%;
 
-    --popover: 36 26% 89%;
+    --popover: 40 35% 97%;
     --popover-foreground: 204 33% 14%;
 
     /* Deep Teal - Primary #285155 */
     --primary: 173 36% 24%;
-    --primary-foreground: 36 26% 93%;
+    --primary-foreground: 40 30% 96%;
 
     /* Rich Gold - Secondary #D1AF6E */
     --secondary: 39 52% 62%;
     --secondary-foreground: 204 33% 14%;
 
     /* Warm Muted */
-    --muted: 36 18% 80%;
-    --muted-foreground: 204 20% 40%;
+    --muted: 38 22% 88%;
+    --muted-foreground: 204 15% 45%;
 
-    /* Cream Accent #EAE7DC */
-    --accent: 36 26% 89%;
+    /* Cream Accent */
+    --accent: 38 30% 92%;
     --accent-foreground: 204 33% 14%;
 
     --destructive: 0 72% 50%;
     --destructive-foreground: 0 85% 97%;
 
-    --border: 36 22% 82%;
-    --input: 36 22% 82%;
+    --border: 38 28% 85%;
+    --input: 38 28% 85%;
     --ring: 39 52% 62%;
 
     --radius: 0.5rem;
 
     /* Custom Design Tokens */
     --gold: 39 52% 62%;
-    --gold-light: 39 48% 72%;
-    --emerald: 173 36% 24%;
-    --emerald-light: 173 30% 34%;
-    --emerald-dark: 204 33% 14%;
-    --teal: 173 36% 28%;
-    --sand: 36 26% 89%;
-    --sand-dark: 36 20% 78%;
+    --gold-light: 39 50% 75%;
+    --emerald: 173 36% 30%;
+    --emerald-light: 173 30% 40%;
+    --emerald-dark: 173 40% 20%;
+    --teal: 173 36% 34%;
+    --sand: 40 30% 95%;
+    --sand-dark: 38 22% 82%;
 
-    /* Gradients */
-    --gradient-islamic: linear-gradient(135deg, hsl(173 36% 24%) 0%, hsl(204 33% 14%) 100%);
-    --gradient-gold: linear-gradient(135deg, hsl(39 52% 62%) 0%, hsl(39 48% 72%) 100%);
-    --gradient-hero: linear-gradient(180deg, hsl(173 36% 24% / 0.1) 0%, hsl(36 26% 91%) 100%);
+    /* Gradients - brighter, warmer */
+    --gradient-islamic: linear-gradient(135deg, hsl(173 36% 30%) 0%, hsl(173 40% 22%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(39 52% 62%) 0%, hsl(39 55% 72%) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(173 36% 30% / 0.08) 0%, hsl(40 30% 96%) 100%);
 
     /* Shadows */
-    --shadow-soft: 0 4px 20px -4px hsl(173 36% 24% / 0.15);
-    --shadow-card: 0 8px 30px -8px hsl(204 33% 14% / 0.08);
-    --shadow-glow: 0 0 40px hsl(39 52% 62% / 0.3);
+    --shadow-soft: 0 4px 20px -4px hsl(173 36% 24% / 0.12);
+    --shadow-card: 0 4px 16px -4px hsl(204 33% 14% / 0.06);
+    --shadow-glow: 0 0 30px hsl(39 52% 62% / 0.25);
 
     --sidebar-background: 36 26% 91%;
     --sidebar-foreground: 204 33% 14%;

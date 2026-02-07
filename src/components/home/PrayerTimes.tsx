@@ -51,7 +51,7 @@ const PrayerTimes = () => {
   const currentPrayer = prayers[currentPrayerIndex];
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-accent rounded-3xl p-5 shadow-lg border-2 border-secondary/30">
+    <div className="relative overflow-hidden bg-gradient-to-br from-primary via-teal to-emerald-dark rounded-2xl p-5 shadow-lg border-2 border-secondary/30">
       {/* Decorative Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full blur-3xl" />
@@ -61,8 +61,8 @@ const PrayerTimes = () => {
       {/* Header */}
       <div className="relative flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="p-2 bg-white/20 backdrop-blur-sm rounded-xl">
-            <Clock className="h-5 w-5 text-white" />
+          <div className="p-2.5 bg-white/20 backdrop-blur-sm rounded-xl">
+            <Clock className="h-6 w-6 text-white" />
           </div>
           <div>
             <h3 className="font-bold text-lg text-white">أوقات الصلاة</h3>
