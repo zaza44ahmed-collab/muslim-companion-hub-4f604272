@@ -1,13 +1,13 @@
-import { Home, Smartphone, Video, Headphones, BookOpen } from "lucide-react";
+import { Home, Smartphone, Video, Headphones, Menu } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { icon: Home, label: "الرئيسية", path: "/" },
-  { icon: Smartphone, label: "التطبيقات", path: "/apps" },
-  { icon: Video, label: "الفيديو", path: "/videos" },
+  { icon: Menu, label: "المزيد", path: "/settings" },
   { icon: Headphones, label: "الصوتيات", path: "/audio" },
-  { icon: BookOpen, label: "المكتبة", path: "/library" },
+  { icon: Video, label: "الفيديو", path: "/videos" },
+  { icon: Smartphone, label: "التطبيقات", path: "/apps" },
+  { icon: Home, label: "الرئيسية", path: "/" },
 ];
 
 const BottomNav = () => {
