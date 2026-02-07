@@ -1,7 +1,9 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Navigation, MapPin, Loader2, AlertCircle, LocateFixed } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+const LazyQiblaMap = lazy(() => import("@/components/qibla/QiblaMap"));
 
 // Mecca coordinates (Kaaba)
 const MECCA_LAT = 21.4225;
@@ -240,11 +242,16 @@ const QiblaPage = () => {
             <div className="w-full mt-6 animate-fadeIn" style={{ animationDelay: "400ms" }}>
               <h3 className="font-bold text-lg mb-3">موقعك على الخريطة</h3>
               <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-card-islamic bg-card">
-                <QiblaMap 
-                  userLat={userLocation?.lat || 0} 
-                  userLng={userLocation?.lng || 0}
-                  qiblaDirection={qiblaDirection}
-                />
+                <Suspense fallback={
+                  <div className="w-full h-full flex items-center justify-center bg-muted">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  </div>
+                }>
+                  <LazyQiblaMap 
+                    userLat={userLocation?.lat || 0} 
+                    userLng={userLocation?.lng || 0}
+                  />
+                </Suspense>
               </div>
             </div>
 
@@ -263,80 +270,6 @@ const QiblaPage = () => {
         )}
       </main>
     </div>
-  );
-};
-
-// Separate Map Component
-const QiblaMap = ({ userLat, userLng }: { userLat: number; userLng: number; qiblaDirection: number }) => {
-  const leafletRef = useRef<any>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    Promise.all([
-      import("react-leaflet"),
-      import("leaflet"),
-      import("leaflet/dist/leaflet.css")
-    ]).then(([reactLeaflet, L]) => {
-      if (!isMounted) return;
-
-      delete (L.Icon.Default.prototype as any)._getIconUrl;
-      L.Icon.Default.mergeOptions({
-        iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
-        iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-        shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-      });
-
-      leafletRef.current = {
-        MapContainer: reactLeaflet.MapContainer,
-        TileLayer: reactLeaflet.TileLayer,
-        Marker: reactLeaflet.Marker,
-        Popup: reactLeaflet.Popup,
-        Polyline: reactLeaflet.Polyline,
-      };
-      setIsLoaded(true);
-    });
-
-    return () => { isMounted = false; };
-  }, []);
-
-  if (!isLoaded || !leafletRef.current) {
-    return (
-      <div className="w-full h-full flex items-center justify-center bg-muted">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  const { MapContainer, TileLayer, Marker, Popup, Polyline } = leafletRef.current;
-  const userPosition: [number, number] = [userLat, userLng];
-  const meccaPosition: [number, number] = [MECCA_LAT, MECCA_LNG];
-
-  return (
-    <MapContainer
-      center={userPosition}
-      zoom={4}
-      style={{ height: "100%", width: "100%" }}
-      scrollWheelZoom={false}
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-      <Marker position={userPosition}>
-        <Popup>موقعك الحالي 📍</Popup>
-      </Marker>
-      <Marker position={meccaPosition}>
-        <Popup>🕋 الكعبة المشرفة - مكة المكرمة</Popup>
-      </Marker>
-      <Polyline
-        positions={[userPosition, meccaPosition]}
-        color="hsl(158, 64%, 32%)"
-        weight={3}
-        dashArray="10, 10"
-      />
-    </MapContainer>
   );
 };
 
