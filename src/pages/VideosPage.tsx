@@ -1,7 +1,8 @@
 import { useState, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Heart, Share2, Bookmark, Play, Volume2, VolumeX, MessageCircle, X } from "lucide-react";
+import { ArrowRight, Heart, Share2, Bookmark, Play, Volume2, VolumeX, MessageCircle, X, PlusSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import BottomNav from "@/components/layout/BottomNav";
 
 const reels = [
   {
@@ -179,7 +180,7 @@ const VideosPage = () => {
   const currentReel = reels[currentIndex];
 
   return (
-    <div className="fixed inset-0 bg-black">
+    <div className="fixed inset-0 bg-black pb-[72px]">
       {/* Header */}
       <header className="absolute top-0 left-0 right-0 z-50 bg-gradient-to-b from-black/80 to-transparent">
         <div className="container flex h-14 items-center justify-between px-4">
@@ -189,7 +190,9 @@ const VideosPage = () => {
             </Button>
           </Link>
           <h1 className="text-lg font-bold text-white font-amiri">ريلز إسلامية</h1>
-          <div className="w-10" />
+          <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
+            <PlusSquare className="h-5 w-5" />
+          </Button>
         </div>
       </header>
 
@@ -278,9 +281,8 @@ const VideosPage = () => {
             </>
           )}
 
-          {/* Info Overlay - always visible */}
           {/* Info Overlay */}
-          <div className={`absolute bottom-0 left-16 right-0 p-4 bg-gradient-to-t from-black/90 via-black/60 to-transparent z-30 ${showVideo ? 'opacity-50' : ''}`}>
+          <div className={`absolute bottom-20 left-16 right-0 p-4 bg-gradient-to-t from-black/90 via-black/60 to-transparent z-30 ${showVideo ? 'opacity-50' : ''}`}>
             <div className="flex items-center gap-3 mb-3">
               <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
                 <span className="text-xl">{currentReel.thumbnail}</span>
@@ -298,9 +300,8 @@ const VideosPage = () => {
             </div>
           </div>
 
-          {/* Side Actions */}
           {/* Side Actions - Left Side */}
-          <div className={`absolute left-3 bottom-32 flex flex-col gap-5 z-30 ${showVideo ? 'opacity-50' : ''}`}>
+          <div className={`absolute left-3 bottom-52 flex flex-col gap-5 z-30 ${showVideo ? 'opacity-50' : ''}`}>
             {/* Like */}
             <button
               className="flex flex-col items-center gap-1"
@@ -434,6 +435,9 @@ const VideosPage = () => {
           )}
         </div>
       </div>
+
+      {/* Bottom Navigation */}
+      <BottomNav />
     </div>
   );
 };
