@@ -1,90 +1,91 @@
 import { useState, useRef, useCallback } from "react";
-import { Link } from "react-router-dom";
-import { ArrowRight, Heart, Share2, Bookmark, Play, Volume2, VolumeX, MessageCircle, X, PlusSquare } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Heart, Share2, Bookmark, MessageCircle, Music2, Plus, Search } from "lucide-react";
 import BottomNav from "@/components/layout/BottomNav";
 
 const reels = [
   {
     id: 1,
-    title: "سورة يس - الشيخ عبدالرحمن السديس",
-    author: "قناة القرآن الكريم",
-    views: "15M",
+    title: "سبحان الله وبحمده سبحان الله العظيم ✨",
+    author: "نور الإسلام",
+    avatar: "🕌",
     likes: 450000,
-    thumbnail: "📖",
-    duration: "23:45",
-    gradient: "from-emerald-900 via-emerald-800 to-teal-900",
-    youtubeId: "aJPFJQDZxnc",
+    comments: 12400,
+    shares: 8900,
+    gradient: "from-emerald-900 via-teal-800 to-cyan-900",
+    emoji: "📖",
+    audio: "تلاوة الشيخ السديس - سورة يس",
   },
   {
     id: 2,
-    title: "أذكار الصباح كاملة - مشاري راشد العفاسي",
-    author: "قناة العفاسي",
-    views: "50M",
+    title: "أذكار الصباح 🌅 ابدأ يومك بذكر الله",
+    author: "أذكاري",
+    avatar: "🌙",
     likes: 890000,
-    thumbnail: "🌅",
-    duration: "32:00",
-    gradient: "from-amber-900 via-orange-900 to-yellow-900",
-    youtubeId: "5Kytp9vQ3jc",
+    comments: 34200,
+    shares: 45000,
+    gradient: "from-amber-800 via-orange-900 to-yellow-900",
+    emoji: "🌅",
+    audio: "أذكار الصباح - مشاري العفاسي",
   },
   {
     id: 3,
-    title: "قصة سيدنا يوسف عليه السلام",
-    author: "د. طارق السويدان",
-    views: "8M",
+    title: "هل تعلم؟ قصة سيدنا يوسف عليه السلام 🌟",
+    author: "قصص الأنبياء",
+    avatar: "📚",
     likes: 320000,
-    thumbnail: "🌙",
-    duration: "45:00",
-    gradient: "from-indigo-900 via-purple-900 to-violet-900",
-    youtubeId: "GQk7jM5cHPE",
+    comments: 8700,
+    shares: 15600,
+    gradient: "from-violet-900 via-purple-900 to-indigo-900",
+    emoji: "🌙",
+    audio: "الصوت الأصلي - قصص الأنبياء",
   },
   {
     id: 4,
-    title: "سورة الملك - عبدالباسط عبدالصمد",
-    author: "قناة القرآن الكريم",
-    views: "25M",
+    title: "فضل الصلاة على النبي ﷺ",
+    author: "طريق الجنة",
+    avatar: "💚",
     likes: 650000,
-    thumbnail: "✨",
-    duration: "12:30",
-    gradient: "from-cyan-900 via-blue-900 to-indigo-900",
-    youtubeId: "JEqr89S5hxc",
+    comments: 21300,
+    shares: 32000,
+    gradient: "from-green-900 via-emerald-900 to-teal-900",
+    emoji: "✨",
+    audio: "نشيد - طريق الجنة",
   },
   {
     id: 5,
-    title: "أذكار المساء كاملة - سعد الغامدي",
-    author: "قناة الشيخ سعد الغامدي",
-    views: "30M",
+    title: "دعاء يريح القلب ❤️ اللهم إني أسألك العافية",
+    author: "أدعية مأثورة",
+    avatar: "🤲",
     likes: 720000,
-    thumbnail: "🌙",
-    duration: "28:00",
-    gradient: "from-rose-900 via-pink-900 to-fuchsia-900",
-    youtubeId: "k5N5F0OkjrI",
+    comments: 18900,
+    shares: 27000,
+    gradient: "from-sky-900 via-blue-900 to-indigo-900",
+    emoji: "🤲",
+    audio: "الصوت الأصلي - أدعية مأثورة",
   },
   {
     id: 6,
-    title: "سورة البقرة كاملة - ماهر المعيقلي",
-    author: "قناة الشيخ ماهر المعيقلي",
-    views: "100M",
+    title: "سورة الملك - تلاوة تريح النفس 🎧",
+    author: "تلاوات خاشعة",
+    avatar: "🎧",
     likes: 2000000,
-    thumbnail: "📚",
-    duration: "2:02:00",
-    gradient: "from-teal-900 via-emerald-900 to-green-900",
-    youtubeId: "pDLliGwGLHM",
+    comments: 67000,
+    shares: 89000,
+    gradient: "from-rose-900 via-pink-900 to-fuchsia-900",
+    emoji: "📖",
+    audio: "سورة الملك - عبدالباسط عبدالصمد",
   },
 ];
 
 const VideosPage = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
   const [likedReels, setLikedReels] = useState<Set<number>>(new Set());
   const [savedReels, setSavedReels] = useState<Set<number>>(new Set());
   const [showHeart, setShowHeart] = useState(false);
-  const [showVideo, setShowVideo] = useState(false);
+  const [followedAuthors, setFollowedAuthors] = useState<Set<string>>(new Set());
   const [likeCounts, setLikeCounts] = useState<Record<number, number>>(
     Object.fromEntries(reels.map(r => [r.id, r.likes]))
   );
-  const containerRef = useRef<HTMLDivElement>(null);
   const lastTapRef = useRef(0);
   const touchStartY = useRef(0);
 
@@ -116,32 +117,32 @@ const VideosPage = () => {
   };
 
   const toggleSave = (reelId: number) => {
-    if (savedReels.has(reelId)) {
-      setSavedReels(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(reelId);
-        return newSet;
-      });
-    } else {
-      setSavedReels(prev => new Set([...prev, reelId]));
-    }
+    setSavedReels(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(reelId)) newSet.delete(reelId);
+      else newSet.add(reelId);
+      return newSet;
+    });
+  };
+
+  const toggleFollow = (author: string) => {
+    setFollowedAuthors(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(author)) newSet.delete(author);
+      else newSet.add(author);
+      return newSet;
+    });
   };
 
   const handleShare = async (reel: typeof reels[0]) => {
-    const youtubeUrl = `https://www.youtube.com/watch?v=${reel.youtubeId}`;
     if (navigator.share) {
       try {
         await navigator.share({
           title: reel.title,
           text: `${reel.title} - ${reel.author}`,
-          url: youtubeUrl,
+          url: window.location.href,
         });
-      } catch (error) {
-        console.log("Share cancelled");
-      }
-    } else {
-      // Fallback: copy to clipboard
-      navigator.clipboard.writeText(youtubeUrl);
+      } catch { /* cancelled */ }
     }
   };
 
@@ -150,158 +151,91 @@ const VideosPage = () => {
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    const touchEndY = e.changedTouches[0].clientY;
-    const diff = touchStartY.current - touchEndY;
-
+    const diff = touchStartY.current - e.changedTouches[0].clientY;
     if (Math.abs(diff) > 50) {
       if (diff > 0 && currentIndex < reels.length - 1) {
         setCurrentIndex(prev => prev + 1);
-        setShowVideo(false);
-        setIsPlaying(false);
       } else if (diff < 0 && currentIndex > 0) {
         setCurrentIndex(prev => prev - 1);
-        setShowVideo(false);
-        setIsPlaying(false);
       }
     }
   };
 
   const formatNumber = (num: number) => {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
-    if (num >= 1000) return (num / 1000).toFixed(1) + "K";
+    if (num >= 1000) return (num / 1000).toFixed(0) + "K";
     return num.toString();
   };
 
-  const handlePlayVideo = () => {
-    setShowVideo(true);
-    setIsPlaying(true);
-  };
-
   const currentReel = reels[currentIndex];
+  const isFollowing = followedAuthors.has(currentReel.author);
 
   return (
-    <div className="fixed inset-0 bg-black pb-[72px]">
-      {/* Header */}
-      <header className="absolute top-0 left-0 right-0 z-50 bg-gradient-to-b from-black/80 to-transparent">
-        <div className="container flex h-14 items-center justify-between px-4">
-          <Link to="/">
-            <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
-              <ArrowRight className="h-5 w-5" />
-            </Button>
-          </Link>
-          <h1 className="text-lg font-bold text-white font-amiri">ريلز إسلامية</h1>
-          <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
-            <PlusSquare className="h-5 w-5" />
-          </Button>
+    <div className="fixed inset-0 bg-black">
+      {/* Header - TikTok Style */}
+      <header className="absolute top-0 left-0 right-0 z-50 pt-2">
+        <div className="flex items-center justify-between px-4 h-12">
+          {/* Search */}
+          <button className="p-2">
+            <Search className="h-6 w-6 text-white/80" />
+          </button>
+
+          {/* Tabs */}
+          <div className="flex items-center gap-6">
+            <button className="text-white/50 text-[15px] font-semibold">متابَعون</button>
+            <div className="flex flex-col items-center">
+              <button className="text-white text-[15px] font-bold">لك</button>
+              <div className="w-6 h-0.5 bg-white rounded-full mt-1" />
+            </div>
+          </div>
+
+          {/* Add */}
+          <button className="p-2">
+            <Plus className="h-6 w-6 text-white/80" />
+          </button>
         </div>
       </header>
 
       {/* Reels Container */}
       <div
-        ref={containerRef}
-        className="h-full w-full"
+        className="h-full w-full pb-[72px]"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        {/* Current Reel */}
         <div
-          className={`h-full w-full bg-gradient-to-br ${currentReel.gradient} flex items-center justify-center relative transition-all duration-300`}
-          onClick={() => !showVideo && handleDoubleTap(currentReel.id)}
+          className={`h-full w-full bg-gradient-to-br ${currentReel.gradient} flex items-center justify-center relative transition-all duration-500`}
+          onClick={() => handleDoubleTap(currentReel.id)}
         >
-          {/* YouTube Video Embed */}
-          {showVideo ? (
-            <div className="absolute inset-0 z-10">
-              <iframe
-                src={`https://www.youtube.com/embed/${currentReel.youtubeId}?autoplay=1&mute=${isMuted ? 1 : 0}&playsinline=1&rel=0&modestbranding=1`}
-                className="w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                title={currentReel.title}
-              />
-              {/* Close Video Button */}
-              <button
-                className="absolute top-20 right-4 p-2 bg-black/70 rounded-full z-20"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowVideo(false);
-                  setIsPlaying(false);
-                }}
-              >
-                <X className="h-5 w-5 text-white" />
-              </button>
+          {/* Background Emoji */}
+          <span className="text-[150px] opacity-20 select-none">{currentReel.emoji}</span>
+
+          {/* Double Tap Heart */}
+          {showHeart && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-40">
+              <Heart className="h-28 w-28 text-red-500 fill-red-500 animate-ping" />
             </div>
-          ) : (
-            <>
-              {/* YouTube Thumbnail */}
-              <img
-                src={`https://img.youtube.com/vi/${currentReel.youtubeId}/maxresdefault.jpg`}
-                alt={currentReel.title}
-                className="absolute inset-0 w-full h-full object-cover opacity-60"
-                onError={(e) => {
-                  // Fallback to hqdefault if maxresdefault doesn't exist
-                  (e.target as HTMLImageElement).src = `https://img.youtube.com/vi/${currentReel.youtubeId}/hqdefault.jpg`;
-                }}
-              />
-
-              {/* Background Icon Overlay */}
-              <span className="text-[120px] opacity-30 select-none z-10">{currentReel.thumbnail}</span>
-
-              {/* Double Tap Heart Animation */}
-              {showHeart && (
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
-                  <Heart className="h-32 w-32 text-red-500 fill-red-500 animate-[scale-in_0.3s_ease-out,fade-out_0.5s_ease-out_0.3s]" />
-                </div>
-              )}
-
-              {/* Play Button Overlay */}
-              <button
-                className="absolute inset-0 flex items-center justify-center z-10"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handlePlayVideo();
-                }}
-              >
-                <div className="h-24 w-24 rounded-full bg-red-600/90 backdrop-blur-sm flex items-center justify-center transition-transform hover:scale-110 shadow-2xl">
-                  <Play className="h-12 w-12 text-white fill-white ml-1" />
-                </div>
-              </button>
-
-              {/* YouTube Badge */}
-              <div className="absolute top-20 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-red-600 rounded-lg text-white text-xs font-bold flex items-center gap-1.5">
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                </svg>
-                YouTube
-              </div>
-
-              {/* Duration Badge */}
-              <div className="absolute top-20 right-4 px-2 py-1 bg-black/70 rounded-lg text-white text-xs font-medium">
-                {currentReel.duration}
-              </div>
-            </>
           )}
 
-          {/* Info Overlay */}
-          <div className={`absolute bottom-20 left-16 right-0 p-4 bg-gradient-to-t from-black/90 via-black/60 to-transparent z-30 ${showVideo ? 'opacity-50' : ''}`}>
-            <div className="flex items-center gap-3 mb-3">
-              <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                <span className="text-xl">{currentReel.thumbnail}</span>
+          {/* Right Side Actions (TikTok style) */}
+          <div className="absolute right-3 bottom-36 flex flex-col items-center gap-5 z-30">
+            {/* Avatar + Follow */}
+            <div className="flex flex-col items-center relative mb-2">
+              <div className="h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm border-2 border-white flex items-center justify-center text-2xl">
+                {currentReel.avatar}
               </div>
-              <div>
-                <p className="text-white font-bold text-sm">{currentReel.author}</p>
-                <p className="text-white/60 text-xs">قناة YouTube</p>
-              </div>
+              {!isFollowing && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFollow(currentReel.author);
+                  }}
+                  className="absolute -bottom-2.5 bg-red-500 rounded-full w-5 h-5 flex items-center justify-center"
+                >
+                  <Plus className="h-3.5 w-3.5 text-white" />
+                </button>
+              )}
             </div>
-            <h3 className="text-white font-bold text-lg mb-2 font-amiri line-clamp-2">
-              {currentReel.title}
-            </h3>
-            <div className="flex items-center gap-4 text-white/60 text-xs">
-              <span>{currentReel.views} مشاهدة</span>
-            </div>
-          </div>
 
-          {/* Side Actions - Left Side */}
-          <div className={`absolute left-3 bottom-52 flex flex-col gap-5 z-30 ${showVideo ? 'opacity-50' : ''}`}>
             {/* Like */}
             <button
               className="flex flex-col items-center gap-1"
@@ -310,35 +244,26 @@ const VideosPage = () => {
                 toggleLike(currentReel.id);
               }}
             >
-              <div className={`p-3 rounded-full transition-all ${
+              <Heart className={`h-8 w-8 transition-all ${
                 likedReels.has(currentReel.id) 
-                  ? "bg-red-500/30" 
-                  : "bg-white/20 backdrop-blur-sm"
-              }`}>
-                <Heart className={`h-7 w-7 transition-all ${
-                  likedReels.has(currentReel.id) 
-                    ? "text-red-500 fill-red-500 scale-110" 
-                    : "text-white"
-                }`} />
-              </div>
-              <span className="text-white text-xs font-medium">
+                  ? "text-red-500 fill-red-500 scale-110" 
+                  : "text-white"
+              }`} />
+              <span className="text-white text-[11px] font-semibold">
                 {formatNumber(likeCounts[currentReel.id])}
               </span>
             </button>
 
             {/* Comment */}
-            <a
-              href={`https://www.youtube.com/watch?v=${currentReel.youtubeId}`}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
               className="flex flex-col items-center gap-1"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-3 bg-white/20 backdrop-blur-sm rounded-full">
-                <MessageCircle className="h-7 w-7 text-white" />
-              </div>
-              <span className="text-white text-xs">تعليق</span>
-            </a>
+              <MessageCircle className="h-8 w-8 text-white" />
+              <span className="text-white text-[11px] font-semibold">
+                {formatNumber(currentReel.comments)}
+              </span>
+            </button>
 
             {/* Save */}
             <button
@@ -348,18 +273,12 @@ const VideosPage = () => {
                 toggleSave(currentReel.id);
               }}
             >
-              <div className={`p-3 rounded-full transition-all ${
+              <Bookmark className={`h-8 w-8 transition-all ${
                 savedReels.has(currentReel.id) 
-                  ? "bg-amber-500/30" 
-                  : "bg-white/20 backdrop-blur-sm"
-              }`}>
-                <Bookmark className={`h-7 w-7 transition-all ${
-                  savedReels.has(currentReel.id) 
-                    ? "text-amber-400 fill-amber-400" 
-                    : "text-white"
-                }`} />
-              </div>
-              <span className="text-white text-xs">حفظ</span>
+                  ? "text-yellow-400 fill-yellow-400" 
+                  : "text-white"
+              }`} />
+              <span className="text-white text-[11px] font-semibold">حفظ</span>
             </button>
 
             {/* Share */}
@@ -370,69 +289,71 @@ const VideosPage = () => {
                 handleShare(currentReel);
               }}
             >
-              <div className="p-3 bg-white/20 backdrop-blur-sm rounded-full">
-                <Share2 className="h-7 w-7 text-white" />
-              </div>
-              <span className="text-white text-xs">مشاركة</span>
+              <Share2 className="h-8 w-8 text-white" />
+              <span className="text-white text-[11px] font-semibold">
+                {formatNumber(currentReel.shares)}
+              </span>
             </button>
+
+            {/* Spinning disc */}
+            <div className="h-10 w-10 rounded-full border-2 border-white/30 bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center animate-[spin_3s_linear_infinite]">
+              <div className="h-4 w-4 rounded-full bg-white/80" />
+            </div>
           </div>
 
-          {/* Progress Indicator */}
-          {/* Progress Indicator - Right Side */}
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 z-30">
+          {/* Bottom Info */}
+          <div className="absolute bottom-20 left-0 right-16 p-4 z-30">
+            {/* Author */}
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-white font-bold text-[15px]">@{currentReel.author}</span>
+              {isFollowing ? (
+                <span className="text-[11px] text-white/60 border border-white/30 rounded px-1.5 py-0.5">متابَع</span>
+              ) : (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFollow(currentReel.author);
+                  }}
+                  className="text-[11px] text-white bg-red-500 rounded px-2 py-0.5 font-semibold"
+                >
+                  متابعة
+                </button>
+              )}
+            </div>
+
+            {/* Description */}
+            <p className="text-white text-[13px] leading-5 mb-3 line-clamp-2">
+              {currentReel.title}
+            </p>
+
+            {/* Audio */}
+            <div className="flex items-center gap-2">
+              <Music2 className="h-3.5 w-3.5 text-white" />
+              <div className="overflow-hidden max-w-[200px]">
+                <p className="text-white text-[12px] whitespace-nowrap animate-marquee">
+                  {currentReel.audio}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Progress dots - right side */}
+          <div className="absolute left-2 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 z-30">
             {reels.map((_, index) => (
               <button
                 key={index}
                 onClick={(e) => {
                   e.stopPropagation();
                   setCurrentIndex(index);
-                  setShowVideo(false);
-                  setIsPlaying(false);
                 }}
                 className={`w-1 rounded-full transition-all ${
                   index === currentIndex 
                     ? "h-6 bg-white" 
-                    : "h-2 bg-white/40 hover:bg-white/60"
+                    : "h-2 bg-white/30"
                 }`}
               />
             ))}
           </div>
-
-          {/* Progress Bar at Top */}
-          <div className="absolute top-14 left-4 right-4 flex gap-1 z-30">
-            {reels.map((_, index) => (
-              <div
-                key={index}
-                className="flex-1 h-0.5 rounded-full overflow-hidden bg-white/30"
-              >
-                <div
-                  className={`h-full bg-white transition-all duration-300 ${
-                    index < currentIndex 
-                      ? "w-full" 
-                      : index === currentIndex 
-                        ? "w-full" 
-                        : "w-0"
-                  }`}
-                />
-              </div>
-            ))}
-          </div>
-
-          {/* Navigation Hints - only show when video is not playing */}
-          {!showVideo && (
-            <>
-              {currentIndex > 0 && (
-                <div className="absolute top-1/4 left-1/2 -translate-x-1/2 text-white/40 text-xs animate-bounce z-20">
-                  ↑ اسحب للسابق
-                </div>
-              )}
-              {currentIndex < reels.length - 1 && (
-                <div className="absolute bottom-36 left-1/2 -translate-x-1/2 text-white/40 text-xs animate-bounce z-20">
-                  ↓ اسحب للتالي
-                </div>
-              )}
-            </>
-          )}
         </div>
       </div>
 
