@@ -1,0 +1,182 @@
+export interface BookItem {
+  id: number;
+  title: string;
+  author: string;
+  description: string;
+  fullDescription: string;
+  pages: number;
+  format: string;
+  rating: number;
+  downloads: string;
+  cover: string;
+  category: string;
+  publisher: string;
+  year: string;
+  language: string;
+  tableOfContents: string[];
+}
+
+export const bookCategories = [
+  { id: "all", label: "الكل" },
+  { id: "aqeedah", label: "عقيدة" },
+  { id: "fiqh", label: "فقه" },
+  { id: "seerah", label: "سيرة" },
+  { id: "hadith", label: "حديث" },
+  { id: "kids", label: "أطفال" },
+];
+
+export const books: BookItem[] = [
+  {
+    id: 1,
+    title: "رياض الصالحين",
+    author: "الإمام النووي",
+    description: "كتاب جامع للأحاديث النبوية الصحيحة",
+    fullDescription: "كتاب رياض الصالحين من كلام سيد المرسلين للإمام أبي زكريا يحيى بن شرف النووي، يعد من أهم كتب الحديث النبوي الشريف وأكثرها انتشاراً. يحتوي على أحاديث مختارة من الصحيحين وغيرهما مرتبة في أبواب تتعلق بالآداب والأخلاق والعبادات والمعاملات.",
+    pages: 650,
+    format: "PDF",
+    rating: 4.9,
+    downloads: "500K",
+    cover: "https://m.media-amazon.com/images/I/81FHRsqVpnL._AC_UF1000,1000_QL80_.jpg",
+    category: "hadith",
+    publisher: "دار السلام",
+    year: "1277هـ",
+    language: "العربية",
+    tableOfContents: [
+      "كتاب الإخلاص وإحضار النية",
+      "كتاب التوبة",
+      "كتاب الصبر",
+      "كتاب الصدق",
+      "كتاب المراقبة",
+      "كتاب التقوى",
+      "كتاب اليقين والتوكل",
+      "كتاب الاستقامة",
+    ],
+  },
+  {
+    id: 2,
+    title: "العقيدة الواسطية",
+    author: "ابن تيمية",
+    description: "أصول العقيدة الإسلامية الصحيحة",
+    fullDescription: "العقيدة الواسطية لشيخ الإسلام ابن تيمية رحمه الله، رسالة مختصرة في أصول الدين وعقيدة أهل السنة والجماعة. كتبها استجابة لطلب قاضٍ من واسط بالعراق. تتناول توحيد الله وأسماءه وصفاته وأركان الإيمان.",
+    pages: 120,
+    format: "PDF",
+    rating: 4.8,
+    downloads: "300K",
+    cover: "https://m.media-amazon.com/images/I/71WmLPyVcCL._AC_UF1000,1000_QL80_.jpg",
+    category: "aqeedah",
+    publisher: "دار ابن الجوزي",
+    year: "698هـ",
+    language: "العربية",
+    tableOfContents: [
+      "مقدمة المصنف",
+      "توحيد الأسماء والصفات",
+      "الإيمان بالملائكة",
+      "الإيمان بالكتب",
+      "الإيمان بالرسل",
+      "الإيمان باليوم الآخر",
+      "الإيمان بالقدر",
+    ],
+  },
+  {
+    id: 3,
+    title: "الرحيق المختوم",
+    author: "صفي الرحمن المباركفوري",
+    description: "السيرة النبوية الشاملة الحائزة على جائزة",
+    fullDescription: "الرحيق المختوم كتاب في السيرة النبوية حاز على الجائزة الأولى في مسابقة السيرة النبوية العالمية التي نظمتها رابطة العالم الإسلامي. يتناول حياة النبي صلى الله عليه وسلم منذ ولادته حتى وفاته بأسلوب سلس وشامل.",
+    pages: 480,
+    format: "PDF",
+    rating: 5.0,
+    downloads: "1M",
+    cover: "https://m.media-amazon.com/images/I/81nVJPJjURL._AC_UF1000,1000_QL80_.jpg",
+    category: "seerah",
+    publisher: "دار الوفاء",
+    year: "1976م",
+    language: "العربية",
+    tableOfContents: [
+      "نسب النبي وولادته",
+      "من البعثة إلى الهجرة",
+      "الهجرة النبوية",
+      "غزوة بدر الكبرى",
+      "غزوة أحد",
+      "غزوة الخندق",
+      "صلح الحديبية",
+      "فتح مكة",
+    ],
+  },
+  {
+    id: 4,
+    title: "قصص الأنبياء",
+    author: "ابن كثير",
+    description: "قصص الأنبياء والمرسلين من القرآن والسنة",
+    fullDescription: "كتاب قصص الأنبياء للحافظ ابن كثير يروي قصص الأنبياء والمرسلين عليهم السلام كما وردت في القرآن الكريم والسنة النبوية الشريفة. يبدأ بقصة آدم عليه السلام وينتهي بقصة عيسى عليه السلام، مع شرح الدروس والعبر المستفادة.",
+    pages: 400,
+    format: "PDF",
+    rating: 4.8,
+    downloads: "800K",
+    cover: "https://m.media-amazon.com/images/I/71YFG7gEivL._AC_UF1000,1000_QL80_.jpg",
+    category: "seerah",
+    publisher: "دار الفكر",
+    year: "774هـ",
+    language: "العربية",
+    tableOfContents: [
+      "قصة آدم عليه السلام",
+      "قصة نوح عليه السلام",
+      "قصة إبراهيم عليه السلام",
+      "قصة موسى عليه السلام",
+      "قصة داود وسليمان",
+      "قصة يونس عليه السلام",
+      "قصة عيسى عليه السلام",
+    ],
+  },
+  {
+    id: 5,
+    title: "فقه السنة",
+    author: "السيد سابق",
+    description: "أحكام الفقه الإسلامي بأدلتها من السنة",
+    fullDescription: "فقه السنة للشيخ سيد سابق من أشهر كتب الفقه الإسلامي المعاصرة. يقدم أحكام الفقه بأسلوب سهل ومبسط مع الاستدلال بالأحاديث النبوية الصحيحة. يغطي جميع أبواب الفقه من العبادات والمعاملات والأحوال الشخصية.",
+    pages: 800,
+    format: "PDF",
+    rating: 4.9,
+    downloads: "400K",
+    cover: "https://m.media-amazon.com/images/I/71m-KxfH7oL._AC_UF1000,1000_QL80_.jpg",
+    category: "fiqh",
+    publisher: "دار الفتح",
+    year: "1945م",
+    language: "العربية",
+    tableOfContents: [
+      "كتاب الطهارة",
+      "كتاب الصلاة",
+      "كتاب الزكاة",
+      "كتاب الصيام",
+      "كتاب الحج",
+      "كتاب البيوع",
+      "كتاب النكاح",
+    ],
+  },
+  {
+    id: 6,
+    title: "صحيح البخاري",
+    author: "الإمام البخاري",
+    description: "أصح كتاب بعد كتاب الله تعالى",
+    fullDescription: "الجامع المسند الصحيح المختصر من أُمور رسول الله صلى الله عليه وسلّم وسننه وأيامه، المعروف بصحيح البخاري، هو أصح كتب الحديث النبوي عند أهل السنة والجماعة. جمعه الإمام محمد بن إسماعيل البخاري واستغرق في تأليفه ستة عشر عاماً.",
+    pages: 1200,
+    format: "PDF",
+    rating: 5.0,
+    downloads: "2M",
+    cover: "https://m.media-amazon.com/images/I/81cH+hPFQOL._AC_UF1000,1000_QL80_.jpg",
+    category: "hadith",
+    publisher: "دار ابن كثير",
+    year: "256هـ",
+    language: "العربية",
+    tableOfContents: [
+      "كتاب بدء الوحي",
+      "كتاب الإيمان",
+      "كتاب العلم",
+      "كتاب الوضوء",
+      "كتاب الصلاة",
+      "كتاب الجمعة",
+      "كتاب الزكاة",
+      "كتاب الصوم",
+    ],
+  },
+];
