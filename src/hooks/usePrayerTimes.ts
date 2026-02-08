@@ -11,6 +11,7 @@ interface PrayerTimesState {
   prayers: PrayerTime[];
   currentPrayerIndex: number;
   timeToNext: { hours: number; minutes: number };
+  progress: number;
   locationName: string;
   loading: boolean;
   error: string | null;
@@ -47,6 +48,7 @@ function parseTime(timeStr: string): Date {
 function calculateCurrentPrayer(prayers: PrayerTime[]): {
   currentIndex: number;
   timeToNext: { hours: number; minutes: number };
+  progress: number;
 } {
   const now = new Date();
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
@@ -78,6 +80,16 @@ function calculateCurrentPrayer(prayers: PrayerTime[]): {
   const hours = Math.floor(diffMinutes / 60);
   const minutes = diffMinutes % 60;
 
+  // Calculate progress between current and next prayer
+  let progress = 0;
+  if (currentIndex >= 0) {
+    const [curH, curM] = prayers[currentIndex].time.split(":").map(Number);
+    const curPrayerMinutes = curH * 60 + curM;
+    const totalInterval = nextPrayerMinutes - curPrayerMinutes;
+    const elapsed = currentMinutes - curPrayerMinutes;
+    progress = totalInterval > 0 ? Math.min(100, Math.max(0, (elapsed / totalInterval) * 100)) : 0;
+  }
+
   // Mark passed prayers
   prayers.forEach((prayer, i) => {
     prayer.passed = i < (currentIndex === -1 ? 0 : currentIndex + 1) && i !== nextIndex;
@@ -86,6 +98,7 @@ function calculateCurrentPrayer(prayers: PrayerTime[]): {
   return {
     currentIndex: nextIndex,
     timeToNext: { hours, minutes },
+    progress,
   };
 }
 
@@ -94,6 +107,7 @@ export function usePrayerTimes() {
     prayers: [],
     currentPrayerIndex: 0,
     timeToNext: { hours: 0, minutes: 0 },
+    progress: 0,
     locationName: "جاري التحديد...",
     loading: true,
     error: null,
@@ -122,7 +136,7 @@ export function usePrayerTimes() {
         passed: false,
       }));
 
-      const { currentIndex, timeToNext } = calculateCurrentPrayer(prayers);
+      const { currentIndex, timeToNext, progress } = calculateCurrentPrayer(prayers);
 
       // Reverse geocode for location name
       let locationName = `${lat.toFixed(2)}°, ${lng.toFixed(2)}°`;
@@ -151,6 +165,7 @@ export function usePrayerTimes() {
         prayers,
         currentPrayerIndex: currentIndex,
         timeToNext,
+        progress,
         locationName,
         loading: false,
         error: null,
@@ -187,11 +202,12 @@ export function usePrayerTimes() {
     if (state.prayers.length === 0) return;
 
     const interval = setInterval(() => {
-      const { currentIndex, timeToNext } = calculateCurrentPrayer([...state.prayers]);
+      const { currentIndex, timeToNext, progress } = calculateCurrentPrayer([...state.prayers]);
       setState((prev) => ({
         ...prev,
         currentPrayerIndex: currentIndex,
         timeToNext,
+        progress,
         prayers: prev.prayers.map((p, i) => ({
           ...p,
           passed: i < currentIndex && i !== currentIndex,

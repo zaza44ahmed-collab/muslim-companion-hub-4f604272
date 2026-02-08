@@ -1,8 +1,8 @@
-import { Clock, MapPin, Loader2 } from "lucide-react";
+import { MapPin, Loader2 } from "lucide-react";
 import { usePrayerTimes } from "@/hooks/usePrayerTimes";
 
 const PrayerTimes = () => {
-  const { prayers, currentPrayerIndex, timeToNext, locationName, loading, error } = usePrayerTimes();
+  const { prayers, currentPrayerIndex, timeToNext, progress, locationName, loading, error } = usePrayerTimes();
 
   if (loading) {
     return (
@@ -26,89 +26,72 @@ const PrayerTimes = () => {
   }
 
   const currentPrayer = prayers[currentPrayerIndex];
+  const isPassed = currentPrayer.passed;
+  const timeLabel = isPassed ? "منذ" : "المتبقي";
 
   return (
-    <div className="rounded-2xl bg-card border-2 border-secondary/30 overflow-hidden">
-      {/* Header with next prayer */}
-      <div className="bg-gradient-to-br from-primary to-emerald-dark p-4">
+    <div className="rounded-2xl overflow-hidden border-2 border-secondary/30">
+      {/* Top bar: Location + Hijri date */}
+      <div className="bg-secondary px-4 py-2.5 flex items-center justify-between">
+        <div className="flex items-center gap-2 text-secondary-foreground text-xs">
+          <MapPin className="h-3.5 w-3.5" />
+          <span className="font-cairo font-semibold">{locationName}</span>
+        </div>
+        <span className="text-secondary-foreground/70 text-xs font-cairo">أوقات الصلاة</span>
+      </div>
+
+      {/* Current prayer + countdown + progress */}
+      <div className="bg-card px-4 pt-4 pb-3">
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2 text-primary-foreground/70 text-xs">
-            <MapPin className="h-3.5 w-3.5" />
-            <span>{locationName}</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-primary-foreground/70 text-xs">
-            <Clock className="h-3.5 w-3.5" />
-            <span>أوقات الصلاة</span>
+          <h3 className="text-foreground text-lg font-bold font-cairo">
+            {currentPrayer.name}
+          </h3>
+          <div className="flex items-center gap-1.5 text-muted-foreground text-sm font-cairo">
+            <span>{timeLabel}</span>
+            <span className="font-bold text-foreground tabular-nums">
+              {String(timeToNext.hours).padStart(2, "0")}:{String(timeToNext.minutes).padStart(2, "0")}
+            </span>
           </div>
         </div>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-3xl">{currentPrayer.icon}</span>
-            <div>
-              <p className="text-primary-foreground/70 text-xs">الصلاة القادمة</p>
-              <h3 className="text-primary-foreground text-xl font-bold font-cairo">
-                {currentPrayer.name}
-              </h3>
-            </div>
-          </div>
-
-          <div className="text-left">
-            <p className="text-primary-foreground/70 text-xs mb-1">المتبقي</p>
-            <div className="flex items-center gap-1">
-              <div className="bg-white/15 rounded-lg px-2.5 py-1">
-                <span className="text-lg font-bold text-primary-foreground">
-                  {String(timeToNext.hours).padStart(2, "0")}
-                </span>
-              </div>
-              <span className="text-primary-foreground font-bold text-lg">:</span>
-              <div className="bg-white/15 rounded-lg px-2.5 py-1">
-                <span className="text-lg font-bold text-primary-foreground">
-                  {String(timeToNext.minutes).padStart(2, "0")}
-                </span>
-              </div>
-            </div>
-          </div>
+        {/* Progress bar */}
+        <div className="w-full h-2 bg-muted/30 rounded-full overflow-hidden">
+          <div
+            className="h-full rounded-full bg-gradient-to-l from-destructive to-primary transition-all duration-1000"
+            style={{ width: `${progress}%` }}
+          />
         </div>
       </div>
 
-      {/* Prayer times list */}
-      <div className="divide-y divide-border/50">
+      {/* Separator */}
+      <div className="border-t border-border/50" />
+
+      {/* All prayers in horizontal row */}
+      <div className="bg-card px-2 py-3 flex items-center justify-around">
         {prayers.map((prayer, index) => {
           const isCurrent = index === currentPrayerIndex;
-          const isPassed = prayer.passed;
+          const isPrayerPassed = prayer.passed;
 
           return (
-            <div
-              key={prayer.name}
-              className={`flex items-center justify-between px-4 py-3 transition-colors ${
-                isCurrent ? "bg-secondary/10" : ""
-              }`}
-            >
-              <span className={`text-sm font-bold tabular-nums ${
+            <div key={prayer.name} className="flex flex-col items-center gap-1.5">
+              <span className={`text-xs font-semibold font-cairo ${
                 isCurrent
                   ? "text-primary"
-                  : isPassed
+                  : isPrayerPassed
                     ? "text-muted-foreground/50"
+                    : "text-foreground"
+              }`}>
+                {prayer.name}
+              </span>
+              <span className={`text-xs font-bold tabular-nums rounded-md px-2 py-0.5 ${
+                isCurrent
+                  ? "bg-primary text-primary-foreground"
+                  : isPrayerPassed
+                    ? "bg-destructive/80 text-destructive-foreground"
                     : "text-foreground"
               }`}>
                 {prayer.time}
               </span>
-
-              <div className="flex items-center gap-2.5">
-                <span className={`text-sm font-semibold ${
-                  isCurrent
-                    ? "text-primary"
-                    : isPassed
-                      ? "text-muted-foreground/50"
-                      : "text-foreground"
-                }`}>
-                  {prayer.name}
-                </span>
-                <span className={`text-lg ${isPassed ? "opacity-40" : ""}`}>
-                  {prayer.icon}
-                </span>
-              </div>
             </div>
           );
         })}
