@@ -76,14 +76,14 @@ const Header = () => {
         <div className="flex items-center gap-1">
           <Button variant="ghost" size="icon" onClick={() => setIsDark(!isDark)}>
             {isDark ? (
-              <Sun className="h-7 w-7 text-yellow-400 transition-transform duration-300" />
+              <Sun className="h-5 w-5 text-yellow-400 transition-transform duration-300" />
             ) : (
-              <Moon className="h-7 w-7 text-foreground/70 transition-transform duration-300" />
+              <Moon className="h-5 w-5 text-foreground/70 transition-transform duration-300" />
             )}
           </Button>
           <Link to="/settings">
             <Button variant="ghost" size="icon">
-              <Settings className="h-8 w-8 text-secondary" />
+              <Settings className="h-6 w-6 text-secondary" />
             </Button>
           </Link>
         </div>

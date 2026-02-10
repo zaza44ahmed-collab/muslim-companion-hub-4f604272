@@ -57,7 +57,7 @@ const QuickActions = () => {
             key={action.id}
             to={action.path}
             className={cn(
-              "group relative flex flex-col items-center justify-center p-5 rounded-2xl",
+              "group relative flex flex-col items-center justify-center p-3 rounded-2xl",
               "bg-gradient-to-br shadow-card-islamic hover:shadow-lg",
               "transition-all duration-300 hover:scale-105 hover:-translate-y-1",
               "active:scale-90 active:shadow-inner active:brightness-110",
@@ -68,7 +68,7 @@ const QuickActions = () => {
               animationDelay: `${index * 100}ms`,
             }}
           >
-            <span className="text-5xl mb-2 transition-transform duration-300 group-hover:scale-110">
+            <span className="text-3xl mb-1.5 transition-transform duration-300 group-hover:scale-110">
               {action.icon}
             </span>
             <span className="text-sm font-bold text-white">
