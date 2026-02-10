@@ -44,7 +44,7 @@ const BottomNav = () => {
                 />
               </div>
               <span className={cn(
-                "text-[11px] font-semibold transition-all duration-300",
+                "text-[10px] font-semibold transition-all duration-300",
                 isActive ? "text-secondary" : "text-foreground/60"
               )}>
                 {item.label}
