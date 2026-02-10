@@ -29,7 +29,7 @@ const DailyQuote = () => {
   const currentQuote = quotes[currentIndex];
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary to-emerald-dark p-4 shadow-islamic border-2 border-secondary/30">
+    <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary to-emerald-dark p-3 shadow-islamic border border-secondary/30">
       {/* Decorative Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-2 right-2 w-16 h-16 border-2 border-primary-foreground/30 rounded-full" />
@@ -38,15 +38,15 @@ const DailyQuote = () => {
       </div>
 
       <div className="relative z-10">
-        <div className="flex items-center gap-2 mb-2">
-          <Sparkles className="h-4 w-4 text-secondary animate-pulse" />
-          <span className="text-xs font-medium text-primary-foreground/80">
+        <div className="flex items-center gap-1.5 mb-1.5">
+          <Sparkles className="h-3.5 w-3.5 text-secondary animate-pulse" />
+          <span className="text-[10px] font-medium text-primary-foreground/80">
             {currentQuote.source}
           </span>
         </div>
 
         <p
-          className={`text-base md:text-lg font-amiri text-primary-foreground leading-relaxed transition-all duration-500 ${
+          className={`text-sm font-amiri text-primary-foreground leading-relaxed transition-all duration-500 ${
             isAnimating ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"
           }`}
         >
@@ -54,7 +54,7 @@ const DailyQuote = () => {
         </p>
 
         {/* Progress Dots */}
-        <div className="flex justify-center gap-1.5 mt-3">
+        <div className="flex justify-center gap-1 mt-2">
           {quotes.map((_, index) => (
             <button
               key={index}

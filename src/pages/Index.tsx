@@ -9,7 +9,7 @@ const Index = () => {
     <div className="min-h-screen bg-background pb-20">
       <Header />
       
-      <main className="container py-3 space-y-4">
+      <main className="container py-2 space-y-3">
         {/* Daily Quote / Azkar */}
         <section className="animate-fadeIn">
           <DailyQuote />

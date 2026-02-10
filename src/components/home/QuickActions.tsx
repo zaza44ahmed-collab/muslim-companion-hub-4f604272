@@ -48,7 +48,7 @@ const actions = [
 
 const QuickActions = () => {
   return (
-    <div className="py-2">
+    <div className="py-1">
       <h3 className="font-bold text-sm mb-3 text-foreground">الوصول السريع</h3>
       
       <div className="grid grid-cols-3 gap-2">
