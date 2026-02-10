@@ -56,17 +56,17 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-card/95 backdrop-blur-lg border-b-2 border-secondary/30">
-      <div className="container flex h-auto py-3 items-center justify-between">
+      <div className="container flex h-auto py-2 items-center justify-between">
         {/* Right side - User icon */}
-        <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-full bg-secondary/15 border-2 border-secondary/30 flex items-center justify-center">
-            <User className="h-5 w-5 text-secondary" />
+        <div className="flex items-center gap-2">
+          <div className="h-8 w-8 rounded-full bg-secondary/15 border border-secondary/30 flex items-center justify-center">
+            <User className="h-4 w-4 text-secondary" />
           </div>
           <div>
-            <h1 className="text-xl font-bold font-amiri text-primary leading-tight">
+            <h1 className="text-base font-bold font-amiri text-primary leading-tight">
               حقيبة المسلم
             </h1>
-            <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">
+            <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">
               {hijriDate} • {gregorianDate}
             </p>
           </div>

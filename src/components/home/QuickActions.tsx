@@ -49,9 +49,9 @@ const actions = [
 const QuickActions = () => {
   return (
     <div className="py-2">
-      <h3 className="font-bold text-lg mb-4 text-foreground">الوصول السريع</h3>
+      <h3 className="font-bold text-sm mb-3 text-foreground">الوصول السريع</h3>
       
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-2">
         {actions.map((action, index) => (
           <Link
             key={action.id}
@@ -71,7 +71,7 @@ const QuickActions = () => {
             <span className="text-3xl mb-1.5 transition-transform duration-300 group-hover:scale-110">
               {action.icon}
             </span>
-            <span className="text-sm font-bold text-white">
+            <span className="text-xs font-bold text-white">
               {action.title}
             </span>
           </Link>

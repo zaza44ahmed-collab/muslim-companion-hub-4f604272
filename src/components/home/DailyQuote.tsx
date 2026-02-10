@@ -29,24 +29,24 @@ const DailyQuote = () => {
   const currentQuote = quotes[currentIndex];
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary to-emerald-dark p-6 shadow-islamic border-2 border-secondary/30">
+    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary to-emerald-dark p-4 shadow-islamic border-2 border-secondary/30">
       {/* Decorative Pattern */}
       <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-2 right-2 w-20 h-20 border-2 border-primary-foreground/30 rounded-full" />
-        <div className="absolute bottom-2 left-2 w-16 h-16 border-2 border-primary-foreground/30 rounded-full" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border border-primary-foreground/20 rotate-45" />
+        <div className="absolute top-2 right-2 w-16 h-16 border-2 border-primary-foreground/30 rounded-full" />
+        <div className="absolute bottom-2 left-2 w-12 h-12 border-2 border-primary-foreground/30 rounded-full" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 border border-primary-foreground/20 rotate-45" />
       </div>
 
       <div className="relative z-10">
-        <div className="flex items-center gap-2 mb-3">
-          <Sparkles className="h-6 w-6 text-secondary animate-pulse" />
-          <span className="text-sm font-medium text-primary-foreground/80">
+        <div className="flex items-center gap-2 mb-2">
+          <Sparkles className="h-4 w-4 text-secondary animate-pulse" />
+          <span className="text-xs font-medium text-primary-foreground/80">
             {currentQuote.source}
           </span>
         </div>
 
         <p
-          className={`text-xl md:text-2xl font-amiri text-primary-foreground leading-relaxed transition-all duration-500 ${
+          className={`text-base md:text-lg font-amiri text-primary-foreground leading-relaxed transition-all duration-500 ${
             isAnimating ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"
           }`}
         >
@@ -54,7 +54,7 @@ const DailyQuote = () => {
         </p>
 
         {/* Progress Dots */}
-        <div className="flex justify-center gap-2 mt-4">
+        <div className="flex justify-center gap-1.5 mt-3">
           {quotes.map((_, index) => (
             <button
               key={index}
