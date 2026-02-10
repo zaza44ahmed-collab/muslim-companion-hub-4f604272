@@ -67,7 +67,7 @@ const QuickActions = () => {
               animationDelay: `${index * 100}ms`,
             }}
           >
-            <span className="text-4xl mb-2 transition-transform duration-300 group-hover:scale-110">
+            <span className="text-5xl mb-2 transition-transform duration-300 group-hover:scale-110">
               {action.icon}
             </span>
             <span className="text-sm font-bold text-white">

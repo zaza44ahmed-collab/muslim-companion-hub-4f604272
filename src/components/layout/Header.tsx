@@ -33,8 +33,8 @@ const Header = () => {
       <div className="container flex h-auto py-3 items-center justify-between">
         {/* Right side - User icon */}
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-secondary/15 border-2 border-secondary/30 flex items-center justify-center">
-            <User className="h-6 w-6 text-secondary" />
+          <div className="h-11 w-11 rounded-full bg-secondary/15 border-2 border-secondary/30 flex items-center justify-center">
+            <User className="h-7 w-7 text-secondary" />
           </div>
           <div>
             <h1 className="text-xl font-bold font-amiri text-primary leading-tight">
@@ -49,11 +49,11 @@ const Header = () => {
         {/* Left side - Settings, Search */}
         <div className="flex items-center gap-1">
           <Button variant="ghost" size="icon">
-            <Search className="h-6 w-6 text-foreground/70" />
+            <Search className="h-7 w-7 text-foreground/70" />
           </Button>
           <Link to="/settings">
             <Button variant="ghost" size="icon">
-              <Settings className="h-6 w-6 text-secondary" />
+              <Settings className="h-7 w-7 text-secondary" />
             </Button>
           </Link>
         </div>

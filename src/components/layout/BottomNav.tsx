@@ -54,7 +54,7 @@ const BottomNav = ({ variant = "default" }: BottomNavProps) => {
               >
                 <item.icon
                   className={cn(
-                    "h-6 w-6 transition-all duration-300",
+                    "h-7 w-7 transition-all duration-300",
                     isActive
                       ? isDark ? "text-white" : "text-secondary"
                       : isDark ? "text-white/60" : "text-foreground/60"
