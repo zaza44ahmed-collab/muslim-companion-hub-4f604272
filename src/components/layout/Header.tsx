@@ -33,8 +33,8 @@ const Header = () => {
       <div className="container flex h-auto py-3 items-center justify-between">
         {/* Right side - User icon */}
         <div className="flex items-center gap-3">
-          <div className="h-11 w-11 rounded-full bg-secondary/15 border-2 border-secondary/30 flex items-center justify-center">
-            <User className="h-7 w-7 text-secondary" />
+          <div className="h-9 w-9 rounded-full bg-secondary/15 border-2 border-secondary/30 flex items-center justify-center">
+            <User className="h-5 w-5 text-secondary" />
           </div>
           <div>
             <h1 className="text-xl font-bold font-amiri text-primary leading-tight">
@@ -53,7 +53,7 @@ const Header = () => {
           </Button>
           <Link to="/settings">
             <Button variant="ghost" size="icon">
-              <Settings className="h-7 w-7 text-secondary" />
+              <Settings className="h-8 w-8 text-secondary" />
             </Button>
           </Link>
         </div>

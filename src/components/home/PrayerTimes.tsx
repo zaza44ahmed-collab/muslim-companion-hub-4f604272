@@ -33,7 +33,7 @@ const PrayerTimes = () => {
     <div>
       {/* Title + Location outside the card */}
       <div className="flex items-center justify-between mb-3 px-1">
-        <h3 className="font-bold text-lg text-foreground font-cairo">مواقيت الصلاة</h3>
+        <h3 className="font-bold text-xl text-foreground font-cairo">مواقيت الصلاة</h3>
         <div className="flex items-center gap-1.5 text-muted-foreground text-sm">
           <MapPin className="h-4 w-4 text-secondary" />
           <span className="font-cairo font-semibold">{locationName}</span>
@@ -44,7 +44,7 @@ const PrayerTimes = () => {
         {/* Current prayer + countdown + progress */}
         <div className="bg-card px-4 pt-4 pb-3">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-foreground text-lg font-bold font-cairo">
+            <h3 className="text-foreground text-xl font-bold font-cairo">
               {currentPrayer.name}
             </h3>
             <div className="flex items-center gap-1.5 text-muted-foreground text-sm font-cairo">
@@ -75,7 +75,7 @@ const PrayerTimes = () => {
 
             return (
               <div key={prayer.name} className="flex flex-col items-center gap-1.5">
-                <span className={`text-xs font-semibold font-cairo ${
+                <span className={`text-sm font-semibold font-cairo ${
                   isCurrent
                     ? "text-primary"
                     : isPrayerPassed
@@ -84,7 +84,7 @@ const PrayerTimes = () => {
                 }`}>
                   {prayer.name}
                 </span>
-                <span className={`text-xs font-bold tabular-nums rounded-md px-2 py-0.5 ${
+                <span className={`text-sm font-bold tabular-nums rounded-md px-2 py-0.5 ${
                   isCurrent
                     ? "bg-primary text-primary-foreground"
                     : isPrayerPassed
