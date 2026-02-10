@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   User,
   Bookmark,
@@ -10,14 +10,21 @@ import {
   Share2,
   ChevronLeft,
   Moon,
+  Sun,
   Bell,
   Globe,
   Shield,
   HelpCircle,
   ArrowRight,
+  LogIn,
+  LogOut,
 } from "lucide-react";
 import BottomNav from "@/components/layout/BottomNav";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { useAuth } from "@/hooks/useAuth";
+import { usePreferences } from "@/hooks/usePreferences";
+import { useToast } from "@/hooks/use-toast";
 
 interface MenuItemProps {
   icon: React.ElementType;
@@ -25,9 +32,10 @@ interface MenuItemProps {
   subtitle?: string;
   to?: string;
   onClick?: () => void;
+  trailing?: React.ReactNode;
 }
 
-const MenuItem = ({ icon: Icon, label, subtitle, to, onClick }: MenuItemProps) => {
+const MenuItem = ({ icon: Icon, label, subtitle, to, onClick, trailing }: MenuItemProps) => {
   const content = (
     <div className="flex items-center justify-between py-3.5 px-5 transition-colors duration-200 hover:bg-accent/50 cursor-pointer group" dir="rtl">
       <div className="flex items-center gap-3">
@@ -39,13 +47,11 @@ const MenuItem = ({ icon: Icon, label, subtitle, to, onClick }: MenuItemProps) =
           {subtitle && <span className="text-xs text-muted-foreground">{subtitle}</span>}
         </div>
       </div>
-      <ChevronLeft className="h-4 w-4 text-muted-foreground group-hover:text-secondary transition-colors" />
+      {trailing || <ChevronLeft className="h-4 w-4 text-muted-foreground group-hover:text-secondary transition-colors" />}
     </div>
   );
 
-  if (to) {
-    return <Link to={to}>{content}</Link>;
-  }
+  if (to) return <Link to={to}>{content}</Link>;
   return <div onClick={onClick}>{content}</div>;
 };
 
@@ -67,6 +73,11 @@ const MenuSection = ({ title, children, delay = "0ms" }: MenuSectionProps) => (
 );
 
 const SettingsPage = () => {
+  const { user, loading: authLoading, signOut } = useAuth();
+  const { preferences, updatePreference } = usePreferences();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
@@ -77,9 +88,25 @@ const SettingsPage = () => {
     }
   };
 
+  const handleSignOut = async () => {
+    const { error } = await signOut();
+    if (!error) {
+      toast({ title: "تم تسجيل الخروج" });
+    }
+  };
+
+  const toggleTheme = () => {
+    const newTheme = preferences.theme === 'dark' ? 'light' : 'dark';
+    updatePreference('theme', newTheme);
+  };
+
+  const toggleNotifications = () => {
+    updatePreference('notifications_enabled', !preferences.notifications_enabled);
+  };
+
   return (
     <div className="min-h-screen bg-background pb-20">
-      {/* Custom Header */}
+      {/* Header */}
       <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-lg border-b-2 border-secondary/30">
         <div className="container flex h-14 items-center justify-between">
           <div className="w-10" />
@@ -96,34 +123,53 @@ const SettingsPage = () => {
         {/* Profile Card */}
         <section className="animate-fadeIn">
           <div className="relative overflow-hidden rounded-2xl gradient-islamic p-5 border-2 border-secondary/30">
-            {/* Decorative elements */}
             <div className="absolute inset-0 opacity-10">
               <div className="absolute top-4 right-4 w-24 h-24 border-2 border-primary-foreground/20 rounded-full" />
               <div className="absolute -bottom-4 -left-4 w-32 h-32 border-2 border-primary-foreground/10 rounded-full" />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 border border-primary-foreground/5 rounded-full" />
             </div>
 
             <div className="relative flex items-center gap-4 flex-row-reverse">
-              {/* Avatar */}
               <div className="h-16 w-16 rounded-2xl bg-primary-foreground/15 border-2 border-secondary/40 flex items-center justify-center shadow-lg">
                 <User className="h-8 w-8 text-primary-foreground" />
               </div>
-
-              {/* Info */}
               <div className="flex-1 text-right">
-                <h2 className="text-lg font-bold text-primary-foreground font-cairo">
-                  مرحباً بك 👋
-                </h2>
-                <p className="text-primary-foreground/70 text-sm mt-1">
-                  حقيبة المسلم • رفيقك اليومي
-                </p>
+                {user ? (
+                  <>
+                    <h2 className="text-lg font-bold text-primary-foreground font-cairo">
+                      مرحباً بك 👋
+                    </h2>
+                    <p className="text-primary-foreground/70 text-sm mt-1">{user.email}</p>
+                  </>
+                ) : (
+                  <>
+                    <h2 className="text-lg font-bold text-primary-foreground font-cairo">
+                      مرحباً بك 👋
+                    </h2>
+                    <p className="text-primary-foreground/70 text-sm mt-1">
+                      سجل دخولك لحفظ تفضيلاتك
+                    </p>
+                  </>
+                )}
               </div>
             </div>
 
-            {/* Account Settings Button */}
-            <button className="w-full mt-4 py-2.5 px-6 rounded-xl bg-secondary/20 border border-secondary/40 text-primary-foreground font-semibold text-sm hover:bg-secondary/30 transition-all duration-200 backdrop-blur-sm">
-              إعدادات الحساب
-            </button>
+            {user ? (
+              <button
+                onClick={handleSignOut}
+                className="w-full mt-4 py-2.5 px-6 rounded-xl bg-red-500/20 border border-red-400/40 text-primary-foreground font-semibold text-sm hover:bg-red-500/30 transition-all duration-200 backdrop-blur-sm flex items-center justify-center gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                تسجيل الخروج
+              </button>
+            ) : (
+              <button
+                onClick={() => navigate("/auth")}
+                className="w-full mt-4 py-2.5 px-6 rounded-xl bg-secondary/20 border border-secondary/40 text-primary-foreground font-semibold text-sm hover:bg-secondary/30 transition-all duration-200 backdrop-blur-sm flex items-center justify-center gap-2"
+              >
+                <LogIn className="h-4 w-4" />
+                تسجيل الدخول
+              </button>
+            )}
           </div>
         </section>
 
@@ -136,8 +182,30 @@ const SettingsPage = () => {
 
         {/* Preferences Section */}
         <MenuSection title="التفضيلات" delay="150ms">
-          <MenuItem icon={Moon} label="المظهر" subtitle="فاتح / داكن" />
-          <MenuItem icon={Bell} label="الإشعارات" subtitle="إعدادات التنبيهات" />
+          <MenuItem
+            icon={preferences.theme === 'dark' ? Sun : Moon}
+            label="المظهر"
+            subtitle={preferences.theme === 'dark' ? 'داكن' : 'فاتح'}
+            onClick={toggleTheme}
+            trailing={
+              <Switch
+                checked={preferences.theme === 'dark'}
+                onCheckedChange={toggleTheme}
+              />
+            }
+          />
+          <MenuItem
+            icon={Bell}
+            label="الإشعارات"
+            subtitle={preferences.notifications_enabled ? 'مفعّلة' : 'معطّلة'}
+            onClick={toggleNotifications}
+            trailing={
+              <Switch
+                checked={preferences.notifications_enabled}
+                onCheckedChange={toggleNotifications}
+              />
+            }
+          />
           <MenuItem icon={Globe} label="اللغة" subtitle="العربية" />
           <MenuItem icon={Shield} label="الخصوصية" subtitle="إدارة البيانات" />
         </MenuSection>

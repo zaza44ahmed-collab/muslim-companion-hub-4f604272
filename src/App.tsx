@@ -16,6 +16,7 @@ import DuasPage from "./pages/DuasPage";
 import QuranPage from "./pages/QuranPage";
 import MosquesPage from "./pages/MosquesPage";
 import SettingsPage from "./pages/SettingsPage";
+import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ const App = () => (
           <Route path="/qibla" element={<QiblaPage />} />
           <Route path="/mosques" element={<MosquesPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/auth" element={<AuthPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
