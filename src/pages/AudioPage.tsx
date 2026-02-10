@@ -35,36 +35,36 @@ const AudioPage = () => {
     <div className="min-h-screen bg-background pb-20">
       <Header />
 
-      <main className="container py-4">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold">الصوتيات الإسلامية</h2>
-          <Button variant="ghost" size="icon">
-            <Filter className="h-5 w-5" />
+      <main className="container py-3">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-base font-bold">الصوتيات الإسلامية</h2>
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Filter className="h-4 w-4" />
           </Button>
         </div>
 
         {/* Suggested */}
-        <section className="mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-gold" />
-              <h3 className="font-bold text-base">مقترحة لك</h3>
+        <section className="mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-1.5">
+              <Sparkles className="h-4 w-4 text-gold" />
+              <h3 className="font-bold text-sm">مقترحة لك</h3>
             </div>
-            <Button variant="ghost" size="sm" className="text-primary gap-1 text-xs px-2">
+            <Button variant="ghost" size="sm" className="text-primary gap-1 text-[10px] px-1.5 h-7">
               عرض الكل
               <ChevronLeft className="h-3 w-3" />
             </Button>
           </div>
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
             {suggested.map((album) => (
               <div
                 key={`sug-${album.id}`}
-                className="min-w-[140px] max-w-[140px] bg-card rounded-2xl p-3 shadow-card-islamic cursor-pointer hover:shadow-lg transition-shadow shrink-0"
+                className="min-w-[120px] max-w-[120px] bg-card rounded-xl p-2.5 shadow-card-islamic cursor-pointer hover:shadow-lg transition-shadow shrink-0"
                 onClick={() => openPlayer(album)}
               >
-                <div className="h-24 w-full rounded-xl bg-gradient-to-br from-primary/20 to-gold/10 flex items-center justify-center mb-2 relative overflow-hidden">
+                <div className="h-20 w-full rounded-lg bg-gradient-to-br from-primary/20 to-gold/10 flex items-center justify-center mb-1.5 relative overflow-hidden">
                   <div className="absolute inset-0 islamic-pattern opacity-15" />
-                  <Play className="h-8 w-8 text-primary/60" />
+                  <Play className="h-6 w-6 text-primary/60" />
                 </div>
                 <h4 className="font-bold text-xs text-center truncate">{album.title}</h4>
                 <p className="text-[10px] text-muted-foreground text-center truncate mt-0.5">
@@ -80,29 +80,29 @@ const AudioPage = () => {
         </section>
 
         {/* Most Downloaded */}
-        <section className="mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-primary" />
-              <h3 className="font-bold text-base">الأكثر استماعاً</h3>
+        <section className="mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-1.5">
+              <TrendingUp className="h-4 w-4 text-primary" />
+              <h3 className="font-bold text-sm">الأكثر استماعاً</h3>
             </div>
-            <Button variant="ghost" size="sm" className="text-primary gap-1 text-xs px-2">
+            <Button variant="ghost" size="sm" className="text-primary gap-1 text-[10px] px-1.5 h-7">
               عرض الكل
               <ChevronLeft className="h-3 w-3" />
             </Button>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-2">
             {topDownloaded.map((album, index) => (
               <div
                 key={`top-${album.id}`}
-                className="bg-card rounded-2xl p-3 shadow-card-islamic cursor-pointer hover:shadow-lg transition-shadow flex items-center gap-3"
+                className="bg-card rounded-xl p-2.5 shadow-card-islamic cursor-pointer hover:shadow-lg transition-shadow flex items-center gap-2"
                 onClick={() => openPlayer(album)}
               >
-                <span className="text-2xl font-bold text-primary/30 w-8 text-center shrink-0">
+                <span className="text-lg font-bold text-primary/30 w-6 text-center shrink-0">
                   {index + 1}
                 </span>
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary/20 to-gold/10 flex items-center justify-center shrink-0">
-                  <Play className="h-5 w-5 text-primary/60" />
+                <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-primary/20 to-gold/10 flex items-center justify-center shrink-0">
+                  <Play className="h-4 w-4 text-primary/60" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <h4 className="font-bold text-sm truncate">{album.title}</h4>
@@ -121,7 +121,7 @@ const AudioPage = () => {
         </section>
 
         {/* Categories */}
-        <div className="flex gap-2 overflow-x-auto pb-3 mb-4 scrollbar-hide">
+        <div className="flex gap-2 overflow-x-auto pb-2 mb-3 scrollbar-hide">
           {audioCategories.map((cat) => (
             <Button
               key={cat.id}
@@ -136,19 +136,19 @@ const AudioPage = () => {
         </div>
 
         {/* All Audio List */}
-        <h3 className="font-bold text-base mb-3">جميع الصوتيات</h3>
-        <div className="space-y-3">
+        <h3 className="font-bold text-sm mb-2">جميع الصوتيات</h3>
+        <div className="space-y-2">
           {filteredAudio.map((album, index) => (
             <div
               key={album.id}
-              className="bg-card rounded-2xl p-4 shadow-card-islamic animate-fadeIn cursor-pointer hover:shadow-lg transition-shadow"
+              className="bg-card rounded-xl p-3 shadow-card-islamic animate-fadeIn cursor-pointer hover:shadow-lg transition-shadow"
               style={{ animationDelay: `${index * 80}ms` }}
               onClick={() => openPlayer(album)}
             >
-              <div className="flex items-center gap-4">
-                <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-primary/20 to-gold/10 flex items-center justify-center shrink-0 relative overflow-hidden">
+              <div className="flex items-center gap-3">
+                <div className="h-11 w-11 rounded-lg bg-gradient-to-br from-primary/20 to-gold/10 flex items-center justify-center shrink-0 relative overflow-hidden">
                   <div className="absolute inset-0 islamic-pattern opacity-10" />
-                  <Play className="h-6 w-6 text-primary/70" />
+                  <Play className="h-5 w-5 text-primary/70" />
                 </div>
 
                 <div className="flex-1 min-w-0">

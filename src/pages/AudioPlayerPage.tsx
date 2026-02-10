@@ -139,23 +139,23 @@ const AudioPlayerPage = () => {
       {/* Main Content */}
       <div className="relative z-10 flex-1 flex flex-col items-center px-6 pt-4">
         {/* Album Art */}
-        <div className={`w-64 h-64 rounded-3xl overflow-hidden shadow-xl mb-6 transition-transform duration-500 ${isPlaying ? "scale-100" : "scale-95"}`}>
+        <div className={`w-52 h-52 rounded-2xl overflow-hidden shadow-xl mb-4 transition-transform duration-500 ${isPlaying ? "scale-100" : "scale-95"}`}>
           <div className="w-full h-full bg-gradient-to-br from-primary/30 via-primary/10 to-gold/20 flex items-center justify-center relative">
             <div className="absolute inset-0 islamic-pattern opacity-20" />
-            <div className="text-center z-10 px-4">
-              <div className="w-20 h-20 mx-auto mb-3 rounded-2xl bg-primary/20 flex items-center justify-center">
-                <Volume2 className="h-10 w-10 text-primary" />
+            <div className="text-center z-10 px-3">
+              <div className="w-16 h-16 mx-auto mb-2 rounded-xl bg-primary/20 flex items-center justify-center">
+                <Volume2 className="h-8 w-8 text-primary" />
               </div>
-              <p className="font-bold text-foreground text-sm">{album.title}</p>
-              <p className="text-xs text-muted-foreground mt-1">{album.artist}</p>
+              <p className="font-bold text-foreground text-xs">{album.title}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">{album.artist}</p>
             </div>
           </div>
         </div>
 
         {/* Track Info */}
-        <div className="text-center w-full max-w-sm mb-4">
-          <h2 className="font-bold text-lg text-foreground truncate">{currentTrack.title}</h2>
-          <p className="text-sm text-muted-foreground mt-1">{album.artist}</p>
+        <div className="text-center w-full max-w-sm mb-3">
+          <h2 className="font-bold text-base text-foreground truncate">{currentTrack.title}</h2>
+          <p className="text-xs text-muted-foreground mt-0.5">{album.artist}</p>
           {currentTrack.surah && (
             <span className="inline-block mt-2 px-3 py-0.5 bg-primary/10 text-primary text-xs font-medium rounded-full">
               {currentTrack.surah}
@@ -164,7 +164,7 @@ const AudioPlayerPage = () => {
         </div>
 
         {/* Actions Row */}
-        <div className="flex items-center justify-center gap-6 mb-6">
+        <div className="flex items-center justify-center gap-5 mb-4">
           <button
             onClick={() => setIsFavorite(!isFavorite)}
             className="transition-transform active:scale-90"
@@ -203,7 +203,7 @@ const AudioPlayerPage = () => {
         </div>
 
         {/* Controls */}
-        <div className="flex items-center justify-center gap-4 w-full max-w-sm mt-2 mb-6">
+        <div className="flex items-center justify-center gap-3 w-full max-w-sm mt-1 mb-4">
           <button
             onClick={() => setIsShuffle(!isShuffle)}
             className={`p-2 rounded-full transition-colors ${isShuffle ? "text-primary" : "text-muted-foreground"}`}
@@ -222,12 +222,12 @@ const AudioPlayerPage = () => {
 
           <button
             onClick={() => setIsPlaying(!isPlaying)}
-            className="h-16 w-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:opacity-90 transition-all active:scale-95"
+            className="h-14 w-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:opacity-90 transition-all active:scale-95"
           >
             {isPlaying ? (
-              <Pause className="h-7 w-7" />
+              <Pause className="h-6 w-6" />
             ) : (
-              <Play className="h-7 w-7 mr-[-2px]" />
+              <Play className="h-6 w-6 mr-[-2px]" />
             )}
           </button>
 
