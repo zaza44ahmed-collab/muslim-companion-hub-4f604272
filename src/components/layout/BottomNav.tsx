@@ -14,7 +14,7 @@ const BottomNav = () => {
   const location = useLocation();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 backdrop-blur-xl safe-area-bottom bg-card/98 border-t-2 border-secondary/30 shadow-[0_-2px_12px_-2px_hsl(var(--secondary)/0.1)]">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 safe-area-bottom bg-card border-t-2 border-secondary/30 shadow-[0_-2px_12px_-2px_hsl(var(--secondary)/0.1)]">
       <div className="flex items-center justify-around h-[72px] px-2">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
