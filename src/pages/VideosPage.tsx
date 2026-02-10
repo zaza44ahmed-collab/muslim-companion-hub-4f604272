@@ -243,12 +243,12 @@ const VideosPage = () => {
                 toggleLike(currentReel.id);
               }}
             >
-              <Heart className={`h-8 w-8 transition-all ${
+              <Heart className={`h-10 w-10 transition-all drop-shadow-lg ${
                 likedReels.has(currentReel.id) 
                   ? "text-destructive fill-destructive scale-110" 
                   : "text-primary-foreground"
               }`} />
-              <span className="text-primary-foreground text-[11px] font-semibold">
+              <span className="text-primary-foreground text-[12px] font-bold drop-shadow">
                 {formatNumber(likeCounts[currentReel.id])}
               </span>
             </button>
@@ -258,8 +258,8 @@ const VideosPage = () => {
               className="flex flex-col items-center gap-1"
               onClick={(e) => e.stopPropagation()}
             >
-              <MessageCircle className="h-8 w-8 text-primary-foreground" />
-              <span className="text-primary-foreground text-[11px] font-semibold">
+              <MessageCircle className="h-10 w-10 text-primary-foreground drop-shadow-lg" />
+              <span className="text-primary-foreground text-[12px] font-bold drop-shadow">
                 {formatNumber(currentReel.comments)}
               </span>
             </button>
@@ -272,12 +272,12 @@ const VideosPage = () => {
                 toggleSave(currentReel.id);
               }}
             >
-              <Bookmark className={`h-8 w-8 transition-all ${
+              <Bookmark className={`h-10 w-10 transition-all drop-shadow-lg ${
                 savedReels.has(currentReel.id) 
                   ? "text-secondary fill-secondary" 
                   : "text-primary-foreground"
               }`} />
-              <span className="text-primary-foreground text-[11px] font-semibold">حفظ</span>
+              <span className="text-primary-foreground text-[12px] font-bold drop-shadow">حفظ</span>
             </button>
 
             {/* Share */}
@@ -288,15 +288,15 @@ const VideosPage = () => {
                 handleShare(currentReel);
               }}
             >
-              <Share2 className="h-8 w-8 text-primary-foreground" />
-              <span className="text-primary-foreground text-[11px] font-semibold">
+              <Share2 className="h-10 w-10 text-primary-foreground drop-shadow-lg" />
+              <span className="text-primary-foreground text-[12px] font-bold drop-shadow">
                 {formatNumber(currentReel.shares)}
               </span>
             </button>
 
             {/* Spinning disc */}
-            <div className="h-10 w-10 rounded-full border-2 border-secondary/40 bg-primary/80 flex items-center justify-center animate-[spin_3s_linear_infinite]">
-              <div className="h-4 w-4 rounded-full bg-secondary/80" />
+            <div className="h-12 w-12 rounded-full border-2 border-secondary/40 bg-primary/80 flex items-center justify-center animate-[spin_3s_linear_infinite] shadow-lg">
+              <div className="h-5 w-5 rounded-full bg-secondary/80" />
             </div>
           </div>
 
