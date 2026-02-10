@@ -30,71 +30,73 @@ const PrayerTimes = () => {
   const timeLabel = isPassed ? "منذ" : "المتبقي";
 
   return (
-    <div className="rounded-2xl overflow-hidden border-2 border-secondary/30">
-      {/* Top bar: Location + Hijri date */}
-      <div className="bg-secondary px-4 py-2.5 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-secondary-foreground text-xs">
-          <MapPin className="h-3.5 w-3.5" />
+    <div>
+      {/* Title + Location outside the card */}
+      <div className="flex items-center justify-between mb-3 px-1">
+        <h3 className="font-bold text-lg text-foreground font-cairo">مواقيت الصلاة</h3>
+        <div className="flex items-center gap-1.5 text-muted-foreground text-sm">
+          <MapPin className="h-4 w-4 text-secondary" />
           <span className="font-cairo font-semibold">{locationName}</span>
         </div>
-        <span className="text-secondary-foreground/70 text-xs font-cairo">أوقات الصلاة</span>
       </div>
 
-      {/* Current prayer + countdown + progress */}
-      <div className="bg-card px-4 pt-4 pb-3">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-foreground text-lg font-bold font-cairo">
-            {currentPrayer.name}
-          </h3>
-          <div className="flex items-center gap-1.5 text-muted-foreground text-sm font-cairo">
-            <span>{timeLabel}</span>
-            <span className="font-bold text-foreground tabular-nums">
-              {String(timeToNext.hours).padStart(2, "0")}:{String(timeToNext.minutes).padStart(2, "0")}
-            </span>
+      <div className="rounded-2xl overflow-hidden border-2 border-secondary/30">
+        {/* Current prayer + countdown + progress */}
+        <div className="bg-card px-4 pt-4 pb-3">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-foreground text-lg font-bold font-cairo">
+              {currentPrayer.name}
+            </h3>
+            <div className="flex items-center gap-1.5 text-muted-foreground text-sm font-cairo">
+              <span>{timeLabel}</span>
+              <span className="font-bold text-foreground tabular-nums">
+                {String(timeToNext.hours).padStart(2, "0")}:{String(timeToNext.minutes).padStart(2, "0")}
+              </span>
+            </div>
+          </div>
+
+          {/* Progress bar */}
+          <div className="w-full h-2 bg-muted/30 rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full bg-gradient-to-l from-destructive to-primary transition-all duration-1000"
+              style={{ width: `${progress}%` }}
+            />
           </div>
         </div>
 
-        {/* Progress bar */}
-        <div className="w-full h-2 bg-muted/30 rounded-full overflow-hidden">
-          <div
-            className="h-full rounded-full bg-gradient-to-l from-destructive to-primary transition-all duration-1000"
-            style={{ width: `${progress}%` }}
-          />
+        {/* Separator */}
+        <div className="border-t border-border/50" />
+
+        {/* All prayers in horizontal row */}
+        <div className="bg-card px-2 py-3 flex items-center justify-around">
+          {prayers.map((prayer, index) => {
+            const isCurrent = index === currentPrayerIndex;
+            const isPrayerPassed = prayer.passed;
+
+            return (
+              <div key={prayer.name} className="flex flex-col items-center gap-1.5">
+                <span className={`text-xs font-semibold font-cairo ${
+                  isCurrent
+                    ? "text-primary"
+                    : isPrayerPassed
+                      ? "text-muted-foreground/50"
+                      : "text-foreground"
+                }`}>
+                  {prayer.name}
+                </span>
+                <span className={`text-xs font-bold tabular-nums rounded-md px-2 py-0.5 ${
+                  isCurrent
+                    ? "bg-primary text-primary-foreground"
+                    : isPrayerPassed
+                      ? "bg-destructive/80 text-destructive-foreground"
+                      : "text-foreground"
+                }`}>
+                  {prayer.time}
+                </span>
+              </div>
+            );
+          })}
         </div>
-      </div>
-
-      {/* Separator */}
-      <div className="border-t border-border/50" />
-
-      {/* All prayers in horizontal row */}
-      <div className="bg-card px-2 py-3 flex items-center justify-around">
-        {prayers.map((prayer, index) => {
-          const isCurrent = index === currentPrayerIndex;
-          const isPrayerPassed = prayer.passed;
-
-          return (
-            <div key={prayer.name} className="flex flex-col items-center gap-1.5">
-              <span className={`text-xs font-semibold font-cairo ${
-                isCurrent
-                  ? "text-primary"
-                  : isPrayerPassed
-                    ? "text-muted-foreground/50"
-                    : "text-foreground"
-              }`}>
-                {prayer.name}
-              </span>
-              <span className={`text-xs font-bold tabular-nums rounded-md px-2 py-0.5 ${
-                isCurrent
-                  ? "bg-primary text-primary-foreground"
-                  : isPrayerPassed
-                    ? "bg-destructive/80 text-destructive-foreground"
-                    : "text-foreground"
-              }`}>
-                {prayer.time}
-              </span>
-            </div>
-          );
-        })}
       </div>
     </div>
   );
