@@ -167,32 +167,26 @@ const VideosPage = () => {
   return (
     <div className="fixed inset-0 bg-background">
       {/* Header */}
-      <header className="absolute top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-lg border-b-2 border-secondary/30">
-        <div className="flex items-center justify-between px-4 h-14">
-          {/* Search */}
-          <button className="p-2">
-            <Search className="h-6 w-6 text-foreground/70" />
+      <header className="absolute top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-lg border-b border-secondary/30">
+        <div className="flex items-center justify-between px-3 h-11">
+          <button className="p-1.5">
+            <Search className="h-5 w-5 text-foreground/70" />
           </button>
-
-          {/* Tabs */}
-          <div className="flex items-center gap-6">
-            <button className="text-muted-foreground text-[15px] font-semibold">متابَعون</button>
+          <div className="flex items-center gap-5">
+            <button className="text-muted-foreground text-xs font-semibold">متابَعون</button>
             <div className="flex flex-col items-center">
-              <button className="text-foreground text-[15px] font-bold">لك</button>
-              <div className="w-6 h-0.5 bg-secondary rounded-full mt-1" />
+              <button className="text-foreground text-xs font-bold">لك</button>
+              <div className="w-5 h-0.5 bg-secondary rounded-full mt-0.5" />
             </div>
           </div>
-
-          {/* Add */}
-          <button className="p-2">
-            <Plus className="h-6 w-6 text-foreground/70" />
+          <button className="p-1.5">
+            <Plus className="h-5 w-5 text-foreground/70" />
           </button>
         </div>
       </header>
 
-      {/* Reels Container */}
       <div
-        className="h-full w-full pt-14 pb-[72px]"
+        className="h-full w-full pt-11 pb-[60px]"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
@@ -204,7 +198,7 @@ const VideosPage = () => {
           <div className="absolute inset-0 islamic-pattern opacity-30" />
 
           {/* Background Emoji */}
-          <span className="text-[150px] opacity-15 select-none">{currentReel.emoji}</span>
+          <span className="text-[120px] opacity-15 select-none">{currentReel.emoji}</span>
 
           {/* Double Tap Heart */}
           {showHeart && (
@@ -214,9 +208,9 @@ const VideosPage = () => {
           )}
 
           {/* Avatar - Right Side */}
-          <div className="absolute right-3 bottom-44 flex flex-col items-center z-30">
+          <div className="absolute right-3 bottom-40 flex flex-col items-center z-30">
             <div className="flex flex-col items-center relative">
-              <div className="h-12 w-12 rounded-full bg-card/30 backdrop-blur-sm border-2 border-secondary/50 flex items-center justify-center text-2xl">
+              <div className="h-10 w-10 rounded-full bg-card/30 backdrop-blur-sm border border-secondary/50 flex items-center justify-center text-xl">
                 {currentReel.avatar}
               </div>
               {!isFollowing && (
@@ -225,108 +219,98 @@ const VideosPage = () => {
                     e.stopPropagation();
                     toggleFollow(currentReel.author);
                   }}
-                  className="absolute -bottom-2.5 bg-secondary rounded-full w-5 h-5 flex items-center justify-center"
+                  className="absolute -bottom-2 bg-secondary rounded-full w-4 h-4 flex items-center justify-center"
                 >
-                  <Plus className="h-3.5 w-3.5 text-secondary-foreground" />
+                  <Plus className="h-3 w-3 text-secondary-foreground" />
                 </button>
               )}
             </div>
           </div>
 
           {/* Left Side Actions */}
-          <div className="absolute left-3 bottom-36 flex flex-col items-center gap-5 z-30">
-            {/* Like */}
+          <div className="absolute left-3 bottom-32 flex flex-col items-center gap-4 z-30">
             <button
-              className="flex flex-col items-center gap-1"
+              className="flex flex-col items-center gap-0.5"
               onClick={(e) => {
                 e.stopPropagation();
                 toggleLike(currentReel.id);
               }}
             >
-              <Heart className={`h-10 w-10 transition-all drop-shadow-lg ${
+              <Heart className={`h-7 w-7 transition-all drop-shadow-lg ${
                 likedReels.has(currentReel.id) 
                   ? "text-destructive fill-destructive scale-110" 
                   : "text-primary-foreground"
               }`} />
-              <span className="text-primary-foreground text-[12px] font-bold drop-shadow">
+              <span className="text-primary-foreground text-[10px] font-bold drop-shadow">
                 {formatNumber(likeCounts[currentReel.id])}
               </span>
             </button>
 
-            {/* Comment */}
             <button
-              className="flex flex-col items-center gap-1"
+              className="flex flex-col items-center gap-0.5"
               onClick={(e) => e.stopPropagation()}
             >
-              <MessageCircle className="h-10 w-10 text-primary-foreground drop-shadow-lg" />
-              <span className="text-primary-foreground text-[12px] font-bold drop-shadow">
+              <MessageCircle className="h-7 w-7 text-primary-foreground drop-shadow-lg" />
+              <span className="text-primary-foreground text-[10px] font-bold drop-shadow">
                 {formatNumber(currentReel.comments)}
               </span>
             </button>
 
-            {/* Save */}
             <button
-              className="flex flex-col items-center gap-1"
+              className="flex flex-col items-center gap-0.5"
               onClick={(e) => {
                 e.stopPropagation();
                 toggleSave(currentReel.id);
               }}
             >
-              <Bookmark className={`h-10 w-10 transition-all drop-shadow-lg ${
+              <Bookmark className={`h-7 w-7 transition-all drop-shadow-lg ${
                 savedReels.has(currentReel.id) 
                   ? "text-secondary fill-secondary" 
                   : "text-primary-foreground"
               }`} />
-              <span className="text-primary-foreground text-[12px] font-bold drop-shadow">حفظ</span>
+              <span className="text-primary-foreground text-[10px] font-bold drop-shadow">حفظ</span>
             </button>
 
-            {/* Share */}
             <button
-              className="flex flex-col items-center gap-1"
+              className="flex flex-col items-center gap-0.5"
               onClick={(e) => {
                 e.stopPropagation();
                 handleShare(currentReel);
               }}
             >
-              <Share2 className="h-10 w-10 text-primary-foreground drop-shadow-lg" />
-              <span className="text-primary-foreground text-[12px] font-bold drop-shadow">
+              <Share2 className="h-7 w-7 text-primary-foreground drop-shadow-lg" />
+              <span className="text-primary-foreground text-[10px] font-bold drop-shadow">
                 {formatNumber(currentReel.shares)}
               </span>
             </button>
 
-            {/* Spinning disc */}
-            <div className="h-12 w-12 rounded-full border-2 border-secondary/40 bg-primary/80 flex items-center justify-center animate-[spin_3s_linear_infinite] shadow-lg">
-              <div className="h-5 w-5 rounded-full bg-secondary/80" />
+            <div className="h-9 w-9 rounded-full border border-secondary/40 bg-primary/80 flex items-center justify-center animate-[spin_3s_linear_infinite] shadow-lg">
+              <div className="h-4 w-4 rounded-full bg-secondary/80" />
             </div>
           </div>
 
           {/* Bottom Info */}
-          <div className="absolute bottom-20 left-16 right-4 p-4 z-30">
-            {/* Author */}
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-primary-foreground font-bold text-[15px]">@{currentReel.author}</span>
+          <div className="absolute bottom-16 left-14 right-4 p-3 z-30">
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="text-primary-foreground font-bold text-xs">@{currentReel.author}</span>
               {isFollowing ? (
-                <span className="text-[11px] text-primary-foreground/60 border border-primary-foreground/30 rounded px-1.5 py-0.5">متابَع</span>
+                <span className="text-[10px] text-primary-foreground/60 border border-primary-foreground/30 rounded px-1 py-0.5">متابَع</span>
               ) : (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     toggleFollow(currentReel.author);
                   }}
-                  className="text-[11px] text-secondary-foreground bg-secondary rounded px-2 py-0.5 font-semibold"
+                  className="text-[10px] text-secondary-foreground bg-secondary rounded px-1.5 py-0.5 font-semibold"
                 >
                   متابعة
                 </button>
               )}
             </div>
-
-            {/* Description */}
-            <p className="text-primary-foreground text-[13px] leading-5 mb-3 line-clamp-2">
+            <p className="text-primary-foreground text-[11px] leading-4 mb-2 line-clamp-2">
               {currentReel.title}
             </p>
-
-            {/* Audio */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               <Music2 className="h-3.5 w-3.5 text-primary-foreground" />
               <div className="overflow-hidden max-w-[200px]">
                 <p className="text-primary-foreground text-[12px] whitespace-nowrap animate-marquee">

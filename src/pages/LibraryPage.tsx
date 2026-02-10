@@ -36,31 +36,31 @@ const LibraryPage = () => {
     <div className="min-h-screen bg-background pb-20">
       <Header />
 
-      <main className="container py-4">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold">المكتبة الإسلامية</h2>
-          <Button variant="ghost" size="icon">
-            <Filter className="h-5 w-5" />
+      <main className="container py-3">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-base font-bold">المكتبة الإسلامية</h2>
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Filter className="h-4 w-4" />
           </Button>
         </div>
 
         {/* Suggested Books */}
-        <section className="mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-gold" />
-              <h3 className="font-bold text-base">مقترحة لك</h3>
+        <section className="mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-1.5">
+              <Sparkles className="h-4 w-4 text-gold" />
+              <h3 className="font-bold text-sm">مقترحة لك</h3>
             </div>
-            <Button variant="ghost" size="sm" className="text-primary gap-1 text-xs px-2">
+            <Button variant="ghost" size="sm" className="text-primary gap-1 text-[10px] px-1.5 h-7">
               عرض الكل
               <ChevronLeft className="h-3 w-3" />
             </Button>
           </div>
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
             {suggested.map((book) => (
               <div
                 key={`suggested-${book.id}`}
-                className="min-w-[130px] max-w-[130px] bg-card rounded-2xl overflow-hidden shadow-card-islamic cursor-pointer hover:shadow-lg transition-shadow shrink-0"
+                className="min-w-[110px] max-w-[110px] bg-card rounded-xl overflow-hidden shadow-card-islamic cursor-pointer hover:shadow-lg transition-shadow shrink-0"
                 onClick={() => setSelectedBook(book)}
               >
                 <div className="aspect-[3/4] relative overflow-hidden">
@@ -90,31 +90,31 @@ const LibraryPage = () => {
         </section>
 
         {/* Most Downloaded Books */}
-        <section className="mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-primary" />
-              <h3 className="font-bold text-base">الأكثر تحميلاً</h3>
+        <section className="mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-1.5">
+              <TrendingUp className="h-4 w-4 text-primary" />
+              <h3 className="font-bold text-sm">الأكثر تحميلاً</h3>
             </div>
-            <Button variant="ghost" size="sm" className="text-primary gap-1 text-xs px-2">
+            <Button variant="ghost" size="sm" className="text-primary gap-1 text-[10px] px-1.5 h-7">
               عرض الكل
               <ChevronLeft className="h-3 w-3" />
             </Button>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-2">
             {topDownloaded.map((book, index) => (
               <div
                 key={`top-${book.id}`}
-                className="bg-card rounded-2xl p-3 shadow-card-islamic cursor-pointer hover:shadow-lg transition-shadow flex items-center gap-3"
+                className="bg-card rounded-xl p-2.5 shadow-card-islamic cursor-pointer hover:shadow-lg transition-shadow flex items-center gap-2"
                 onClick={() => setSelectedBook(book)}
               >
-                <span className="text-2xl font-bold text-primary/30 w-8 text-center shrink-0">
+                <span className="text-lg font-bold text-primary/30 w-6 text-center shrink-0">
                   {index + 1}
                 </span>
                 <img
                   src={book.cover}
                   alt={book.title}
-                  className="h-14 w-10 rounded-lg object-cover shadow-sm shrink-0"
+                  className="h-12 w-9 rounded-md object-cover shadow-sm shrink-0"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = "/placeholder.svg";
                   }}
@@ -136,7 +136,7 @@ const LibraryPage = () => {
         </section>
 
         {/* Categories */}
-        <div className="flex gap-2 overflow-x-auto pb-3 mb-4 scrollbar-hide">
+        <div className="flex gap-2 overflow-x-auto pb-2 mb-3 scrollbar-hide">
           {bookCategories.map((cat) => (
             <Button
               key={cat.id}
@@ -151,12 +151,12 @@ const LibraryPage = () => {
         </div>
 
         {/* All Books Grid */}
-        <h3 className="font-bold text-base mb-3">جميع الكتب</h3>
-        <div className="grid grid-cols-2 gap-4">
+        <h3 className="font-bold text-sm mb-2">جميع الكتب</h3>
+        <div className="grid grid-cols-2 gap-3">
           {filteredBooks.map((book, index) => (
             <div
               key={book.id}
-              className="bg-card rounded-2xl overflow-hidden shadow-card-islamic animate-fadeIn cursor-pointer hover:shadow-lg transition-shadow"
+              className="bg-card rounded-xl overflow-hidden shadow-card-islamic animate-fadeIn cursor-pointer hover:shadow-lg transition-shadow"
               style={{ animationDelay: `${index * 80}ms` }}
               onClick={() => setSelectedBook(book)}
             >
