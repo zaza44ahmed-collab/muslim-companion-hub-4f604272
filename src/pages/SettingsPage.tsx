@@ -29,17 +29,17 @@ interface MenuItemProps {
 
 const MenuItem = ({ icon: Icon, label, subtitle, to, onClick }: MenuItemProps) => {
   const content = (
-    <div className="flex items-center justify-between py-3.5 px-5 transition-colors duration-200 hover:bg-accent/50 cursor-pointer group">
-      <ChevronLeft className="h-4 w-4 text-muted-foreground group-hover:text-secondary transition-colors" />
+    <div className="flex items-center justify-between py-3.5 px-5 transition-colors duration-200 hover:bg-accent/50 cursor-pointer group" dir="rtl">
       <div className="flex items-center gap-3">
-        <div className="flex flex-col items-end">
-          <span className="text-sm font-semibold text-foreground">{label}</span>
-          {subtitle && <span className="text-xs text-muted-foreground">{subtitle}</span>}
-        </div>
         <div className="h-9 w-9 rounded-xl bg-secondary/10 flex items-center justify-center">
           <Icon className="h-4.5 w-4.5 text-secondary" />
         </div>
+        <div className="flex flex-col items-start">
+          <span className="text-sm font-semibold text-foreground">{label}</span>
+          {subtitle && <span className="text-xs text-muted-foreground">{subtitle}</span>}
+        </div>
       </div>
+      <ChevronLeft className="h-4 w-4 text-muted-foreground group-hover:text-secondary transition-colors" />
     </div>
   );
 
@@ -57,7 +57,7 @@ interface MenuSectionProps {
 
 const MenuSection = ({ title, children, delay = "0ms" }: MenuSectionProps) => (
   <section className="animate-fadeIn" style={{ animationDelay: delay }}>
-    <h3 className="text-xs font-bold text-muted-foreground mb-2 px-2 uppercase tracking-wide">
+    <h3 className="text-xs font-bold text-muted-foreground mb-2 px-2 uppercase tracking-wide text-right">
       {title}
     </h3>
     <div className="rounded-2xl border-2 border-secondary/30 bg-card overflow-hidden divide-y divide-border/50">
@@ -103,19 +103,19 @@ const SettingsPage = () => {
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 border border-primary-foreground/5 rounded-full" />
             </div>
 
-            <div className="relative flex items-center gap-4">
+            <div className="relative flex items-center gap-4 flex-row-reverse">
               {/* Avatar */}
               <div className="h-16 w-16 rounded-2xl bg-primary-foreground/15 border-2 border-secondary/40 flex items-center justify-center shadow-lg">
                 <User className="h-8 w-8 text-primary-foreground" />
               </div>
 
               {/* Info */}
-              <div className="flex-1">
+              <div className="flex-1 text-right">
                 <h2 className="text-lg font-bold text-primary-foreground font-cairo">
-                  المستخدم
+                  مرحباً بك 👋
                 </h2>
-                <p className="text-primary-foreground/60 text-xs mt-0.5">
-                  مرحباً بك في حقيبة المسلم
+                <p className="text-primary-foreground/70 text-sm mt-1">
+                  حقيبة المسلم • رفيقك اليومي
                 </p>
               </div>
             </div>
