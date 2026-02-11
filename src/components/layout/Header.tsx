@@ -1,4 +1,4 @@
-import { Settings, User, Moon, Sun } from "lucide-react";
+import { Store, User, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -59,9 +59,11 @@ const Header = () => {
       <div className="container flex h-auto py-2 items-center justify-between">
         {/* Right side - User icon */}
         <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-full bg-secondary/15 border border-secondary/30 flex items-center justify-center">
-            <User className="h-4 w-4 text-secondary" />
-          </div>
+          <Link to="/settings">
+            <div className="h-8 w-8 rounded-full bg-secondary/15 border border-secondary/30 flex items-center justify-center">
+              <User className="h-4 w-4 text-secondary" />
+            </div>
+          </Link>
           <div>
             <h1 className="text-base font-bold font-amiri text-primary leading-tight">
               حقيبة المسلم
@@ -81,9 +83,9 @@ const Header = () => {
               <Moon className="h-5 w-5 text-foreground/70 transition-transform duration-300" />
             )}
           </Button>
-          <Link to="/settings">
+          <Link to="/marketplace">
             <Button variant="ghost" size="icon">
-              <Settings className="h-6 w-6 text-secondary" />
+              <Store className="h-5 w-5 text-secondary" />
             </Button>
           </Link>
         </div>
