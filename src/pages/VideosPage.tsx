@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import { Heart, Share2, Bookmark, MessageCircle, Music2, Plus, Search } from "lucide-react";
+import { Heart, Share2, Bookmark, MessageCircle, Music2, Film } from "lucide-react";
 import BottomNav from "@/components/layout/BottomNav";
 
 const reels = [
@@ -168,20 +168,9 @@ const VideosPage = () => {
     <div className="fixed inset-0 bg-background">
       {/* Header */}
       <header className="absolute top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-lg border-b border-secondary/30">
-        <div className="flex items-center justify-between px-2 h-10">
-          <button className="p-1">
-            <Search className="h-4 w-4 text-foreground/70" />
-          </button>
-          <div className="flex items-center gap-4">
-            <button className="text-muted-foreground text-[10px] font-semibold">متابَعون</button>
-            <div className="flex flex-col items-center">
-              <button className="text-foreground text-[10px] font-bold">لك</button>
-              <div className="w-4 h-0.5 bg-secondary rounded-full mt-0.5" />
-            </div>
-          </div>
-          <button className="p-1">
-            <Plus className="h-4 w-4 text-foreground/70" />
-          </button>
+        <div className="flex items-center justify-center gap-1.5 px-2 h-10">
+          <Film className="h-4 w-4 text-secondary" />
+          <span className="text-foreground text-[11px] font-bold">الريلز</span>
         </div>
       </header>
 
@@ -207,26 +196,8 @@ const VideosPage = () => {
             </div>
           )}
 
-          {/* Right Side Actions */}
-          <div className="absolute right-2 bottom-28 flex flex-col items-center gap-3 z-30">
-            {/* Avatar */}
-            <div className="flex flex-col items-center relative mb-1">
-              <div className="h-8 w-8 rounded-full bg-card/30 backdrop-blur-sm border border-secondary/50 flex items-center justify-center text-base">
-                {currentReel.avatar}
-              </div>
-              {!isFollowing && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleFollow(currentReel.author);
-                  }}
-                  className="absolute -bottom-1.5 bg-secondary rounded-full w-3.5 h-3.5 flex items-center justify-center"
-                >
-                  <Plus className="h-2.5 w-2.5 text-secondary-foreground" />
-                </button>
-              )}
-            </div>
-
+          {/* Left Side Actions */}
+          <div className="absolute left-2 bottom-28 flex flex-col items-center gap-3 z-30">
             {/* Like */}
             <button
               className="flex flex-col items-center gap-0.5"
@@ -285,16 +256,14 @@ const VideosPage = () => {
                 {formatNumber(currentReel.shares)}
               </span>
             </button>
-
-            {/* Spinning disc */}
-            <div className="h-7 w-7 rounded-full border border-secondary/40 bg-primary/80 flex items-center justify-center animate-[spin_3s_linear_infinite] shadow-lg">
-              <div className="h-3 w-3 rounded-full bg-secondary/80" />
-            </div>
           </div>
 
           {/* Bottom Info */}
-          <div className="absolute bottom-14 left-12 right-3 p-2 z-30">
+          <div className="absolute bottom-14 left-2 right-3 p-2 z-30">
             <div className="flex items-center gap-1.5 mb-1">
+              <div className="h-6 w-6 rounded-full bg-card/30 backdrop-blur-sm border border-secondary/50 flex items-center justify-center text-xs">
+                {currentReel.avatar}
+              </div>
               <span className="text-primary-foreground font-bold text-[10px]">@{currentReel.author}</span>
               {isFollowing ? (
                 <span className="text-[9px] text-primary-foreground/60 border border-primary-foreground/30 rounded px-1 py-0.5">متابَع</span>
