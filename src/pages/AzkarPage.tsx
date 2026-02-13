@@ -1,53 +1,34 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Sun, Moon, Bed, Coffee, Utensils, Car } from "lucide-react";
+import { ArrowRight, Sun, Moon, Bed, Coffee, Utensils, Car, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { azkarData, type AzkarCategory, type Dhikr } from "@/data/azkar";
 
-const azkarCategories = [
-  { id: "morning", title: "أذكار الصباح", icon: Sun, color: "from-amber-500 to-orange-500", count: 27 },
-  { id: "evening", title: "أذكار المساء", icon: Moon, color: "from-indigo-500 to-purple-600", count: 25 },
-  { id: "sleep", title: "أذكار النوم", icon: Bed, color: "from-blue-500 to-cyan-500", count: 15 },
-  { id: "wakeup", title: "أذكار الاستيقاظ", icon: Coffee, color: "from-emerald-500 to-teal-500", count: 8 },
-  { id: "food", title: "أذكار الطعام", icon: Utensils, color: "from-rose-500 to-pink-500", count: 6 },
-  { id: "travel", title: "أذكار السفر", icon: Car, color: "from-violet-500 to-purple-500", count: 10 },
-];
-
-const sampleAzkar = [
-  {
-    id: 1,
-    text: "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ",
-    repeat: 1,
-    completed: false,
-  },
-  {
-    id: 2,
-    text: "اللَّهُمَّ بِكَ أَصْبَحْنَا، وَبِكَ أَمْسَيْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ النُّشُورُ",
-    repeat: 1,
-    completed: false,
-  },
-  {
-    id: 3,
-    text: "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ",
-    repeat: 100,
-    completed: false,
-  },
-];
+const iconMap: Record<string, React.ElementType> = { Sun, Moon, Bed, Coffee, Utensils, Car };
 
 const AzkarPage = () => {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [azkarList, setAzkarList] = useState(sampleAzkar);
+  const [selectedCategory, setSelectedCategory] = useState<AzkarCategory | null>(null);
+  const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
+  const [counters, setCounters] = useState<Record<string, number>>({});
 
-  const toggleComplete = (id: number) => {
-    setAzkarList((prev) =>
-      prev.map((dhikr) =>
-        dhikr.id === id ? { ...dhikr, completed: !dhikr.completed } : dhikr
-      )
-    );
+  const handleTap = (catId: string, dhikr: Dhikr) => {
+    const key = `${catId}-${dhikr.id}`;
+    const current = counters[key] || 0;
+    const next = current + 1;
+
+    if (next >= dhikr.repeat) {
+      setCompletedIds((prev) => new Set(prev).add(key));
+      setCounters((prev) => ({ ...prev, [key]: dhikr.repeat }));
+    } else {
+      setCounters((prev) => ({ ...prev, [key]: next }));
+    }
   };
 
   if (selectedCategory) {
-    const category = azkarCategories.find((c) => c.id === selectedCategory);
-    
+    const completedCount = selectedCategory.azkar.filter(
+      (d) => completedIds.has(`${selectedCategory.id}-${d.id}`)
+    ).length;
+
     return (
       <div className="min-h-screen bg-background">
         <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-lg border-b border-border">
@@ -55,42 +36,53 @@ const AzkarPage = () => {
             <Button variant="ghost" size="icon" onClick={() => setSelectedCategory(null)}>
               <ArrowRight className="h-5 w-5" />
             </Button>
-            <h1 className="text-xl font-bold font-amiri">{category?.title}</h1>
-            <div className="w-10" />
+            <h1 className="text-xl font-bold font-amiri">{selectedCategory.title}</h1>
+            <span className="text-xs text-muted-foreground w-10 text-center">
+              {completedCount}/{selectedCategory.azkar.length}
+            </span>
           </div>
         </header>
 
-        <main className="container py-4 space-y-4">
-          {azkarList.map((dhikr, index) => (
-            <button
-              key={dhikr.id}
-              onClick={() => toggleComplete(dhikr.id)}
-              className={`w-full text-right bg-card rounded-2xl p-5 shadow-card-islamic transition-all animate-fadeIn ${
-                dhikr.completed ? "opacity-50" : ""
-              }`}
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <p className={`text-lg font-amiri leading-loose ${
-                dhikr.completed ? "line-through" : ""
-              }`}>
-                {dhikr.text}
-              </p>
-              <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
-                <span className={`text-sm font-medium ${
-                  dhikr.completed ? "text-primary" : "text-muted-foreground"
-                }`}>
-                  {dhikr.completed ? "✓ تم" : `التكرار: ${dhikr.repeat} مرة`}
-                </span>
-                <div className={`h-8 w-8 rounded-full border-2 flex items-center justify-center transition-colors ${
-                  dhikr.completed 
-                    ? "bg-primary border-primary text-primary-foreground" 
-                    : "border-muted-foreground"
-                }`}>
-                  {dhikr.completed && "✓"}
+        <main className="container py-4 space-y-3 pb-8">
+          {selectedCategory.azkar.map((dhikr, index) => {
+            const key = `${selectedCategory.id}-${dhikr.id}`;
+            const isCompleted = completedIds.has(key);
+            const current = counters[key] || 0;
+
+            return (
+              <button
+                key={dhikr.id}
+                onClick={() => !isCompleted && handleTap(selectedCategory.id, dhikr)}
+                className={`w-full text-right bg-card rounded-2xl p-5 shadow-card-islamic transition-all animate-fadeIn ${
+                  isCompleted ? "opacity-50" : ""
+                }`}
+                style={{ animationDelay: `${index * 60}ms` }}
+              >
+                <p className={`text-[16px] font-amiri leading-loose ${isCompleted ? "line-through" : ""}`}>
+                  {dhikr.text}
+                </p>
+                <div className="flex items-center justify-between mt-4 pt-3 border-t border-border">
+                  <div className="flex flex-col gap-0.5">
+                    {dhikr.source && (
+                      <span className="text-[11px] text-muted-foreground">📚 {dhikr.source}</span>
+                    )}
+                    <span className={`text-xs font-medium ${isCompleted ? "text-primary" : "text-muted-foreground"}`}>
+                      {isCompleted ? "✓ تم" : `${current}/${dhikr.repeat}`}
+                    </span>
+                  </div>
+                  <div className={`h-9 w-9 rounded-full border-2 flex items-center justify-center transition-colors ${
+                    isCompleted
+                      ? "bg-primary border-primary text-primary-foreground"
+                      : "border-muted-foreground/30"
+                  }`}>
+                    {isCompleted ? <Check className="h-4 w-4" /> : (
+                      <span className="text-xs font-bold">{dhikr.repeat - current}</span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </button>
-          ))}
+              </button>
+            );
+          })}
         </main>
       </div>
     );
@@ -112,18 +104,21 @@ const AzkarPage = () => {
 
       <main className="container py-6">
         <div className="grid grid-cols-2 gap-4">
-          {azkarCategories.map((category, index) => (
-            <button
-              key={category.id}
-              onClick={() => setSelectedCategory(category.id)}
-              className={`bg-gradient-to-br ${category.color} rounded-2xl p-5 text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl animate-fadeIn`}
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <category.icon className="h-10 w-10 mb-3 opacity-90" />
-              <h3 className="font-bold text-base mb-1">{category.title}</h3>
-              <p className="text-sm opacity-80">{category.count} ذكر</p>
-            </button>
-          ))}
+          {azkarData.map((category, index) => {
+            const IconComp = iconMap[category.icon] || Sun;
+            return (
+              <button
+                key={category.id}
+                onClick={() => setSelectedCategory(category)}
+                className={`bg-gradient-to-br ${category.color} rounded-2xl p-5 text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl animate-fadeIn`}
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <IconComp className="h-10 w-10 mb-3 opacity-90" />
+                <h3 className="font-bold text-base mb-1">{category.title}</h3>
+                <p className="text-sm opacity-80">{category.azkar.length} ذكر</p>
+              </button>
+            );
+          })}
         </div>
       </main>
     </div>
