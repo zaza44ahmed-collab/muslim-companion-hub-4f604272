@@ -42,7 +42,7 @@ const DailyQuote = () => {
         setCurrentIndex((prev) => (prev + 1) % quotes.length);
         setIsAnimating(false);
       }, 400);
-    }, 5000);
+    }, 10000);
     return () => clearInterval(interval);
   }, [quotes.length]);
 
