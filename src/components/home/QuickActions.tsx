@@ -57,7 +57,7 @@ const QuickActions = () => {
             key={action.id}
             to={action.path}
             className={cn(
-              "group relative flex flex-col items-center justify-center p-3 rounded-2xl",
+              "group relative flex flex-col items-center justify-center p-3 rounded-lg",
               "bg-gradient-to-br shadow-card-islamic hover:shadow-lg",
               "transition-all duration-300 hover:scale-105 hover:-translate-y-1",
               "active:scale-90 active:shadow-inner active:brightness-110",

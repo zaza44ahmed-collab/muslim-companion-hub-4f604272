@@ -6,7 +6,7 @@ const PrayerTimes = () => {
 
   if (loading) {
     return (
-      <div className="rounded-2xl bg-card border-2 border-secondary/30 p-6">
+      <div className="rounded-lg bg-card border-2 border-secondary/30 p-6">
         <div className="flex flex-col items-center justify-center py-6 gap-3">
           <Loader2 className="h-7 w-7 text-secondary animate-spin" />
           <p className="text-muted-foreground text-sm">جاري تحميل أوقات الصلاة...</p>
@@ -17,7 +17,7 @@ const PrayerTimes = () => {
 
   if (error || prayers.length === 0) {
     return (
-      <div className="rounded-2xl bg-card border-2 border-secondary/30 p-6">
+      <div className="rounded-lg bg-card border-2 border-secondary/30 p-6">
         <p className="text-muted-foreground text-sm text-center py-6">
           {error || "تعذر تحميل أوقات الصلاة"}
         </p>
@@ -40,7 +40,7 @@ const PrayerTimes = () => {
         </div>
       </div>
 
-      <div className="rounded-2xl overflow-hidden border-2 border-secondary/30">
+      <div className="rounded-lg overflow-hidden border-2 border-secondary/30">
         {/* Current prayer + countdown + progress */}
         <div className="bg-card px-3 pt-3 pb-2">
           <div className="flex items-center justify-between mb-2">
