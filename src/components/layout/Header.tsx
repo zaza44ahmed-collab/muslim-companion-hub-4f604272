@@ -1,6 +1,7 @@
 import { Store, User, Moon, Sun } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 function getHijriDate(): string {
   try {
@@ -27,6 +28,27 @@ function getGregorianDate(): string {
 const Header = () => {
   const hijriDate = getHijriDate();
   const gregorianDate = getGregorianDate();
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchAvatar = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase
+          .from("profiles")
+          .select("avatar_url")
+          .eq("id", user.id)
+          .single();
+        if (data?.avatar_url) setAvatarUrl(data.avatar_url);
+      }
+    };
+    fetchAvatar();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      fetchAvatar();
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== "undefined") {
@@ -56,9 +78,13 @@ const Header = () => {
         {/* Right side - User */}
         <div className="flex items-center gap-2.5">
           <Link to="/settings">
-            <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
-              <User className="h-4.5 w-4.5 text-primary" />
-            </div>
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="صورة المستخدم" className="h-9 w-9 rounded-full object-cover border-2 border-primary/30" />
+            ) : (
+              <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
+                <User className="h-4.5 w-4.5 text-primary" />
+              </div>
+            )}
           </Link>
           <div>
             <h1 className="text-sm font-bold font-cairo text-foreground leading-tight">
