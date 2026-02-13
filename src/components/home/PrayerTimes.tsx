@@ -1,8 +1,8 @@
-import { MapPin, Loader2 } from "lucide-react";
+import { MapPin, Loader2, LocateFixed } from "lucide-react";
 import { usePrayerTimes } from "@/hooks/usePrayerTimes";
 
 const PrayerTimes = () => {
-  const { prayers, currentPrayerIndex, timeToNext, progress, locationName, loading, error } = usePrayerTimes();
+  const { prayers, currentPrayerIndex, timeToNext, progress, locationName, loading, error, requestLocation } = usePrayerTimes();
 
   if (loading) {
     return (
@@ -34,10 +34,13 @@ const PrayerTimes = () => {
       {/* Title + Location */}
       <div className="flex items-center justify-between mb-2.5">
         <h3 className="font-bold text-sm text-foreground">مواقيت الصلاة</h3>
-        <div className="flex items-center gap-1 text-muted-foreground/60 text-[11px]">
-          <MapPin className="h-3 w-3" />
+        <button
+          onClick={requestLocation}
+          className="flex items-center gap-1 text-muted-foreground/60 text-[11px] hover:text-primary transition-colors active:scale-95"
+        >
+          <LocateFixed className="h-3.5 w-3.5" />
           <span>{locationName}</span>
-        </div>
+        </button>
       </div>
 
       <div className="rounded-2xl bg-card overflow-hidden">
