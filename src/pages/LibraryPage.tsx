@@ -2,19 +2,9 @@ import { useState } from "react";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Download, Heart, Star, Filter, TrendingUp, Sparkles, ChevronLeft } from "lucide-react";
+import { BookOpen, Download, Heart, Star, Filter, Sparkles, ChevronLeft } from "lucide-react";
 import { books, bookCategories, type BookItem } from "@/data/books";
 import BookDetailDialog from "@/components/library/BookDetailDialog";
-
-const topDownloaded = [...books].sort((a, b) => {
-  const parseDownloads = (d: string) => {
-    const num = parseFloat(d.replace(/[^0-9.]/g, ""));
-    if (d.includes("M")) return num * 1000000;
-    if (d.includes("K")) return num * 1000;
-    return num;
-  };
-  return parseDownloads(b.downloads) - parseDownloads(a.downloads);
-}).slice(0, 4);
 
 const suggested = books.filter((book) => book.rating >= 4.9).slice(0, 4);
 
@@ -83,52 +73,6 @@ const LibraryPage = () => {
                     <Star className="h-2.5 w-2.5 fill-gold text-gold" />
                     <span className="text-[10px] font-semibold">{book.rating}</span>
                   </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Most Downloaded Books */}
-        <section className="mb-4">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-1.5">
-              <TrendingUp className="h-4 w-4 text-primary" />
-              <h3 className="font-bold text-sm">الأكثر تحميلاً</h3>
-            </div>
-            <Button variant="ghost" size="sm" className="text-primary gap-1 text-[10px] px-1.5 h-7">
-              عرض الكل
-              <ChevronLeft className="h-3 w-3" />
-            </Button>
-          </div>
-          <div className="space-y-2">
-            {topDownloaded.map((book, index) => (
-              <div
-                key={`top-${book.id}`}
-                className="bg-card rounded-xl p-2.5 shadow-card-islamic cursor-pointer hover:shadow-lg transition-shadow flex items-center gap-2"
-                onClick={() => setSelectedBook(book)}
-              >
-                <span className="text-lg font-bold text-primary/30 w-6 text-center shrink-0">
-                  {index + 1}
-                </span>
-                <img
-                  src={book.cover}
-                  alt={book.title}
-                  className="h-12 w-9 rounded-md object-cover shadow-sm shrink-0"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/placeholder.svg";
-                  }}
-                />
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-bold text-sm truncate">{book.title}</h4>
-                  <p className="text-xs text-muted-foreground truncate">{book.author}</p>
-                </div>
-                <div className="flex flex-col items-end gap-1 shrink-0">
-                  <span className="flex items-center gap-1 text-xs">
-                    <Star className="h-3 w-3 fill-gold text-gold" />
-                    {book.rating}
-                  </span>
-                  <span className="text-xs text-muted-foreground">{book.downloads}</span>
                 </div>
               </div>
             ))}
