@@ -114,7 +114,68 @@ export function usePrayerTimes() {
   });
 
   const fetchPrayerTimes = useCallback(async (lat: number, lng: number) => {
-    // ... keep existing code
+    try {
+      const today = new Date();
+      const dd = today.getDate();
+      const mm = today.getMonth() + 1;
+      const yyyy = today.getFullYear();
+      
+      const response = await fetch(
+        `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lng}&method=5`
+      );
+      
+      const contentType = response.headers.get("content-type");
+      if (!contentType?.includes("application/json")) {
+        throw new Error("API returned non-JSON response");
+      }
+      
+      const data = await response.json();
+      
+      if (data.code !== 200 || !data.data?.timings) {
+        throw new Error("Invalid API response");
+      }
+      
+      const timings = data.data.timings;
+      const prayersList: PrayerTime[] = PRAYER_KEYS.map((key) => {
+        const rawTime = timings[key];
+        const cleanTime = rawTime.split(" ")[0]; // Remove timezone suffix
+        return {
+          name: PRAYER_NAMES_AR[key] || key,
+          time: cleanTime,
+          icon: PRAYER_ICONS[key] || "🕌",
+          passed: false,
+        };
+      });
+      
+      const { currentIndex, timeToNext, progress } = calculateCurrentPrayer(prayersList);
+      
+      // Reverse geocode for location name
+      let locName = "موقعك الحالي";
+      try {
+        const geoRes = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=ar`
+        );
+        const geoData = await geoRes.json();
+        locName = geoData.address?.city || geoData.address?.town || geoData.address?.state || locName;
+      } catch {}
+      
+      setState({
+        prayers: prayersList,
+        currentPrayerIndex: currentIndex,
+        timeToNext,
+        progress,
+        locationName: locName,
+        loading: false,
+        error: null,
+      });
+    } catch (err: any) {
+      console.error("Prayer times fetch error:", err);
+      setState((prev) => ({
+        ...prev,
+        loading: false,
+        error: "تعذر تحميل أوقات الصلاة، حاول مرة أخرى",
+      }));
+    }
   }, []);
 
   const requestLocation = useCallback(() => {
