@@ -40,7 +40,7 @@ const AuthPage = () => {
         navigate("/settings");
       }
     } else {
-      const { error } = await signUp(email, password);
+      const { error } = await signUp(email, password, fullName);
       if (error) {
         toast({ title: "خطأ في إنشاء الحساب", description: error.message, variant: "destructive" });
       } else {
