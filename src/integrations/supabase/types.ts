@@ -153,6 +153,83 @@ export type Database = {
         }
         Relationships: []
       }
+      reel_likes: {
+        Row: {
+          created_at: string
+          id: string
+          reel_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reel_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reel_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reel_likes_reel_id_fkey"
+            columns: ["reel_id"]
+            isOneToOne: false
+            referencedRelation: "reels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reels: {
+        Row: {
+          audio_name: string | null
+          comments_count: number
+          created_at: string
+          description: string | null
+          id: string
+          likes_count: number
+          shares_count: number
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          user_id: string
+          video_url: string
+          views_count: number
+        }
+        Insert: {
+          audio_name?: string | null
+          comments_count?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          likes_count?: number
+          shares_count?: number
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+          video_url: string
+          views_count?: number
+        }
+        Update: {
+          audio_name?: string | null
+          comments_count?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          likes_count?: number
+          shares_count?: number
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          video_url?: string
+          views_count?: number
+        }
+        Relationships: []
+      }
       user_preferences: {
         Row: {
           created_at: string
