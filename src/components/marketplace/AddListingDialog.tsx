@@ -5,14 +5,14 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
 const categories = [
-  { id: "electronics", name: "إلكترونيات" },
-  { id: "cars", name: "سيارات" },
-  { id: "realestate", name: "عقارات" },
-  { id: "furniture", name: "أثاث" },
-  { id: "clothing", name: "ملابس" },
-  { id: "books", name: "كتب" },
-  { id: "sports", name: "رياضة" },
-  { id: "services", name: "خدمات" },
+  { id: "quran", name: "مصاحف" },
+  { id: "books", name: "كتب إسلامية" },
+  { id: "clothing", name: "ملابس شرعية" },
+  { id: "prayer", name: "مستلزمات صلاة" },
+  { id: "perfume", name: "عطور و بخور" },
+  { id: "tasbih", name: "سبح و أذكار" },
+  { id: "gifts", name: "هدايا إسلامية" },
+  { id: "decor", name: "ديكور إسلامي" },
 ];
 
 const conditions = ["جديد", "مستعمل - ممتاز", "مستعمل - جيد جداً", "مستعمل - جيد", "خدمة"];
@@ -34,7 +34,7 @@ const AddListingDialog = ({ open, onOpenChange, onSubmit }: AddListingDialogProp
   const [previews, setPreviews] = useState<string[]>([]);
   const [form, setForm] = useState({
     title: "", description: "", price: "", location: "",
-    category: "electronics", condition: "مستعمل - ممتاز", phone: "",
+    category: "quran", condition: "مستعمل - ممتاز", phone: "",
   });
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,7 +57,7 @@ const AddListingDialog = ({ open, onOpenChange, onSubmit }: AddListingDialogProp
 
   const resetForm = () => {
     previews.forEach(URL.revokeObjectURL);
-    setForm({ title: "", description: "", price: "", location: "", category: "electronics", condition: "مستعمل - ممتاز", phone: "" });
+    setForm({ title: "", description: "", price: "", location: "", category: "quran", condition: "مستعمل - ممتاز", phone: "" });
     setImages([]);
     setPreviews([]);
   };
@@ -98,7 +98,7 @@ const AddListingDialog = ({ open, onOpenChange, onSubmit }: AddListingDialogProp
     <Dialog open={open} onOpenChange={(v) => { if (!v) resetForm(); onOpenChange(v); }}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto" dir="rtl">
         <DialogHeader>
-          <DialogTitle className="text-base font-bold font-amiri text-primary">إضافة إعلان جديد</DialogTitle>
+          <DialogTitle className="text-base font-bold font-amiri text-primary">إضافة منتج إسلامي</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-3 mt-2">

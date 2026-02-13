@@ -16,15 +16,15 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
 const categories = [
-  { id: "all", name: "الكل", emoji: "🏪" },
-  { id: "electronics", name: "إلكترونيات", emoji: "📱" },
-  { id: "cars", name: "سيارات", emoji: "🚗" },
-  { id: "realestate", name: "عقارات", emoji: "🏠" },
-  { id: "furniture", name: "أثاث", emoji: "🪑" },
-  { id: "clothing", name: "ملابس", emoji: "👕" },
-  { id: "books", name: "كتب", emoji: "📚" },
-  { id: "sports", name: "رياضة", emoji: "⚽" },
-  { id: "services", name: "خدمات", emoji: "🔧" },
+  { id: "all", name: "الكل", emoji: "🕌" },
+  { id: "quran", name: "مصاحف", emoji: "📖" },
+  { id: "books", name: "كتب إسلامية", emoji: "📚" },
+  { id: "clothing", name: "ملابس شرعية", emoji: "🧕" },
+  { id: "prayer", name: "مستلزمات صلاة", emoji: "🕋" },
+  { id: "perfume", name: "عطور و بخور", emoji: "🪔" },
+  { id: "tasbih", name: "سبح و أذكار", emoji: "📿" },
+  { id: "gifts", name: "هدايا إسلامية", emoji: "🎁" },
+  { id: "decor", name: "ديكور إسلامي", emoji: "🏮" },
 ];
 
 type SortOption = "newest" | "price_low" | "price_high" | "popular";
@@ -95,7 +95,7 @@ const MarketplacePage = () => {
         <div className="container flex h-12 items-center justify-between">
           <div className="flex items-center gap-2">
             <Store className="h-5 w-5 text-secondary" />
-            <h1 className="text-base font-bold font-amiri text-primary">ماركت بلايس</h1>
+            <h1 className="text-base font-bold font-amiri text-primary">متجر إسلامي</h1>
           </div>
           <Link to="/">
             <Button variant="ghost" size="icon">
@@ -114,7 +114,7 @@ const MarketplacePage = () => {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="ابحث عن منتج، خدمة، أو مكان..."
+              placeholder="ابحث عن مصحف، سبحة، كتاب إسلامي..."
               className="w-full h-10 pr-9 pl-3 rounded-xl border-2 border-secondary/30 bg-card text-sm focus:outline-none focus:border-primary/60 transition-colors"
             />
             {searchQuery && (
