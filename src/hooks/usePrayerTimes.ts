@@ -114,80 +114,17 @@ export function usePrayerTimes() {
   });
 
   const fetchPrayerTimes = useCallback(async (lat: number, lng: number) => {
-    try {
-      const today = new Date();
-      const dd = String(today.getDate()).padStart(2, "0");
-      const mm = String(today.getMonth() + 1).padStart(2, "0");
-      const yyyy = today.getFullYear();
-
-      const response = await fetch(
-        `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lng}&method=5`
-      );
-
-      if (!response.ok) throw new Error("فشل في جلب أوقات الصلاة");
-
-      const data = await response.json();
-      const timings = data.data.timings;
-
-      const prayers: PrayerTime[] = PRAYER_KEYS.map((key) => ({
-        name: PRAYER_NAMES_AR[key],
-        time: timings[key].replace(/\s*\((.*)\)/, ""), // Remove timezone info
-        icon: PRAYER_ICONS[key],
-        passed: false,
-      }));
-
-      const { currentIndex, timeToNext, progress } = calculateCurrentPrayer(prayers);
-
-      // Reverse geocode for location name
-      let locationName = `${lat.toFixed(2)}°, ${lng.toFixed(2)}°`;
-      try {
-        const geoRes = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=ar`
-        );
-        if (geoRes.ok) {
-          const geoData = await geoRes.json();
-          const city =
-            geoData.address?.city ||
-            geoData.address?.town ||
-            geoData.address?.village ||
-            geoData.address?.state ||
-            "";
-          const country = geoData.address?.country || "";
-          if (city || country) {
-            locationName = [city, country].filter(Boolean).join("، ");
-          }
-        }
-      } catch {
-        // Keep coordinates as fallback
-      }
-
-      setState({
-        prayers,
-        currentPrayerIndex: currentIndex,
-        timeToNext,
-        progress,
-        locationName,
-        loading: false,
-        error: null,
-      });
-    } catch (err) {
-      setState((prev) => ({
-        ...prev,
-        loading: false,
-        error: err instanceof Error ? err.message : "خطأ غير معروف",
-      }));
-    }
+    // ... keep existing code
   }, []);
 
-  useEffect(() => {
-    // Try geolocation
+  const requestLocation = useCallback(() => {
+    setState((prev) => ({ ...prev, loading: true, error: null }));
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           fetchPrayerTimes(position.coords.latitude, position.coords.longitude);
         },
         () => {
-          // Default to Cairo
           fetchPrayerTimes(30.0444, 31.2357);
         },
         { enableHighAccuracy: true, timeout: 5000 }
@@ -196,6 +133,10 @@ export function usePrayerTimes() {
       fetchPrayerTimes(30.0444, 31.2357);
     }
   }, [fetchPrayerTimes]);
+
+  useEffect(() => {
+    requestLocation();
+  }, [requestLocation]);
 
   // Update countdown every minute
   useEffect(() => {
@@ -218,5 +159,5 @@ export function usePrayerTimes() {
     return () => clearInterval(interval);
   }, [state.prayers]);
 
-  return state;
+  return { ...state, requestLocation };
 }
