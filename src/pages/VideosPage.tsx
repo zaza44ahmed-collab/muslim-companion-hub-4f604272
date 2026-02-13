@@ -94,14 +94,8 @@ const VideosPage = () => {
 
   return (
     <div className="fixed inset-0 bg-background">
-      {/* Header - no icon */}
-      <header className="absolute top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-lg border-b border-secondary/30">
-        <div className="flex items-center justify-center px-2 h-10">
-          <span className="text-foreground text-[11px] font-bold">الريلز</span>
-        </div>
-      </header>
 
-      <div className="h-full w-full pt-10 pb-[60px]" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+      <div className="h-full w-full pb-[60px]" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         {loading ? (
           <div className="h-full flex items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
