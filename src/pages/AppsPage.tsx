@@ -2,19 +2,9 @@ import { useState } from "react";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import { Button } from "@/components/ui/button";
-import { Download, Star, Filter, TrendingUp, Sparkles, ChevronLeft } from "lucide-react";
+import { Download, Star, Filter, Sparkles, ChevronLeft } from "lucide-react";
 import { apps, appCategories, type AppItem } from "@/data/apps";
 import AppDetailDialog from "@/components/apps/AppDetailDialog";
-
-const topDownloaded = [...apps].sort((a, b) => {
-  const parseDownloads = (d: string) => {
-    const num = parseFloat(d.replace(/[^0-9.]/g, ""));
-    if (d.includes("M")) return num * 1000000;
-    if (d.includes("K")) return num * 1000;
-    return num;
-  };
-  return parseDownloads(b.downloads) - parseDownloads(a.downloads);
-}).slice(0, 4);
 
 const suggested = apps.filter((app) => app.rating >= 4.8).slice(0, 4);
 
@@ -73,52 +63,6 @@ const AppsPage = () => {
                 <div className="flex items-center justify-center gap-1 mt-1.5">
                   <Star className="h-3 w-3 fill-gold text-gold" />
                   <span className="text-xs font-semibold">{app.rating}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Most Downloaded */}
-        <section className="mb-4">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-1.5">
-              <TrendingUp className="h-4 w-4 text-primary" />
-              <h3 className="font-bold text-sm">الأكثر تحميلاً</h3>
-            </div>
-            <Button variant="ghost" size="sm" className="text-primary gap-1 text-[10px] px-1.5 h-7">
-              عرض الكل
-              <ChevronLeft className="h-3 w-3" />
-            </Button>
-          </div>
-          <div className="space-y-2">
-            {topDownloaded.map((app, index) => (
-              <div
-                key={`top-${app.id}`}
-                className="bg-card rounded-xl p-2.5 shadow-card-islamic cursor-pointer hover:shadow-lg transition-shadow flex items-center gap-2"
-                onClick={() => setSelectedApp(app)}
-              >
-                <span className="text-lg font-bold text-primary/30 w-6 text-center shrink-0">
-                  {index + 1}
-                </span>
-                <img
-                  src={app.icon}
-                  alt={app.name}
-                  className="h-10 w-10 rounded-lg object-cover shadow-sm shrink-0"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/placeholder.svg";
-                  }}
-                />
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-bold text-sm truncate">{app.name}</h4>
-                  <p className="text-xs text-muted-foreground truncate">{app.description}</p>
-                </div>
-                <div className="flex flex-col items-end gap-1 shrink-0">
-                  <span className="flex items-center gap-1 text-xs">
-                    <Star className="h-3 w-3 fill-gold text-gold" />
-                    {app.rating}
-                  </span>
-                  <span className="text-xs text-muted-foreground">{app.downloads}</span>
                 </div>
               </div>
             ))}
