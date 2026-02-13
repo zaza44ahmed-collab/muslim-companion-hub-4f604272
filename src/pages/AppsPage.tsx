@@ -6,11 +6,14 @@ import { Download, Star, Filter, Sparkles, ChevronLeft } from "lucide-react";
 import { apps, appCategories, type AppItem } from "@/data/apps";
 import AppDetailDialog from "@/components/apps/AppDetailDialog";
 
-const suggested = apps.filter((app) => app.rating >= 4.8).slice(0, 4);
+const allSuggested = apps.filter((app) => app.rating >= 4.8);
 
 const AppsPage = () => {
   const [activeCategory, setActiveCategory] = useState("all");
   const [selectedApp, setSelectedApp] = useState<AppItem | null>(null);
+  const [showAllSuggested, setShowAllSuggested] = useState(false);
+
+  const suggested = showAllSuggested ? allSuggested : allSuggested.slice(0, 4);
 
   const filteredApps =
     activeCategory === "all"
@@ -36,9 +39,9 @@ const AppsPage = () => {
               <Sparkles className="h-4 w-4 text-gold" />
               <h3 className="font-bold text-sm">مقترحة لك</h3>
             </div>
-            <Button variant="ghost" size="sm" className="text-primary gap-1 text-[10px] px-1.5 h-7">
-              عرض الكل
-              <ChevronLeft className="h-3 w-3" />
+            <Button variant="ghost" size="sm" className="text-primary gap-1 text-[10px] px-1.5 h-7" onClick={() => setShowAllSuggested(!showAllSuggested)}>
+              {showAllSuggested ? "عرض أقل" : "عرض الكل"}
+              <ChevronLeft className={`h-3 w-3 transition-transform ${showAllSuggested ? "rotate-90" : ""}`} />
             </Button>
           </div>
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
