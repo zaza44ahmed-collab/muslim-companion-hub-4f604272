@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Camera, ArrowRight, Save, User, Mail, Loader2 } from "lucide-react";
+import { Camera, ArrowRight, Save, User, Mail, Loader2, Lock, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
@@ -20,6 +20,13 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -106,6 +113,34 @@ const ProfilePage = () => {
       toast({ title: "تم حفظ التغييرات بنجاح" });
     }
     setSaving(false);
+  };
+
+  const handleChangePassword = async () => {
+    if (!newPassword || !confirmPassword) {
+      toast({ title: "خطأ", description: "يرجى ملء جميع الحقول", variant: "destructive" });
+      return;
+    }
+    if (newPassword.length < 6) {
+      toast({ title: "خطأ", description: "كلمة المرور يجب أن تكون 6 أحرف على الأقل", variant: "destructive" });
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast({ title: "خطأ", description: "كلمتا المرور غير متطابقتين", variant: "destructive" });
+      return;
+    }
+
+    setChangingPassword(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+
+    if (error) {
+      toast({ title: "خطأ في تغيير كلمة المرور", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "تم تغيير كلمة المرور بنجاح" });
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    }
+    setChangingPassword(false);
   };
 
   if (authLoading || loading) {
@@ -205,6 +240,62 @@ const ProfilePage = () => {
               <Save className="h-4 w-4" />
             )}
             {saving ? "جاري الحفظ..." : "حفظ التغييرات"}
+          </Button>
+        </div>
+
+        {/* Password Change */}
+        <div className="space-y-4 animate-fadeIn" style={{ animationDelay: "200ms" }}>
+          <div className="rounded-2xl border-2 border-secondary/30 bg-card p-5 space-y-4">
+            <h3 className="text-sm font-bold text-foreground font-cairo flex items-center gap-2">
+              <Lock className="h-4 w-4 text-secondary" />
+              تغيير كلمة المرور
+            </h3>
+
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-muted-foreground">كلمة المرور الجديدة</label>
+              <div className="relative">
+                <Input
+                  type={showNewPassword ? "text" : "password"}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="أدخل كلمة المرور الجديدة"
+                  className="text-right h-12 rounded-xl border-2 border-secondary/20 focus:border-primary bg-background text-base pl-10"
+                />
+                <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                  {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-muted-foreground">تأكيد كلمة المرور</label>
+              <div className="relative">
+                <Input
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="أعد إدخال كلمة المرور"
+                  className="text-right h-12 rounded-xl border-2 border-secondary/20 focus:border-primary bg-background text-base pl-10"
+                />
+                <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <Button
+            onClick={handleChangePassword}
+            disabled={changingPassword}
+            variant="outline"
+            className="w-full h-12 rounded-xl font-semibold text-base gap-2 border-2 border-secondary/30"
+          >
+            {changingPassword ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Lock className="h-4 w-4" />
+            )}
+            {changingPassword ? "جاري التغيير..." : "تغيير كلمة المرور"}
           </Button>
         </div>
       </main>
