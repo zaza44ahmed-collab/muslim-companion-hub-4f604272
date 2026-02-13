@@ -22,7 +22,7 @@ const AppsPage = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <Header />
+      
 
       <main className="container py-3">
         <div className="flex items-center justify-between mb-3">
