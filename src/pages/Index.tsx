@@ -8,20 +8,17 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background pb-20">
       <Header />
-      
-      <main className="container py-2 space-y-3">
-        {/* Daily Quote / Azkar */}
-        <section className="animate-fadeIn">
+
+      <main className="container py-4 space-y-5 px-4">
+        <section>
           <DailyQuote />
         </section>
 
-        {/* Quick Actions - 6 Icons */}
-        <section className="animate-fadeIn" style={{ animationDelay: "100ms" }}>
+        <section>
           <QuickActions />
         </section>
 
-        {/* Prayer Times */}
-        <section className="animate-fadeIn" style={{ animationDelay: "200ms" }}>
+        <section>
           <PrayerTimes />
         </section>
       </main>
