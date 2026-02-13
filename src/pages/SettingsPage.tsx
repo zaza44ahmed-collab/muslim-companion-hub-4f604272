@@ -129,7 +129,10 @@ const SettingsPage = () => {
             </div>
 
             <div className="relative flex items-center gap-4 flex-row-reverse">
-              <div className="h-16 w-16 rounded-2xl bg-primary-foreground/15 border-2 border-secondary/40 flex items-center justify-center shadow-lg">
+              <div
+                className="h-16 w-16 rounded-2xl bg-primary-foreground/15 border-2 border-secondary/40 flex items-center justify-center shadow-lg cursor-pointer overflow-hidden"
+                onClick={() => user && navigate("/profile")}
+              >
                 <User className="h-8 w-8 text-primary-foreground" />
               </div>
               <div className="flex-1 text-right">
@@ -139,6 +142,12 @@ const SettingsPage = () => {
                       مرحباً بك 👋
                     </h2>
                     <p className="text-primary-foreground/70 text-sm mt-1">{user.email}</p>
+                    <button
+                      onClick={() => navigate("/profile")}
+                      className="text-xs text-primary-foreground/60 hover:text-primary-foreground/90 mt-1 underline"
+                    >
+                      تعديل الملف الشخصي
+                    </button>
                   </>
                 ) : (
                   <>
