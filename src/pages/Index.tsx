@@ -40,7 +40,7 @@ const AnimatedSection = ({ children, delay = 0 }: { children: React.ReactNode; d
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen islamic-bg-light pb-20">
       <Header />
 
       <main className="container py-4 space-y-5 px-4">
