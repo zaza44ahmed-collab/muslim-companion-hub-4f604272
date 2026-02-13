@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   User,
@@ -25,6 +26,7 @@ import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/hooks/useAuth";
 import { usePreferences } from "@/hooks/usePreferences";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface MenuItemProps {
   icon: React.ElementType;
@@ -78,6 +80,17 @@ const SettingsPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const [profileData, setProfileData] = useState<{ display_name: string | null; avatar_url: string | null }>({ display_name: null, avatar_url: null });
+
+  useEffect(() => {
+    if (user) {
+      supabase.from("profiles").select("display_name, avatar_url").eq("id", user.id).single()
+        .then(({ data }) => {
+          if (data) setProfileData({ display_name: data.display_name, avatar_url: data.avatar_url });
+        });
+    }
+  }, [user]);
+
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
@@ -130,16 +143,21 @@ const SettingsPage = () => {
 
             <div className="relative flex items-center gap-4 flex-row-reverse">
               <div
-                className="h-16 w-16 rounded-2xl bg-primary-foreground/15 border-2 border-secondary/40 flex items-center justify-center shadow-lg cursor-pointer overflow-hidden"
+                className="h-16 w-16 rounded-2xl border-2 border-secondary/40 flex items-center justify-center shadow-lg cursor-pointer overflow-hidden"
+                style={{ background: "hsla(0,0%,100%,0.15)" }}
                 onClick={() => user && navigate("/profile")}
               >
-                <User className="h-8 w-8 text-primary-foreground" />
+                {profileData.avatar_url ? (
+                  <img src={profileData.avatar_url} alt="الصورة الشخصية" className="h-full w-full object-cover" />
+                ) : (
+                  <User className="h-8 w-8 text-primary-foreground" />
+                )}
               </div>
               <div className="flex-1 text-right">
                 {user ? (
                   <>
                     <h2 className="text-lg font-bold text-primary-foreground font-cairo">
-                      مرحباً بك 👋
+                      {profileData.display_name ? `مرحباً ${profileData.display_name} 👋` : "مرحباً بك 👋"}
                     </h2>
                     <p className="text-primary-foreground/70 text-sm mt-1">{user.email}</p>
                     <button
