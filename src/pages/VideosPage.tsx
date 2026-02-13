@@ -3,6 +3,7 @@ import { Heart, Share2, Bookmark, MessageCircle, Music2, Plus, Loader2, Trash2 }
 import { useNavigate } from "react-router-dom";
 import BottomNav from "@/components/layout/BottomNav";
 import AddReelDialog from "@/components/reels/AddReelDialog";
+import ReelCommentsSheet from "@/components/reels/ReelCommentsSheet";
 import { useReels } from "@/hooks/useReels";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -17,6 +18,7 @@ const VideosPage = () => {
   const [savedReels, setSavedReels] = useState<Set<string>>(new Set());
   const [showHeart, setShowHeart] = useState(false);
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [commentsReelId, setCommentsReelId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const lastTapRef = useRef(0);
   const touchStartY = useRef(0);
@@ -143,7 +145,7 @@ const VideosPage = () => {
                 <span className="text-white text-[9px] font-bold drop-shadow">{formatNumber(currentReel.likes_count)}</span>
               </button>
 
-              <button className="flex flex-col items-center gap-0.5" onClick={(e) => e.stopPropagation()}>
+              <button className="flex flex-col items-center gap-0.5" onClick={(e) => { e.stopPropagation(); setCommentsReelId(currentReel.id); }}>
                 <MessageCircle className="h-5 w-5 text-white drop-shadow-lg" />
                 <span className="text-white text-[9px] font-bold drop-shadow">{formatNumber(currentReel.comments_count)}</span>
               </button>
@@ -208,6 +210,7 @@ const VideosPage = () => {
       )}
 
       <AddReelDialog open={showAddDialog} onOpenChange={setShowAddDialog} onSubmit={createReel} />
+      <ReelCommentsSheet reelId={commentsReelId} onClose={() => { setCommentsReelId(null); }} />
       <BottomNav />
     </div>
   );
