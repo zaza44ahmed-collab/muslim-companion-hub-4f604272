@@ -6,10 +6,10 @@ const PrayerTimes = () => {
 
   if (loading) {
     return (
-      <div className="rounded-lg bg-card border-2 border-secondary/30 p-6">
+      <div className="rounded-2xl bg-card p-6">
         <div className="flex flex-col items-center justify-center py-6 gap-3">
-          <Loader2 className="h-7 w-7 text-secondary animate-spin" />
-          <p className="text-muted-foreground text-sm">جاري تحميل أوقات الصلاة...</p>
+          <Loader2 className="h-6 w-6 text-primary animate-spin" />
+          <p className="text-muted-foreground/70 text-xs">جاري تحميل أوقات الصلاة...</p>
         </div>
       </div>
     );
@@ -17,8 +17,8 @@ const PrayerTimes = () => {
 
   if (error || prayers.length === 0) {
     return (
-      <div className="rounded-lg bg-card border-2 border-secondary/30 p-6">
-        <p className="text-muted-foreground text-sm text-center py-6">
+      <div className="rounded-2xl bg-card p-6">
+        <p className="text-muted-foreground/70 text-xs text-center py-6">
           {error || "تعذر تحميل أوقات الصلاة"}
         </p>
       </div>
@@ -31,23 +31,21 @@ const PrayerTimes = () => {
 
   return (
     <div>
-      {/* Title + Location outside the card */}
-      <div className="flex items-center justify-between mb-3 px-1">
-        <h3 className="font-bold text-base text-foreground font-cairo">مواقيت الصلاة</h3>
-        <div className="flex items-center gap-1 text-muted-foreground text-xs">
-          <MapPin className="h-3.5 w-3.5 text-secondary" />
-          <span className="font-cairo font-semibold">{locationName}</span>
+      {/* Title + Location */}
+      <div className="flex items-center justify-between mb-2.5">
+        <h3 className="font-bold text-sm text-foreground">مواقيت الصلاة</h3>
+        <div className="flex items-center gap-1 text-muted-foreground/60 text-[11px]">
+          <MapPin className="h-3 w-3" />
+          <span>{locationName}</span>
         </div>
       </div>
 
-      <div className="rounded-lg overflow-hidden border-2 border-secondary/30">
-        {/* Current prayer + countdown + progress */}
-        <div className="bg-card px-3 pt-3 pb-2">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-foreground text-base font-bold font-cairo">
-              {currentPrayer.name}
-            </h3>
-            <div className="flex items-center gap-1 text-muted-foreground text-xs font-cairo">
+      <div className="rounded-2xl bg-card overflow-hidden">
+        {/* Current prayer + countdown */}
+        <div className="px-4 pt-4 pb-3">
+          <div className="flex items-center justify-between mb-2.5">
+            <h3 className="text-foreground text-base font-bold">{currentPrayer.name}</h3>
+            <div className="flex items-center gap-1.5 text-muted-foreground/70 text-xs">
               <span>{timeLabel}</span>
               <span className="font-bold text-foreground tabular-nums text-sm">
                 {String(timeToNext.hours).padStart(2, "0")}:{String(timeToNext.minutes).padStart(2, "0")}
@@ -56,40 +54,36 @@ const PrayerTimes = () => {
           </div>
 
           {/* Progress bar */}
-          <div className="w-full h-2 bg-muted/30 rounded-full overflow-hidden">
+          <div className="w-full h-1.5 bg-muted/15 rounded-full overflow-hidden">
             <div
-              className="h-full rounded-full bg-gradient-to-l from-destructive to-primary transition-all duration-1000"
+              className="h-full rounded-full bg-primary transition-all duration-1000"
               style={{ width: `${progress}%` }}
             />
           </div>
         </div>
 
-        {/* Separator */}
-        <div className="border-t border-border/50" />
+        {/* Divider */}
+        <div className="h-px bg-border/30 mx-4" />
 
-        {/* All prayers in horizontal row */}
-        <div className="bg-card px-2 py-2 flex items-center justify-around">
+        {/* All prayers row */}
+        <div className="px-3 py-3 flex items-center justify-around">
           {prayers.map((prayer, index) => {
             const isCurrent = index === currentPrayerIndex;
             const isPrayerPassed = prayer.passed;
 
             return (
               <div key={prayer.name} className="flex flex-col items-center gap-1">
-                <span className={`text-xs font-semibold font-cairo ${
-                  isCurrent
-                    ? "text-primary"
-                    : isPrayerPassed
-                      ? "text-muted-foreground/50"
-                      : "text-foreground"
+                <span className={`text-[11px] font-semibold ${
+                  isCurrent ? "text-primary" : isPrayerPassed ? "text-muted-foreground/40" : "text-foreground/70"
                 }`}>
                   {prayer.name}
                 </span>
-                <span className={`text-xs font-bold tabular-nums rounded-md px-1.5 py-0.5 ${
+                <span className={`text-[11px] font-bold tabular-nums px-2 py-0.5 rounded-md ${
                   isCurrent
                     ? "bg-primary text-primary-foreground"
                     : isPrayerPassed
-                      ? "bg-destructive/80 text-destructive-foreground"
-                      : "text-foreground"
+                      ? "text-muted-foreground/40"
+                      : "text-foreground/70"
                 }`}>
                   {prayer.time}
                 </span>
