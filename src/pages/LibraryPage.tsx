@@ -6,7 +6,7 @@ import { BookOpen, Download, Heart, Star, Filter, Sparkles, ChevronLeft } from "
 import { books, bookCategories, type BookItem } from "@/data/books";
 import BookDetailDialog from "@/components/library/BookDetailDialog";
 
-const suggested = books.filter((book) => book.rating >= 4.9).slice(0, 4);
+const allSuggested = books.filter((book) => book.rating >= 4.9);
 
 const categoryLabel = (cat: string) => {
   const found = bookCategories.find((c) => c.id === cat);
@@ -16,6 +16,9 @@ const categoryLabel = (cat: string) => {
 const LibraryPage = () => {
   const [activeCategory, setActiveCategory] = useState("all");
   const [selectedBook, setSelectedBook] = useState<BookItem | null>(null);
+  const [showAllSuggested, setShowAllSuggested] = useState(false);
+
+  const suggested = showAllSuggested ? allSuggested : allSuggested.slice(0, 4);
 
   const filteredBooks =
     activeCategory === "all"
@@ -41,9 +44,9 @@ const LibraryPage = () => {
               <Sparkles className="h-4 w-4 text-gold" />
               <h3 className="font-bold text-sm">مقترحة لك</h3>
             </div>
-            <Button variant="ghost" size="sm" className="text-primary gap-1 text-[10px] px-1.5 h-7">
-              عرض الكل
-              <ChevronLeft className="h-3 w-3" />
+            <Button variant="ghost" size="sm" className="text-primary gap-1 text-[10px] px-1.5 h-7" onClick={() => setShowAllSuggested(!showAllSuggested)}>
+              {showAllSuggested ? "عرض أقل" : "عرض الكل"}
+              <ChevronLeft className={`h-3 w-3 transition-transform ${showAllSuggested ? "rotate-90" : ""}`} />
             </Button>
           </div>
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
