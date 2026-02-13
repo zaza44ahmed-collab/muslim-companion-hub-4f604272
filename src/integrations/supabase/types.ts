@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      daily_quotes: {
+        Row: {
+          created_at: string
+          id: string
+          quote_date: string
+          quotes: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          quote_date: string
+          quotes: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          quote_date?: string
+          quotes?: Json
+        }
+        Relationships: []
+      }
       listing_favorites: {
         Row: {
           created_at: string

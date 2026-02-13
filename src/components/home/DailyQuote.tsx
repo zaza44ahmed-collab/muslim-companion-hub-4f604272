@@ -1,17 +1,39 @@
 import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const quotes = [
-  { text: "سبحان الله وبحمده، سبحان الله العظيم", source: "ذكر" },
-  { text: "اللهم إني أسألك العفو والعافية في الدنيا والآخرة", source: "دعاء" },
-  { text: "لا إله إلا الله وحده لا شريك له", source: "توحيد" },
-  { text: "الحمد لله الذي أحيانا بعد ما أماتنا وإليه النشور", source: "دعاء الاستيقاظ" },
-  { text: "اللهم أنت ربي لا إله إلا أنت، خلقتني وأنا عبدك", source: "سيد الاستغفار" },
-  { text: "رب اغفر لي وتب علي إنك أنت التواب الرحيم", source: "استغفار" },
+type Quote = { text: string; source: string };
+
+const fallbackQuotes: Quote[] = [
+  { text: "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيمِ", source: "ذكر" },
+  { text: "اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ", source: "دعاء" },
+  { text: "لَا إِلَٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ", source: "توحيد" },
+  { text: "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ", source: "حمد" },
+  { text: "أَسْتَغْفِرُ اللَّهَ الْعَظِيمَ وَأَتُوبُ إِلَيْهِ", source: "استغفار" },
+  { text: "اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ", source: "صلاة على النبي" },
 ];
 
 const DailyQuote = () => {
+  const [quotes, setQuotes] = useState<Quote[]>(fallbackQuotes);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchQuotes = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke("daily-quotes");
+        if (!error && data?.quotes?.length) {
+          setQuotes(data.quotes);
+        }
+      } catch (e) {
+        console.error("Failed to fetch daily quotes:", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchQuotes();
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -22,9 +44,24 @@ const DailyQuote = () => {
       }, 400);
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [quotes.length]);
 
   const currentQuote = quotes[currentIndex];
+
+  if (loading) {
+    return (
+      <div className="rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-emerald-dark p-5 space-y-3">
+        <Skeleton className="h-4 w-16 bg-white/20" />
+        <Skeleton className="h-6 w-full bg-white/20" />
+        <Skeleton className="h-6 w-3/4 bg-white/20" />
+        <div className="flex justify-center gap-1.5 mt-4">
+          {[...Array(6)].map((_, i) => (
+            <Skeleton key={i} className="h-1.5 w-1.5 rounded-full bg-white/20" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-emerald-dark p-5">
