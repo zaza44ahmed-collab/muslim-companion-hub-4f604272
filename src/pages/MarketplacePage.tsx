@@ -10,6 +10,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import BottomNav from "@/components/layout/BottomNav";
 import AddListingDialog from "@/components/marketplace/AddListingDialog";
+import AdvancedFilters, { type AdvancedFiltersState } from "@/components/marketplace/AdvancedFilters";
 import { useListings } from "@/hooks/useListings";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -42,6 +43,10 @@ const MarketplacePage = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [showAddDialog, setShowAddDialog] = useState(false);
 
+  const maxPrice = useMemo(() => Math.max(1000, ...listings.map((l) => l.price)), [listings]);
+  const defaultFilters: AdvancedFiltersState = { priceRange: [0, maxPrice], selectedLocations: [] };
+  const [advancedFilters, setAdvancedFilters] = useState<AdvancedFiltersState>(defaultFilters);
+
   const handleToggleFavorite = async (id: string) => {
     if (!user) { toast({ title: "سجل دخولك أولاً" }); navigate("/auth"); return; }
     await toggleFavorite(id);
@@ -56,7 +61,9 @@ const MarketplacePage = () => {
     let result = listings.filter((item) => {
       const matchesSearch = searchQuery === "" || item.title.includes(searchQuery) || item.description.includes(searchQuery) || item.location.includes(searchQuery);
       const matchesCategory = selectedCategory === "all" || item.category === selectedCategory;
-      return matchesSearch && matchesCategory;
+      const matchesPrice = item.price >= advancedFilters.priceRange[0] && item.price <= advancedFilters.priceRange[1];
+      const matchesLocation = advancedFilters.selectedLocations.length === 0 || advancedFilters.selectedLocations.some((loc) => item.location.includes(loc));
+      return matchesSearch && matchesCategory && matchesPrice && matchesLocation;
     });
     switch (sortBy) {
       case "price_low": result = [...result].sort((a, b) => a.price - b.price); break;
@@ -65,7 +72,7 @@ const MarketplacePage = () => {
       default: break;
     }
     return result;
-  }, [searchQuery, selectedCategory, sortBy, listings]);
+  }, [searchQuery, selectedCategory, sortBy, listings, advancedFilters]);
 
   const featuredListings = listings.filter((l) => l.is_featured);
   const formatNumber = (n: number) => n.toLocaleString("ar-SA");
@@ -126,19 +133,27 @@ const MarketplacePage = () => {
 
         {/* Sort */}
         {showFilters && (
-          <div className="animate-fadeIn flex gap-2 flex-wrap">
-            {([
-              { value: "newest" as SortOption, label: "الأحدث", icon: Clock },
-              { value: "price_low" as SortOption, label: "الأرخص", icon: Tag },
-              { value: "price_high" as SortOption, label: "الأغلى", icon: Tag },
-              { value: "popular" as SortOption, label: "الأكثر مشاهدة", icon: Flame },
-            ]).map((opt) => (
-              <button key={opt.value} onClick={() => setSortBy(opt.value)}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-colors ${sortBy === opt.value ? "bg-primary text-primary-foreground" : "bg-card border border-secondary/20 text-foreground/70"}`}
-              >
-                <opt.icon className="h-3 w-3" /> {opt.label}
-              </button>
-            ))}
+          <div className="animate-fadeIn space-y-3">
+            <div className="flex gap-2 flex-wrap">
+              {([
+                { value: "newest" as SortOption, label: "الأحدث", icon: Clock },
+                { value: "price_low" as SortOption, label: "الأرخص", icon: Tag },
+                { value: "price_high" as SortOption, label: "الأغلى", icon: Tag },
+                { value: "popular" as SortOption, label: "الأكثر مشاهدة", icon: Flame },
+              ]).map((opt) => (
+                <button key={opt.value} onClick={() => setSortBy(opt.value)}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-colors ${sortBy === opt.value ? "bg-primary text-primary-foreground" : "bg-card border border-secondary/20 text-foreground/70"}`}
+                >
+                  <opt.icon className="h-3 w-3" /> {opt.label}
+                </button>
+              ))}
+            </div>
+            <AdvancedFilters
+              filters={advancedFilters}
+              onChange={setAdvancedFilters}
+              onReset={() => setAdvancedFilters({ priceRange: [0, maxPrice], selectedLocations: [] })}
+              maxPrice={maxPrice}
+            />
           </div>
         )}
 
