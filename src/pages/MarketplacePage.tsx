@@ -3,6 +3,7 @@ import {
   Store, Search, MapPin, Heart, Clock, Plus,
   ArrowRight, X, Phone, MessageCircle, Share2, Eye,
   Tag, Flame, Star, SlidersHorizontal, Loader2, ImageIcon,
+  Pencil, Trash2,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -33,7 +34,7 @@ const MarketplacePage = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { listings, loading, favoriteIds, toggleFavorite, createListing } = useListings();
+  const { listings, loading, favoriteIds, toggleFavorite, createListing, updateListing, deleteListing } = useListings();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -42,6 +43,8 @@ const MarketplacePage = () => {
   const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [editingListing, setEditingListing] = useState<typeof listings[0] | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const maxPrice = useMemo(() => Math.max(1000, ...listings.map((l) => l.price)), [listings]);
   const defaultFilters: AdvancedFiltersState = { priceRange: [0, maxPrice], selectedLocations: [] };
@@ -343,6 +346,40 @@ const MarketplacePage = () => {
                   </div>
                 </div>
 
+                {/* Owner actions */}
+                {user && selectedListing.user_id === user.id && (
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      className="flex-1 text-xs gap-1.5"
+                      onClick={() => {
+                        setEditingListing(selectedListing);
+                        setSelectedListing(null);
+                      }}
+                    >
+                      <Pencil className="h-3.5 w-3.5" /> تعديل
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      className="flex-1 text-xs gap-1.5"
+                      disabled={deleting}
+                      onClick={async () => {
+                        setDeleting(true);
+                        const res = await deleteListing(selectedListing.id);
+                        setDeleting(false);
+                        if (res.error) {
+                          toast({ title: res.error, variant: "destructive" });
+                        } else {
+                          toast({ title: "تم حذف المنتج بنجاح 🗑️" });
+                          setSelectedListing(null);
+                        }
+                      }}
+                    >
+                      {deleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />} حذف
+                    </Button>
+                  </div>
+                )}
+
                 <div className="flex gap-2">
                   <a href={`tel:${selectedListing.phone}`}
                     className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl gradient-islamic text-primary-foreground font-semibold text-sm"
@@ -363,6 +400,34 @@ const MarketplacePage = () => {
 
       {/* Add Listing Dialog */}
       <AddListingDialog open={showAddDialog} onOpenChange={setShowAddDialog} onSubmit={createListing} />
+
+      {/* Edit Listing Dialog */}
+      <AddListingDialog
+        open={!!editingListing}
+        onOpenChange={(v) => { if (!v) setEditingListing(null); }}
+        onSubmit={async (data) => {
+          if (!editingListing) return { error: 'خطأ' };
+          return updateListing(editingListing.id, {
+            title: data.title,
+            description: data.description,
+            price: data.price,
+            location: data.location,
+            category: data.category,
+            condition: data.condition,
+            phone: data.phone,
+          });
+        }}
+        initialData={editingListing ? {
+          title: editingListing.title,
+          description: editingListing.description,
+          price: String(editingListing.price),
+          location: editingListing.location,
+          category: editingListing.category,
+          condition: editingListing.condition,
+          phone: editingListing.phone,
+        } : undefined}
+        editMode
+      />
 
       <BottomNav />
     </div>

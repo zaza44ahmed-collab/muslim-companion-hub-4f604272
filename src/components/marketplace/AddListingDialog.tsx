@@ -24,18 +24,22 @@ interface AddListingDialogProps {
     title: string; description: string; price: number; location: string;
     category: string; condition: string; phone: string; imageFiles: File[];
   }) => Promise<{ error: string | null }>;
+  initialData?: {
+    title: string; description: string; price: string; location: string;
+    category: string; condition: string; phone: string;
+  };
+  editMode?: boolean;
 }
 
-const AddListingDialog = ({ open, onOpenChange, onSubmit }: AddListingDialogProps) => {
+const AddListingDialog = ({ open, onOpenChange, onSubmit, initialData, editMode }: AddListingDialogProps) => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
-  const [form, setForm] = useState({
-    title: "", description: "", price: "", location: "",
-    category: "quran", condition: "مستعمل - ممتاز", phone: "",
-  });
+  const [form, setForm] = useState(
+    initialData || { title: "", description: "", price: "", location: "", category: "quran", condition: "مستعمل - ممتاز", phone: "" }
+  );
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -57,7 +61,7 @@ const AddListingDialog = ({ open, onOpenChange, onSubmit }: AddListingDialogProp
 
   const resetForm = () => {
     previews.forEach(URL.revokeObjectURL);
-    setForm({ title: "", description: "", price: "", location: "", category: "quran", condition: "مستعمل - ممتاز", phone: "" });
+    setForm(initialData || { title: "", description: "", price: "", location: "", category: "quran", condition: "مستعمل - ممتاز", phone: "" });
     setImages([]);
     setPreviews([]);
   };
@@ -67,7 +71,7 @@ const AddListingDialog = ({ open, onOpenChange, onSubmit }: AddListingDialogProp
       toast({ title: "يرجى تعبئة جميع الحقول", variant: "destructive" });
       return;
     }
-    if (images.length === 0) {
+    if (!editMode && images.length === 0) {
       toast({ title: "يرجى إضافة صورة واحدة على الأقل", variant: "destructive" });
       return;
     }
@@ -86,7 +90,7 @@ const AddListingDialog = ({ open, onOpenChange, onSubmit }: AddListingDialogProp
     if (result.error) {
       toast({ title: result.error, variant: "destructive" });
     } else {
-      toast({ title: "تم نشر الإعلان بنجاح ✅" });
+      toast({ title: editMode ? "تم تحديث المنتج بنجاح ✅" : "تم نشر الإعلان بنجاح ✅" });
       resetForm();
       onOpenChange(false);
     }
@@ -98,7 +102,7 @@ const AddListingDialog = ({ open, onOpenChange, onSubmit }: AddListingDialogProp
     <Dialog open={open} onOpenChange={(v) => { if (!v) resetForm(); onOpenChange(v); }}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto" dir="rtl">
         <DialogHeader>
-          <DialogTitle className="text-base font-bold font-amiri text-primary">إضافة منتج إسلامي</DialogTitle>
+          <DialogTitle className="text-base font-bold font-amiri text-primary">{editMode ? "تعديل المنتج" : "إضافة منتج إسلامي"}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-3 mt-2">
@@ -181,7 +185,7 @@ const AddListingDialog = ({ open, onOpenChange, onSubmit }: AddListingDialogProp
 
           {/* Submit */}
           <Button onClick={handleSubmit} disabled={loading} className="w-full gradient-islamic text-primary-foreground font-bold">
-            {loading ? <><Loader2 className="h-4 w-4 animate-spin ml-2" /> جاري النشر...</> : "نشر الإعلان"}
+            {loading ? <><Loader2 className="h-4 w-4 animate-spin ml-2" /> {editMode ? "جاري التحديث..." : "جاري النشر..."}</> : editMode ? "حفظ التعديلات" : "نشر الإعلان"}
           </Button>
         </div>
       </DialogContent>

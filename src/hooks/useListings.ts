@@ -148,15 +148,48 @@ export function useListings() {
   };
 
   const incrementViews = async (listingId: string) => {
-    // Best-effort view count increment
     try {
       const current = listings.find(l => l.id === listingId);
       if (current) {
         await supabase.from('listings').update({ views: current.views + 1 }).eq('id', listingId);
       }
-    } catch {
-      // ignore
+    } catch { /* ignore */ }
+  };
+
+  const updateListing = async (id: string, data: {
+    title: string; description: string; price: number; location: string;
+    category: string; condition: string; phone: string;
+  }) => {
+    if (!user) return { error: 'يجب تسجيل الدخول أولاً' };
+    const { error } = await supabase.from('listings').update(data).eq('id', id).eq('user_id', user.id);
+    if (error) return { error: error.message };
+    await fetchListings();
+    return { error: null };
+  };
+
+  const deleteListing = async (id: string) => {
+    if (!user) return { error: 'يجب تسجيل الدخول أولاً' };
+    // Delete images from storage
+    const { data: imgs } = await supabase.from('listing_images').select('image_url').eq('listing_id', id);
+    if (imgs) {
+      const paths = imgs.map((img: any) => {
+        const url = img.image_url as string;
+        const parts = url.split('/listing-images/');
+        return parts.length > 1 ? parts[1] : '';
+      }).filter(Boolean);
+      if (paths.length > 0) {
+        await supabase.storage.from('listing-images').remove(paths);
+      }
     }
+    // Delete image records
+    await supabase.from('listing_images').delete().eq('listing_id', id);
+    // Delete favorites
+    await supabase.from('listing_favorites').delete().eq('listing_id', id);
+    // Delete listing
+    const { error } = await supabase.from('listings').delete().eq('id', id).eq('user_id', user.id);
+    if (error) return { error: error.message };
+    await fetchListings();
+    return { error: null };
   };
 
   return {
@@ -165,6 +198,8 @@ export function useListings() {
     favoriteIds,
     toggleFavorite,
     createListing,
+    updateListing,
+    deleteListing,
     incrementViews,
     refetch: fetchListings,
   };
