@@ -43,14 +43,9 @@ const AudioPage = () => {
       <main className="container py-3 px-4">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-base font-bold">الصوتيات الإسلامية</h2>
-          <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleAddContent}>
-              <Plus className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setShowSearch(!showSearch); if (showSearch) setSearchQuery(""); }}>
-              {showSearch ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
-            </Button>
-          </div>
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setShowSearch(!showSearch); if (showSearch) setSearchQuery(""); }}>
+            {showSearch ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
+          </Button>
         </div>
 
         {showSearch && (
@@ -135,6 +130,14 @@ const AudioPage = () => {
         </div>
         )}
       </main>
+
+      {/* FAB */}
+      <button
+        onClick={handleAddContent}
+        className="fixed bottom-24 left-5 z-40 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center active:scale-95 transition-transform"
+      >
+        <Plus className="h-6 w-6" />
+      </button>
 
       <BottomNav />
     </div>
