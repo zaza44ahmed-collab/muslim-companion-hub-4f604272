@@ -2,23 +2,22 @@ import { useState } from "react";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import { Button } from "@/components/ui/button";
-import { Download, Star, Filter, Sparkles, ChevronLeft } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Download, Star, Search, X } from "lucide-react";
 import { apps, appCategories, type AppItem } from "@/data/apps";
 import AppDetailDialog from "@/components/apps/AppDetailDialog";
-
-const allSuggested = apps.filter((app) => app.rating >= 4.8);
 
 const AppsPage = () => {
   const [activeCategory, setActiveCategory] = useState("all");
   const [selectedApp, setSelectedApp] = useState<AppItem | null>(null);
-  const [showAllSuggested, setShowAllSuggested] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
 
-  const suggested = showAllSuggested ? allSuggested : allSuggested.slice(0, 4);
-
-  const filteredApps =
-    activeCategory === "all"
-      ? apps
-      : apps.filter((app) => app.category === activeCategory);
+  const filteredApps = apps.filter((app) => {
+    const matchesCategory = activeCategory === "all" || app.category === activeCategory;
+    const matchesSearch = !searchQuery || app.name.includes(searchQuery) || app.description.includes(searchQuery);
+    return matchesCategory && matchesSearch;
+  });
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -27,50 +26,22 @@ const AppsPage = () => {
       <main className="container py-3">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-base font-bold">التطبيقات الإسلامية</h2>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <Filter className="h-4 w-4" />
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setShowSearch(!showSearch); if (showSearch) setSearchQuery(""); }}>
+            {showSearch ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
           </Button>
         </div>
 
-        {/* Suggested Apps */}
-        <section className="mb-4">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-1.5">
-              <Sparkles className="h-4 w-4 text-gold" />
-              <h3 className="font-bold text-sm">مقترحة لك</h3>
-            </div>
-            <Button variant="ghost" size="sm" className="text-primary gap-1 text-[10px] px-1.5 h-7" onClick={() => setShowAllSuggested(!showAllSuggested)}>
-              {showAllSuggested ? "عرض أقل" : "عرض الكل"}
-              <ChevronLeft className={`h-3 w-3 transition-transform ${showAllSuggested ? "rotate-90" : ""}`} />
-            </Button>
+        {showSearch && (
+          <div className="mb-3 animate-fadeIn">
+            <Input
+              placeholder="ابحث عن تطبيق..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="text-right"
+              autoFocus
+            />
           </div>
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            {suggested.map((app) => (
-              <div
-                key={`suggested-${app.id}`}
-                className="min-w-[120px] max-w-[120px] bg-card rounded-xl p-2.5 shadow-card-islamic cursor-pointer hover:shadow-lg transition-shadow shrink-0"
-                onClick={() => setSelectedApp(app)}
-              >
-                <img
-                  src={app.icon}
-                  alt={app.name}
-                  className="h-12 w-12 rounded-xl object-cover shadow-sm mx-auto mb-1.5"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/placeholder.svg";
-                  }}
-                />
-                <h4 className="font-bold text-xs text-center truncate">{app.name}</h4>
-                <p className="text-xs text-muted-foreground text-center truncate mt-0.5">
-                  {app.category === "quran" ? "قرآن" : app.category === "azkar" ? "أذكار" : app.category === "prayer" ? "صلاة" : app.category === "kids" ? "أطفال" : "فقه"}
-                </p>
-                <div className="flex items-center justify-center gap-1 mt-1.5">
-                  <Star className="h-3 w-3 fill-gold text-gold" />
-                  <span className="text-xs font-semibold">{app.rating}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+        )}
 
         {/* Categories */}
         <div className="flex gap-2 overflow-x-auto pb-2 mb-3 scrollbar-hide">
