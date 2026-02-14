@@ -178,17 +178,13 @@ export function usePrayerTimes() {
     }
   }, []);
 
-  const saveLocation = useCallback((lat: number, lng: number) => {
-    localStorage.setItem("prayer_location", JSON.stringify({ lat, lng }));
-  }, []);
-
   const requestLocation = useCallback(() => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          saveLocation(latitude, longitude);
+          localStorage.setItem("prayer_location", JSON.stringify({ lat: latitude, lng: longitude }));
           fetchPrayerTimes(latitude, longitude);
         },
         () => {
@@ -211,7 +207,7 @@ export function usePrayerTimes() {
         fetchPrayerTimes(30.0444, 31.2357);
       }
     }
-  }, [fetchPrayerTimes, saveLocation]);
+  }, [fetchPrayerTimes]);
 
   useEffect(() => {
     requestLocation();
