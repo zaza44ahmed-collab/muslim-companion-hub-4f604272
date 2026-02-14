@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { Star, Download, ArrowRight, Share2, BookOpen, Heart } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,6 +18,7 @@ interface BookDetailDialogProps {
 }
 
 const BookDetailDialog = ({ book, open, onOpenChange }: BookDetailDialogProps) => {
+  const [isFav, setIsFav] = useState(false);
   if (!book) return null;
 
   return (
@@ -64,15 +67,21 @@ const BookDetailDialog = ({ book, open, onOpenChange }: BookDetailDialogProps) =
           <div className="px-5 pt-4">
             {/* Action Buttons */}
             <div className="flex gap-3 mb-5">
-              <Button variant="islamic" className="flex-1 font-bold text-sm h-11">
+              <Button variant="islamic" className="flex-1 font-bold text-sm h-11" onClick={() => {
+                const q = encodeURIComponent(`${book.title} ${book.author} PDF`);
+                window.open(`https://www.google.com/search?q=${q}`, "_blank");
+              }}>
                 <BookOpen className="h-4 w-4 ml-2" />
                 قراءة الكتاب
               </Button>
-              <Button variant="outline" size="icon" className="h-11 w-11 shrink-0">
+              <Button variant="outline" size="icon" className="h-11 w-11 shrink-0" onClick={() => {
+                const q = encodeURIComponent(`${book.title} ${book.author} تحميل PDF`);
+                window.open(`https://www.google.com/search?q=${q}`, "_blank");
+              }}>
                 <Download className="h-5 w-5" />
               </Button>
-              <Button variant="outline" size="icon" className="h-11 w-11 shrink-0">
-                <Heart className="h-5 w-5" />
+              <Button variant="outline" size="icon" className="h-11 w-11 shrink-0" onClick={() => setIsFav(!isFav)}>
+                <Heart className={`h-5 w-5 ${isFav ? "fill-red-500 text-red-500" : ""}`} />
               </Button>
             </div>
 

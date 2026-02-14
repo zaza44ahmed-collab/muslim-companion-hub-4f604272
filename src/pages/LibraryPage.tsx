@@ -1,17 +1,18 @@
 import { useState } from "react";
-import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { BookOpen, Download, Heart, Star, Search, X } from "lucide-react";
+import { BookOpen, Download, Heart, Star, Search, X, Plus } from "lucide-react";
 import { books, bookCategories, type BookItem } from "@/data/books";
 import BookDetailDialog from "@/components/library/BookDetailDialog";
+import { toast } from "@/hooks/use-toast";
 
 const LibraryPage = () => {
   const [activeCategory, setActiveCategory] = useState("all");
   const [selectedBook, setSelectedBook] = useState<BookItem | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
+  const [favorites, setFavorites] = useState<number[]>([]);
 
   const filteredBooks = books.filter((book) => {
     const matchesCategory = activeCategory === "all" || book.category === activeCategory;
@@ -19,16 +20,44 @@ const LibraryPage = () => {
     return matchesCategory && matchesSearch;
   });
 
-  return (
-    <div className="min-h-screen bg-background pb-20">
-      
+  const handleRead = (book: BookItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const searchQuery = encodeURIComponent(`${book.title} ${book.author} PDF`);
+    window.open(`https://www.google.com/search?q=${searchQuery}`, "_blank");
+    toast({ title: "جاري البحث عن الكتاب", description: `البحث عن "${book.title}"` });
+  };
 
-      <main className="container py-3">
+  const handleDownload = (book: BookItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const searchQuery = encodeURIComponent(`${book.title} ${book.author} تحميل PDF`);
+    window.open(`https://www.google.com/search?q=${searchQuery}`, "_blank");
+    toast({ title: "جاري البحث عن التحميل", description: `البحث عن "${book.title}"` });
+  };
+
+  const toggleFavorite = (id: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setFavorites(prev =>
+      prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]
+    );
+  };
+
+  const handleAddContent = () => {
+    toast({ title: "إضافة كتاب", description: "ستتوفر هذه الميزة قريباً إن شاء الله" });
+  };
+
+  return (
+    <div className="min-h-screen bg-background pb-20" dir="rtl">
+      <main className="container py-3 px-4">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-base font-bold">المكتبة الإسلامية</h2>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setShowSearch(!showSearch); if (showSearch) setSearchQuery(""); }}>
-            {showSearch ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleAddContent}>
+              <Plus className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setShowSearch(!showSearch); if (showSearch) setSearchQuery(""); }}>
+              {showSearch ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
+            </Button>
+          </div>
         </div>
 
         {showSearch && (
@@ -94,9 +123,9 @@ const LibraryPage = () => {
                 {/* Favorite Button */}
                 <button
                   className="absolute top-2 left-2 p-2 bg-white/80 rounded-full"
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={(e) => toggleFavorite(book.id, e)}
                 >
-                  <Heart className="h-4 w-4 text-muted-foreground" />
+                  <Heart className={`h-4 w-4 ${favorites.includes(book.id) ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
                 </button>
               </div>
 
@@ -120,7 +149,7 @@ const LibraryPage = () => {
                     variant="islamic"
                     size="sm"
                     className="flex-1 text-xs"
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={(e) => handleRead(book, e)}
                   >
                     <BookOpen className="h-3 w-3 ml-1" />
                     قراءة
@@ -129,7 +158,7 @@ const LibraryPage = () => {
                     variant="outline"
                     size="sm"
                     className="px-2"
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={(e) => handleDownload(book, e)}
                   >
                     <Download className="h-4 w-4" />
                   </Button>
