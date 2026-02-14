@@ -224,23 +224,22 @@ const ProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const inputRef = useState<HTMLInputElement | null>(null);
 
-  // Mock data for stats & gamification (can be replaced with real data later)
-  const [stats] = useState([
-    { label: "التطبيقات", value: 12, icon: Smartphone },
-    { label: "الكتب", value: 8, icon: BookOpen },
-    { label: "الصوتيات", value: 24, icon: Headphones },
-    { label: "الريلز", value: 45, icon: Film },
-    { label: "المرفوعات", value: 3, icon: Upload },
-    { label: "الإعجابات", value: 67, icon: Heart },
+  const [stats, setStats] = useState([
+    { label: "التطبيقات", value: 0, icon: Smartphone },
+    { label: "الكتب", value: 0, icon: BookOpen },
+    { label: "الصوتيات", value: 0, icon: Headphones },
+    { label: "الريلز", value: 0, icon: Film },
+    { label: "المرفوعات", value: 0, icon: Upload },
+    { label: "الإعجابات", value: 0, icon: Heart },
   ]);
 
-  const [gamification] = useState({
-    points: 350,
-    badges: ["قارئ نشيط", "مستمع دائم", "ناشر خير"],
-    streak: 7,
+  const [gamification, setGamification] = useState({
+    points: 0,
+    badges: [] as string[],
+    streak: 0,
   });
 
-  const userLevel = "طالب علم";
+  const [userLevel, setUserLevel] = useState("مبتدئ");
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -252,12 +251,47 @@ const ProfilePage = () => {
 
   const fetchProfile = async () => {
     if (!user) return;
-    const { data } = await supabase.from("profiles").select("*").eq("id", user.id).single();
-    if (data) {
-      setDisplayName(data.display_name || "");
-      setEmail(data.email || user.email || "");
-      setAvatarUrl(data.avatar_url);
+    
+    // Fetch profile, stats, and badges in parallel
+    const [profileRes, statsRes, badgesRes] = await Promise.all([
+      supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
+      supabase.from("user_activity_stats").select("*").eq("user_id", user.id).maybeSingle(),
+      supabase.from("user_badges").select("badge_name").eq("user_id", user.id),
+    ]);
+
+    if (profileRes.data) {
+      const p = profileRes.data;
+      setDisplayName(p.display_name || "");
+      setEmail(p.email || user.email || "");
+      setAvatarUrl(p.avatar_url);
+      setBio((p as any).bio || "");
+      setUserLevel((p as any).level || "مبتدئ");
+      setGamification(prev => ({
+        ...prev,
+        points: (p as any).points || 0,
+        streak: (p as any).streak_days || 0,
+      }));
     }
+
+    if (statsRes.data) {
+      const s = statsRes.data;
+      setStats([
+        { label: "التطبيقات", value: s.apps_saved, icon: Smartphone },
+        { label: "الكتب", value: s.books_read, icon: BookOpen },
+        { label: "الصوتيات", value: s.audio_listened, icon: Headphones },
+        { label: "الريلز", value: s.reels_watched, icon: Film },
+        { label: "المرفوعات", value: s.content_uploaded, icon: Upload },
+        { label: "الإعجابات", value: s.total_likes, icon: Heart },
+      ]);
+    }
+
+    if (badgesRes.data) {
+      setGamification(prev => ({
+        ...prev,
+        badges: badgesRes.data.map(b => b.badge_name),
+      }));
+    }
+
     setLoading(false);
   };
 
@@ -291,7 +325,7 @@ const ProfilePage = () => {
 
   const handleSaveProfile = async () => {
     if (!user) return;
-    const { error } = await supabase.from("profiles").update({ display_name: displayName.trim() }).eq("id", user.id);
+    const { error } = await supabase.from("profiles").update({ display_name: displayName.trim(), bio: bio.trim() } as any).eq("id", user.id);
     if (error) {
       toast({ title: "خطأ", description: error.message, variant: "destructive" });
     } else {

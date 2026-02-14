@@ -150,26 +150,38 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          bio: string | null
           created_at: string
           display_name: string | null
           email: string | null
           id: string
+          level: string | null
+          points: number | null
+          streak_days: number | null
           updated_at: string
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           display_name?: string | null
           email?: string | null
           id: string
+          level?: string | null
+          points?: number | null
+          streak_days?: number | null
           updated_at?: string
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           display_name?: string | null
           email?: string | null
           id?: string
+          level?: string | null
+          points?: number | null
+          streak_days?: number | null
           updated_at?: string
         }
         Relationships: []
@@ -290,6 +302,66 @@ export type Database = {
           user_id?: string
           video_url?: string
           views_count?: number
+        }
+        Relationships: []
+      }
+      user_activity_stats: {
+        Row: {
+          apps_saved: number | null
+          audio_listened: number | null
+          books_read: number | null
+          content_uploaded: number | null
+          created_at: string | null
+          id: string
+          reels_watched: number | null
+          total_likes: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          apps_saved?: number | null
+          audio_listened?: number | null
+          books_read?: number | null
+          content_uploaded?: number | null
+          created_at?: string | null
+          id?: string
+          reels_watched?: number | null
+          total_likes?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          apps_saved?: number | null
+          audio_listened?: number | null
+          books_read?: number | null
+          content_uploaded?: number | null
+          created_at?: string | null
+          id?: string
+          reels_watched?: number | null
+          total_likes?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_badges: {
+        Row: {
+          badge_name: string
+          earned_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_name: string
+          earned_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_name?: string
+          earned_at?: string | null
+          id?: string
+          user_id?: string
         }
         Relationships: []
       }
