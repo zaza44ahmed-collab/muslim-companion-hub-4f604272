@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import { Button } from "@/components/ui/button";
@@ -6,7 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Download, Star, Search, X, Plus, ExternalLink } from "lucide-react";
 import { apps, appCategories, type AppItem } from "@/data/apps";
 import AppDetailDialog from "@/components/apps/AppDetailDialog";
+import AddAppDialog from "@/components/apps/AddAppDialog";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const AppsPage = () => {
   const [activeCategory, setActiveCategory] = useState("all");
@@ -27,9 +29,15 @@ const AppsPage = () => {
     toast({ title: "جاري فتح المتجر", description: `البحث عن "${app.name}" في متجر Google Play` });
   };
 
-  const handleAddContent = () => {
-    toast({ title: "إضافة تطبيق", description: "ستتوفر هذه الميزة قريباً إن شاء الله" });
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [userApps, setUserApps] = useState<any[]>([]);
+
+  const fetchUserApps = async () => {
+    const { data } = await supabase.from("user_apps").select("*").order("created_at", { ascending: false });
+    if (data) setUserApps(data);
   };
+
+  useEffect(() => { fetchUserApps(); }, []);
 
   return (
     <div className="min-h-screen bg-background pb-20" dir="rtl">
@@ -137,9 +145,11 @@ const AppsPage = () => {
         onOpenChange={(open) => !open && setSelectedApp(null)}
       />
 
+      <AddAppDialog open={showAddDialog} onOpenChange={setShowAddDialog} onAdded={fetchUserApps} />
+
       {/* FAB */}
       <button
-        onClick={handleAddContent}
+        onClick={() => setShowAddDialog(true)}
         className="fixed bottom-24 left-5 z-40 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center active:scale-95 transition-transform"
       >
         <Plus className="h-6 w-6" />
