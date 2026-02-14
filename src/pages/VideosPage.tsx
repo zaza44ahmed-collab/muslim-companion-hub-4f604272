@@ -118,10 +118,9 @@ const VideosPage = () => {
             <video
               key={currentReel.id}
               src={currentReel.video_url}
-              className="h-full w-full object-contain"
+              className="h-full w-full object-cover"
               autoPlay
               loop
-              muted
               playsInline
             />
 
@@ -134,6 +133,14 @@ const VideosPage = () => {
 
             {/* Left Side Actions */}
             <div className="absolute left-2 bottom-28 flex flex-col items-center gap-3 z-30">
+              {/* Add Reel button */}
+              <button className="flex flex-col items-center gap-0.5" onClick={(e) => { e.stopPropagation(); handleAddClick(); }}>
+                <div className="h-6 w-6 rounded-full gradient-islamic flex items-center justify-center">
+                  <Plus className="h-4 w-4 text-primary-foreground" />
+                </div>
+                <span className="text-white text-[9px] font-bold drop-shadow">إضافة</span>
+              </button>
+
               <button className="flex flex-col items-center gap-0.5" onClick={(e) => { e.stopPropagation(); handleToggleLike(currentReel.id); }}>
                 <Heart className={`h-5 w-5 transition-all drop-shadow-lg ${likedIds.has(currentReel.id) ? "text-destructive fill-destructive scale-110" : "text-white"}`} />
                 <span className="text-white text-[9px] font-bold drop-shadow">{formatNumber(currentReel.likes_count)}</span>
@@ -195,13 +202,6 @@ const VideosPage = () => {
         ) : null}
       </div>
 
-      {/* FAB - Add Reel */}
-      {reels.length > 0 && (
-        <button onClick={handleAddClick}
-          className="fixed bottom-[76px] left-4 z-40 h-12 w-12 rounded-full gradient-islamic shadow-lg flex items-center justify-center hover:scale-105 transition-transform">
-          <Plus className="h-6 w-6 text-primary-foreground" />
-        </button>
-      )}
 
       <AddReelDialog open={showAddDialog} onOpenChange={setShowAddDialog} onSubmit={createReel} />
       <ReelCommentsSheet reelId={commentsReelId} onClose={() => { setCommentsReelId(null); }} />
