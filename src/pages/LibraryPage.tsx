@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import BottomNav from "@/components/layout/BottomNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BookOpen, Download, Heart, Star, Search, X, Plus } from "lucide-react";
 import { books, bookCategories, type BookItem } from "@/data/books";
 import BookDetailDialog from "@/components/library/BookDetailDialog";
+import AddBookDialog from "@/components/library/AddBookDialog";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const LibraryPage = () => {
   const [activeCategory, setActiveCategory] = useState("all");
@@ -41,9 +43,15 @@ const LibraryPage = () => {
     );
   };
 
-  const handleAddContent = () => {
-    toast({ title: "إضافة كتاب", description: "ستتوفر هذه الميزة قريباً إن شاء الله" });
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [userBooks, setUserBooks] = useState<any[]>([]);
+
+  const fetchUserBooks = async () => {
+    const { data } = await supabase.from("user_books").select("*").order("created_at", { ascending: false });
+    if (data) setUserBooks(data);
   };
+
+  useEffect(() => { fetchUserBooks(); }, []);
 
   return (
     <div className="min-h-screen bg-background pb-20" dir="rtl">
@@ -171,9 +179,11 @@ const LibraryPage = () => {
         onOpenChange={(open) => !open && setSelectedBook(null)}
       />
 
+      <AddBookDialog open={showAddDialog} onOpenChange={setShowAddDialog} onAdded={fetchUserBooks} />
+
       {/* FAB */}
       <button
-        onClick={handleAddContent}
+        onClick={() => setShowAddDialog(true)}
         className="fixed bottom-24 left-5 z-40 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center active:scale-95 transition-transform"
       >
         <Plus className="h-6 w-6" />

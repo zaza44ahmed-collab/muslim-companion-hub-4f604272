@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import BottomNav from "@/components/layout/BottomNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Play, Heart, Clock, Star, Search, X, Plus } from "lucide-react";
 import { audioAlbums, audioCategories, type AudioAlbum } from "@/data/audio";
+import AddAudioDialog from "@/components/audio/AddAudioDialog";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const AudioPage = () => {
   const navigate = useNavigate();
@@ -34,9 +36,15 @@ const AudioPage = () => {
     });
   };
 
-  const handleAddContent = () => {
-    toast({ title: "إضافة صوتيات", description: "ستتوفر هذه الميزة قريباً إن شاء الله" });
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [userAudio, setUserAudio] = useState<any[]>([]);
+
+  const fetchUserAudio = async () => {
+    const { data } = await supabase.from("user_audio").select("*").order("created_at", { ascending: false });
+    if (data) setUserAudio(data);
   };
+
+  useEffect(() => { fetchUserAudio(); }, []);
 
   return (
     <div className="min-h-screen bg-background pb-20" dir="rtl">
@@ -131,9 +139,11 @@ const AudioPage = () => {
         )}
       </main>
 
+      <AddAudioDialog open={showAddDialog} onOpenChange={setShowAddDialog} onAdded={fetchUserAudio} />
+
       {/* FAB */}
       <button
-        onClick={handleAddContent}
+        onClick={() => setShowAddDialog(true)}
         className="fixed bottom-24 left-5 z-40 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center active:scale-95 transition-transform"
       >
         <Plus className="h-6 w-6" />

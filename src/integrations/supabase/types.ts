@@ -344,6 +344,78 @@ export type Database = {
         }
         Relationships: []
       }
+      user_apps: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          icon_url: string | null
+          id: string
+          link: string | null
+          name: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description: string
+          icon_url?: string | null
+          id?: string
+          link?: string | null
+          name: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          icon_url?: string | null
+          id?: string
+          link?: string | null
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_audio: {
+        Row: {
+          artist: string
+          audio_url: string | null
+          category: string
+          cover_url: string | null
+          created_at: string
+          description: string
+          duration: string | null
+          id: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          artist?: string
+          audio_url?: string | null
+          category?: string
+          cover_url?: string | null
+          created_at?: string
+          description?: string
+          duration?: string | null
+          id?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          artist?: string
+          audio_url?: string | null
+          category?: string
+          cover_url?: string | null
+          created_at?: string
+          description?: string
+          duration?: string | null
+          id?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_badges: {
         Row: {
           badge_name: string
@@ -361,6 +433,45 @@ export type Database = {
           badge_name?: string
           earned_at?: string | null
           id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_books: {
+        Row: {
+          author: string
+          category: string
+          cover_url: string | null
+          created_at: string
+          description: string
+          file_url: string | null
+          id: string
+          pages: number | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          author: string
+          category?: string
+          cover_url?: string | null
+          created_at?: string
+          description?: string
+          file_url?: string | null
+          id?: string
+          pages?: number | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          author?: string
+          category?: string
+          cover_url?: string | null
+          created_at?: string
+          description?: string
+          file_url?: string | null
+          id?: string
+          pages?: number | null
+          title?: string
           user_id?: string
         }
         Relationships: []
