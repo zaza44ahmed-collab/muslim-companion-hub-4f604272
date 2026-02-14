@@ -60,6 +60,13 @@ const AppsPage = () => {
 
         {/* All Apps List */}
         <h3 className="font-bold text-sm mb-2">جميع التطبيقات</h3>
+        {filteredApps.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+            <Search className="h-10 w-10 mb-3 opacity-40" />
+            <p className="font-semibold text-sm">لا توجد نتائج</p>
+            <p className="text-xs mt-1">جرّب كلمات بحث مختلفة</p>
+          </div>
+        ) : (
         <div className="space-y-2.5">
           {filteredApps.map((app, index) => (
             <div
@@ -113,6 +120,7 @@ const AppsPage = () => {
             </div>
           ))}
         </div>
+        )}
       </main>
 
       <AppDetailDialog
