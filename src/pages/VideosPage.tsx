@@ -20,6 +20,8 @@ const VideosPage = () => {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [commentsReelId, setCommentsReelId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const lastTapRef = useRef(0);
   const touchStartY = useRef(0);
 
@@ -33,6 +35,17 @@ const VideosPage = () => {
       }
       setShowHeart(true);
       setTimeout(() => setShowHeart(false), 800);
+    } else {
+      // Single tap: toggle pause/play
+      if (videoRef.current) {
+        if (videoRef.current.paused) {
+          videoRef.current.play();
+          setPaused(false);
+        } else {
+          videoRef.current.pause();
+          setPaused(true);
+        }
+      }
     }
     lastTapRef.current = now;
   }, [likedIds, toggleLike]);
@@ -116,13 +129,25 @@ const VideosPage = () => {
           >
             {/* Video */}
             <video
+              ref={videoRef}
               key={currentReel.id}
               src={currentReel.video_url}
               className="h-full w-full object-cover"
               autoPlay
               loop
               playsInline
+              onPlay={() => setPaused(false)}
+              onPause={() => setPaused(true)}
             />
+
+            {/* Pause Icon */}
+            {paused && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
+                <div className="h-16 w-16 rounded-full bg-black/40 flex items-center justify-center">
+                  <div className="w-0 h-0 border-t-[12px] border-t-transparent border-b-[12px] border-b-transparent border-l-[20px] border-l-white ml-1" />
+                </div>
+              </div>
+            )}
 
             {/* Double Tap Heart */}
             {showHeart && (
