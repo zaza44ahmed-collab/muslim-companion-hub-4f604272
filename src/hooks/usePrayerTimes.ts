@@ -178,22 +178,40 @@ export function usePrayerTimes() {
     }
   }, []);
 
+  const saveLocation = useCallback((lat: number, lng: number) => {
+    localStorage.setItem("prayer_location", JSON.stringify({ lat, lng }));
+  }, []);
+
   const requestLocation = useCallback(() => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          fetchPrayerTimes(position.coords.latitude, position.coords.longitude);
+          const { latitude, longitude } = position.coords;
+          saveLocation(latitude, longitude);
+          fetchPrayerTimes(latitude, longitude);
         },
         () => {
-          fetchPrayerTimes(30.0444, 31.2357);
+          const saved = localStorage.getItem("prayer_location");
+          if (saved) {
+            const { lat, lng } = JSON.parse(saved);
+            fetchPrayerTimes(lat, lng);
+          } else {
+            fetchPrayerTimes(30.0444, 31.2357);
+          }
         },
         { enableHighAccuracy: true, timeout: 5000 }
       );
     } else {
-      fetchPrayerTimes(30.0444, 31.2357);
+      const saved = localStorage.getItem("prayer_location");
+      if (saved) {
+        const { lat, lng } = JSON.parse(saved);
+        fetchPrayerTimes(lat, lng);
+      } else {
+        fetchPrayerTimes(30.0444, 31.2357);
+      }
     }
-  }, [fetchPrayerTimes]);
+  }, [fetchPrayerTimes, saveLocation]);
 
   useEffect(() => {
     requestLocation();
