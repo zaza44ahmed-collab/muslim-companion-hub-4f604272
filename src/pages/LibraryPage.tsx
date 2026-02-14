@@ -60,6 +60,13 @@ const LibraryPage = () => {
 
         {/* All Books Grid */}
         <h3 className="font-bold text-sm mb-2">جميع الكتب</h3>
+        {filteredBooks.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+            <Search className="h-10 w-10 mb-3 opacity-40" />
+            <p className="font-semibold text-sm">لا توجد نتائج</p>
+            <p className="text-xs mt-1">جرّب كلمات بحث مختلفة</p>
+          </div>
+        ) : (
         <div className="grid grid-cols-2 gap-3">
           {filteredBooks.map((book, index) => (
             <div
@@ -131,6 +138,7 @@ const LibraryPage = () => {
             </div>
           ))}
         </div>
+        )}
       </main>
 
       <BookDetailDialog
