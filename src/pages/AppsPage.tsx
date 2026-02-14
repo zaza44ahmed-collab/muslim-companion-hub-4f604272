@@ -3,9 +3,10 @@ import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Download, Star, Search, X } from "lucide-react";
+import { Download, Star, Search, X, Plus, ExternalLink } from "lucide-react";
 import { apps, appCategories, type AppItem } from "@/data/apps";
 import AppDetailDialog from "@/components/apps/AppDetailDialog";
+import { toast } from "@/hooks/use-toast";
 
 const AppsPage = () => {
   const [activeCategory, setActiveCategory] = useState("all");
@@ -19,16 +20,30 @@ const AppsPage = () => {
     return matchesCategory && matchesSearch;
   });
 
-  return (
-    <div className="min-h-screen bg-background pb-20">
-      
+  const handleDownload = (app: AppItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const searchQuery = encodeURIComponent(app.name);
+    window.open(`https://play.google.com/store/search?q=${searchQuery}&c=apps`, "_blank");
+    toast({ title: "جاري فتح المتجر", description: `البحث عن "${app.name}" في متجر Google Play` });
+  };
 
-      <main className="container py-3">
+  const handleAddContent = () => {
+    toast({ title: "إضافة تطبيق", description: "ستتوفر هذه الميزة قريباً إن شاء الله" });
+  };
+
+  return (
+    <div className="min-h-screen bg-background pb-20" dir="rtl">
+      <main className="container py-3 px-4">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-base font-bold">التطبيقات الإسلامية</h2>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setShowSearch(!showSearch); if (showSearch) setSearchQuery(""); }}>
-            {showSearch ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleAddContent}>
+              <Plus className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setShowSearch(!showSearch); if (showSearch) setSearchQuery(""); }}>
+              {showSearch ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
+            </Button>
+          </div>
         </div>
 
         {showSearch && (
@@ -109,9 +124,7 @@ const AppsPage = () => {
                   variant="islamic"
                   size="sm"
                   className="shrink-0"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
+                  onClick={(e) => handleDownload(app, e)}
                 >
                   <Download className="h-4 w-4 ml-1" />
                   تحميل

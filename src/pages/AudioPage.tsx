@@ -1,17 +1,18 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Play, Download, Heart, Clock, Star, Search, X } from "lucide-react";
+import { Play, Heart, Clock, Star, Search, X, Plus } from "lucide-react";
 import { audioAlbums, audioCategories, type AudioAlbum } from "@/data/audio";
+import { toast } from "@/hooks/use-toast";
 
 const AudioPage = () => {
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
+  const [favorites, setFavorites] = useState<number[]>([]);
 
   const filteredAudio = audioAlbums.filter((a) => {
     const matchesCategory = activeCategory === "all" || a.category === activeCategory;
@@ -23,16 +24,33 @@ const AudioPage = () => {
     navigate(`/audio/${album.id}`);
   };
 
-  return (
-    <div className="min-h-screen bg-background pb-20">
-      
+  const toggleFavorite = (id: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setFavorites(prev =>
+      prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]
+    );
+    toast({
+      title: favorites.includes(id) ? "تمت الإزالة من المفضلة" : "تمت الإضافة للمفضلة",
+    });
+  };
 
-      <main className="container py-3">
+  const handleAddContent = () => {
+    toast({ title: "إضافة صوتيات", description: "ستتوفر هذه الميزة قريباً إن شاء الله" });
+  };
+
+  return (
+    <div className="min-h-screen bg-background pb-20" dir="rtl">
+      <main className="container py-3 px-4">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-base font-bold">الصوتيات الإسلامية</h2>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setShowSearch(!showSearch); if (showSearch) setSearchQuery(""); }}>
-            {showSearch ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleAddContent}>
+              <Plus className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setShowSearch(!showSearch); if (showSearch) setSearchQuery(""); }}>
+              {showSearch ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
+            </Button>
+          </div>
         </div>
 
         {showSearch && (
@@ -103,24 +121,14 @@ const AudioPage = () => {
                   </div>
                 </div>
 
-                <div className="flex gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-9 w-9"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <Download className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-9 w-9"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <Heart className="h-4 w-4" />
-                  </Button>
-                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 shrink-0"
+                  onClick={(e) => toggleFavorite(album.id, e)}
+                >
+                  <Heart className={`h-4 w-4 ${favorites.includes(album.id) ? "fill-red-500 text-red-500" : ""}`} />
+                </Button>
               </div>
             </div>
           ))}
