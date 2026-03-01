@@ -18,7 +18,7 @@ const QuickActions = () => {
           <Link
             key={action.id}
             to={action.path}
-            className="flex flex-col items-center justify-center py-4 rounded-2xl bg-card hover:bg-card/80 transition-all duration-200 active:scale-95"
+            className="flex flex-col items-center justify-center py-4 rounded-xl bg-card hover:bg-card/80 transition-all duration-200 active:scale-95"
           >
             <span className="text-2xl mb-1.5">{action.icon}</span>
             <span className="text-[11px] font-semibold text-foreground/80">{action.title}</span>

@@ -14,6 +14,70 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_comments: {
+        Row: {
+          app_id: string
+          content: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          app_id: string
+          content: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          app_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "app_comments_app_id_fkey"
+            columns: ["app_id"]
+            isOneToOne: false
+            referencedRelation: "user_apps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      app_ratings: {
+        Row: {
+          app_id: string
+          created_at: string
+          id: string
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          app_id: string
+          created_at?: string
+          id?: string
+          rating: number
+          user_id: string
+        }
+        Update: {
+          app_id?: string
+          created_at?: string
+          id?: string
+          rating?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "app_ratings_app_id_fkey"
+            columns: ["app_id"]
+            isOneToOne: false
+            referencedRelation: "user_apps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_quotes: {
         Row: {
           created_at: string
@@ -346,34 +410,46 @@ export type Database = {
       }
       user_apps: {
         Row: {
+          app_file_url: string | null
           category: string
           created_at: string
           description: string
+          downloads_count: number | null
           icon_url: string | null
           id: string
           link: string | null
           name: string
+          screenshots: string[] | null
           user_id: string
+          version: string | null
         }
         Insert: {
+          app_file_url?: string | null
           category?: string
           created_at?: string
           description: string
+          downloads_count?: number | null
           icon_url?: string | null
           id?: string
           link?: string | null
           name: string
+          screenshots?: string[] | null
           user_id: string
+          version?: string | null
         }
         Update: {
+          app_file_url?: string | null
           category?: string
           created_at?: string
           description?: string
+          downloads_count?: number | null
           icon_url?: string | null
           id?: string
           link?: string | null
           name?: string
+          screenshots?: string[] | null
           user_id?: string
+          version?: string | null
         }
         Relationships: []
       }

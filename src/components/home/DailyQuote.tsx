@@ -50,7 +50,7 @@ const DailyQuote = () => {
 
   if (loading) {
     return (
-      <div className="rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-emerald-dark p-5 space-y-3">
+      <div className="rounded-xl bg-gradient-to-br from-primary via-primary/90 to-emerald-dark p-5 space-y-3">
         <Skeleton className="h-4 w-16 bg-white/20" />
         <Skeleton className="h-6 w-full bg-white/20" />
         <Skeleton className="h-6 w-3/4 bg-white/20" />
@@ -64,7 +64,7 @@ const DailyQuote = () => {
   }
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-emerald-dark p-5">
+    <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary via-primary/90 to-emerald-dark p-5">
       {/* Subtle geometric pattern */}
       <div className="absolute inset-0 opacity-[0.07]">
         <div className="absolute top-4 right-4 w-20 h-20 border border-white rounded-full" />

@@ -1,8 +1,8 @@
 import { useState, useMemo } from "react";
 import {
   Store, Search, MapPin, Heart, Clock, Plus,
-  ArrowRight, X, Phone, MessageCircle, Share2, Eye,
-  Tag, Flame, Star, SlidersHorizontal, Loader2, ImageIcon,
+  ArrowLeft, X, Phone, MessageCircle, Share2, Eye,
+  Tag, Flame, Star, Loader2, ImageIcon,
   Pencil, Trash2,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
@@ -11,7 +11,6 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import BottomNav from "@/components/layout/BottomNav";
 import AddListingDialog from "@/components/marketplace/AddListingDialog";
-import AdvancedFilters, { type AdvancedFiltersState } from "@/components/marketplace/AdvancedFilters";
 import { useListings } from "@/hooks/useListings";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -39,16 +38,11 @@ const MarketplacePage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedListing, setSelectedListing] = useState<typeof listings[0] | null>(null);
-  const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingListing, setEditingListing] = useState<typeof listings[0] | null>(null);
   const [deleting, setDeleting] = useState(false);
-
-  const maxPrice = useMemo(() => Math.max(1000, ...listings.map((l) => l.price)), [listings]);
-  const defaultFilters: AdvancedFiltersState = { priceRange: [0, maxPrice], selectedLocations: [] };
-  const [advancedFilters, setAdvancedFilters] = useState<AdvancedFiltersState>(defaultFilters);
 
   const handleToggleFavorite = async (id: string) => {
     if (!user) { toast({ title: "سجل دخولك أولاً" }); navigate("/auth"); return; }
@@ -64,9 +58,7 @@ const MarketplacePage = () => {
     let result = listings.filter((item) => {
       const matchesSearch = searchQuery === "" || item.title.includes(searchQuery) || item.description.includes(searchQuery) || item.location.includes(searchQuery);
       const matchesCategory = selectedCategory === "all" || item.category === selectedCategory;
-      const matchesPrice = item.price >= advancedFilters.priceRange[0] && item.price <= advancedFilters.priceRange[1];
-      const matchesLocation = advancedFilters.selectedLocations.length === 0 || advancedFilters.selectedLocations.some((loc) => item.location.includes(loc));
-      return matchesSearch && matchesCategory && matchesPrice && matchesLocation;
+      return matchesSearch && matchesCategory;
     });
     switch (sortBy) {
       case "price_low": result = [...result].sort((a, b) => a.price - b.price); break;
@@ -75,7 +67,7 @@ const MarketplacePage = () => {
       default: break;
     }
     return result;
-  }, [searchQuery, selectedCategory, sortBy, listings, advancedFilters]);
+  }, [searchQuery, selectedCategory, sortBy, listings]);
 
   const featuredListings = listings.filter((l) => l.is_featured);
   const formatNumber = (n: number) => n.toLocaleString("ar-SA");
@@ -93,72 +85,52 @@ const MarketplacePage = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20" dir="rtl">
-      {/* Header */}
+      {/* Header with search */}
       <header className="sticky top-0 z-50 w-full bg-card/95 backdrop-blur-lg border-b-2 border-secondary/30">
-        <div className="container flex h-12 items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="container flex h-12 items-center justify-between gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <Store className="h-5 w-5 text-secondary" />
             <h1 className="text-base font-bold font-amiri text-primary">متجر إسلامي</h1>
           </div>
+          <div className="flex-1 relative max-w-[200px]">
+            <Search className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="بحث..."
+              className="w-full h-8 pr-8 pl-7 rounded-lg border border-secondary/30 bg-background text-xs focus:outline-none focus:border-primary/60 transition-colors"
+            />
+            {searchQuery && (
+              <button onClick={() => setSearchQuery("")} className="absolute left-2 top-1/2 -translate-y-1/2">
+                <X className="h-3 w-3 text-muted-foreground" />
+              </button>
+            )}
+          </div>
           <Link to="/">
-            <Button variant="ghost" size="icon">
-              <ArrowRight className="h-5 w-5" />
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
         </div>
       </header>
 
       <main className="container py-3 space-y-3">
-        {/* Search & Filter */}
-        <div className="flex gap-2">
-          <div className="flex-1 relative">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="ابحث عن مصحف، سبحة، كتاب إسلامي..."
-              className="w-full h-10 pr-9 pl-3 rounded-xl border-2 border-secondary/30 bg-card text-sm focus:outline-none focus:border-primary/60 transition-colors"
-            />
-            {searchQuery && (
-              <button onClick={() => setSearchQuery("")} className="absolute left-3 top-1/2 -translate-y-1/2">
-                <X className="h-3.5 w-3.5 text-muted-foreground" />
-              </button>
-            )}
-          </div>
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`h-10 w-10 rounded-xl border-2 flex items-center justify-center transition-colors ${showFilters ? "border-primary bg-primary/10 text-primary" : "border-secondary/30 bg-card text-muted-foreground"}`}
-          >
-            <SlidersHorizontal className="h-4 w-4" />
-          </button>
+        {/* Sort buttons */}
+        <div className="flex gap-2 flex-wrap">
+          {([
+            { value: "newest" as SortOption, label: "الأحدث", icon: Clock },
+            { value: "price_low" as SortOption, label: "الأرخص", icon: Tag },
+            { value: "price_high" as SortOption, label: "الأغلى", icon: Tag },
+            { value: "popular" as SortOption, label: "الأكثر مشاهدة", icon: Flame },
+          ]).map((opt) => (
+            <button key={opt.value} onClick={() => setSortBy(opt.value)}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-colors ${sortBy === opt.value ? "bg-primary text-primary-foreground" : "bg-card border border-secondary/20 text-foreground/70"}`}
+            >
+              <opt.icon className="h-3 w-3" /> {opt.label}
+            </button>
+          ))}
         </div>
-
-        {/* Sort */}
-        {showFilters && (
-          <div className="animate-fadeIn space-y-3">
-            <div className="flex gap-2 flex-wrap">
-              {([
-                { value: "newest" as SortOption, label: "الأحدث", icon: Clock },
-                { value: "price_low" as SortOption, label: "الأرخص", icon: Tag },
-                { value: "price_high" as SortOption, label: "الأغلى", icon: Tag },
-                { value: "popular" as SortOption, label: "الأكثر مشاهدة", icon: Flame },
-              ]).map((opt) => (
-                <button key={opt.value} onClick={() => setSortBy(opt.value)}
-                  className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-colors ${sortBy === opt.value ? "bg-primary text-primary-foreground" : "bg-card border border-secondary/20 text-foreground/70"}`}
-                >
-                  <opt.icon className="h-3 w-3" /> {opt.label}
-                </button>
-              ))}
-            </div>
-            <AdvancedFilters
-              filters={advancedFilters}
-              onChange={setAdvancedFilters}
-              onReset={() => setAdvancedFilters({ priceRange: [0, maxPrice], selectedLocations: [] })}
-              maxPrice={maxPrice}
-            />
-          </div>
-        )}
 
         {/* Categories */}
         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
@@ -305,7 +277,7 @@ const MarketplacePage = () => {
                 )}
                 {selectedListing.images.length > 1 && (
                   <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
-                    {selectedListing.images.map((_, i) => (
+                    {selectedListing.images.map((_: string, i: number) => (
                       <button key={i} onClick={() => setSelectedImageIndex(i)}
                         className={`h-1.5 rounded-full transition-all ${i === selectedImageIndex ? "w-4 bg-primary" : "w-1.5 bg-foreground/30"}`}
                       />
@@ -349,30 +321,16 @@ const MarketplacePage = () => {
                 {/* Owner actions */}
                 {user && selectedListing.user_id === user.id && (
                   <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      className="flex-1 text-xs gap-1.5"
-                      onClick={() => {
-                        setEditingListing(selectedListing);
-                        setSelectedListing(null);
-                      }}
-                    >
+                    <Button variant="outline" className="flex-1 text-xs gap-1.5" onClick={() => { setEditingListing(selectedListing); setSelectedListing(null); }}>
                       <Pencil className="h-3.5 w-3.5" /> تعديل
                     </Button>
-                    <Button
-                      variant="destructive"
-                      className="flex-1 text-xs gap-1.5"
-                      disabled={deleting}
+                    <Button variant="destructive" className="flex-1 text-xs gap-1.5" disabled={deleting}
                       onClick={async () => {
                         setDeleting(true);
                         const res = await deleteListing(selectedListing.id);
                         setDeleting(false);
-                        if (res.error) {
-                          toast({ title: res.error, variant: "destructive" });
-                        } else {
-                          toast({ title: "تم حذف المنتج بنجاح 🗑️" });
-                          setSelectedListing(null);
-                        }
+                        if (res.error) { toast({ title: res.error, variant: "destructive" }); }
+                        else { toast({ title: "تم حذف المنتج بنجاح 🗑️" }); setSelectedListing(null); }
                       }}
                     >
                       {deleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />} حذف
@@ -408,23 +366,14 @@ const MarketplacePage = () => {
         onSubmit={async (data) => {
           if (!editingListing) return { error: 'خطأ' };
           return updateListing(editingListing.id, {
-            title: data.title,
-            description: data.description,
-            price: data.price,
-            location: data.location,
-            category: data.category,
-            condition: data.condition,
-            phone: data.phone,
+            title: data.title, description: data.description, price: data.price,
+            location: data.location, category: data.category, condition: data.condition, phone: data.phone,
           });
         }}
         initialData={editingListing ? {
-          title: editingListing.title,
-          description: editingListing.description,
-          price: String(editingListing.price),
-          location: editingListing.location,
-          category: editingListing.category,
-          condition: editingListing.condition,
-          phone: editingListing.phone,
+          title: editingListing.title, description: editingListing.description,
+          price: String(editingListing.price), location: editingListing.location,
+          category: editingListing.category, condition: editingListing.condition, phone: editingListing.phone,
         } : undefined}
         editMode
       />
