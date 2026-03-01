@@ -25,6 +25,7 @@ const VideosPage = () => {
   const lastTapRef = useRef(0);
   const touchStartY = useRef(0);
 
+  // Reels are already sorted by created_at desc from useReels hook
   const currentReel = reels[currentIndex];
 
   const handleDoubleTap = useCallback((reelId: string) => {
@@ -36,7 +37,6 @@ const VideosPage = () => {
       setShowHeart(true);
       setTimeout(() => setShowHeart(false), 800);
     } else {
-      // Single tap: toggle pause/play
       if (videoRef.current) {
         if (videoRef.current.paused) {
           videoRef.current.play();
@@ -90,13 +90,27 @@ const VideosPage = () => {
     }
   };
 
+  const goToNext = () => {
+    if (currentIndex < reels.length - 1) setCurrentIndex(prev => prev + 1);
+  };
+
+  const goToPrev = () => {
+    if (currentIndex > 0) setCurrentIndex(prev => prev - 1);
+  };
+
   const handleTouchStart = (e: React.TouchEvent) => { touchStartY.current = e.touches[0].clientY; };
   const handleTouchEnd = (e: React.TouchEvent) => {
     const diff = touchStartY.current - e.changedTouches[0].clientY;
     if (Math.abs(diff) > 50) {
-      if (diff > 0 && currentIndex < reels.length - 1) setCurrentIndex(prev => prev + 1);
-      else if (diff < 0 && currentIndex > 0) setCurrentIndex(prev => prev - 1);
+      if (diff > 0) goToNext();
+      else goToPrev();
     }
+  };
+
+  // Mouse wheel support for desktop
+  const handleWheel = (e: React.WheelEvent) => {
+    if (e.deltaY > 30) goToNext();
+    else if (e.deltaY < -30) goToPrev();
   };
 
   const formatNumber = (num: number) => {
@@ -107,8 +121,7 @@ const VideosPage = () => {
 
   return (
     <div className="fixed inset-0 bg-background">
-
-      <div className="h-full w-full pb-[60px]" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+      <div className="h-full w-full pb-[60px]" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd} onWheel={handleWheel}>
         {loading ? (
           <div className="h-full flex items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -160,8 +173,8 @@ const VideosPage = () => {
             <div className="absolute left-2 bottom-28 flex flex-col items-center gap-3 z-30">
               {/* Add Reel button */}
               <button className="flex flex-col items-center gap-0.5" onClick={(e) => { e.stopPropagation(); handleAddClick(); }}>
-                <div className="h-6 w-6 rounded-full gradient-islamic flex items-center justify-center">
-                  <Plus className="h-4 w-4 text-primary-foreground" />
+                <div className="h-6 w-6 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                  <Plus className="h-4 w-4 text-white" />
                 </div>
                 <span className="text-white text-[9px] font-bold drop-shadow">إضافة</span>
               </button>
@@ -190,7 +203,7 @@ const VideosPage = () => {
               {user && currentReel.user_id === user.id && (
                 <button className="flex flex-col items-center gap-0.5" disabled={deleting}
                   onClick={(e) => { e.stopPropagation(); handleDelete(); }}>
-                  {deleting ? <Loader2 className="h-5 w-5 text-white animate-spin" /> : <Trash2 className="h-5 w-5 text-destructive drop-shadow-lg" />}
+                  {deleting ? <Loader2 className="h-5 w-5 text-white animate-spin" /> : <Trash2 className="h-5 w-5 text-white drop-shadow-lg" />}
                   <span className="text-white text-[9px] font-bold drop-shadow">حذف</span>
                 </button>
               )}
@@ -215,6 +228,24 @@ const VideosPage = () => {
               </div>
             </div>
 
+            {/* Navigation arrows for up/down */}
+            {currentIndex > 0 && (
+              <button
+                className="absolute top-16 left-1/2 -translate-x-1/2 z-30 text-white/50 hover:text-white transition-colors"
+                onClick={(e) => { e.stopPropagation(); goToPrev(); }}
+              >
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg>
+              </button>
+            )}
+            {currentIndex < reels.length - 1 && (
+              <button
+                className="absolute bottom-[72px] left-1/2 -translate-x-1/2 z-30 text-white/50 hover:text-white transition-colors"
+                onClick={(e) => { e.stopPropagation(); goToNext(); }}
+              >
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+              </button>
+            )}
+
             {/* Progress dots */}
             <div className="absolute right-1.5 top-1/2 -translate-y-1/2 flex flex-col gap-1 z-30">
               {reels.map((_, index) => (
@@ -226,7 +257,6 @@ const VideosPage = () => {
           </div>
         ) : null}
       </div>
-
 
       <AddReelDialog open={showAddDialog} onOpenChange={setShowAddDialog} onSubmit={createReel} />
       <ReelCommentsSheet reelId={commentsReelId} onClose={() => { setCommentsReelId(null); }} />
