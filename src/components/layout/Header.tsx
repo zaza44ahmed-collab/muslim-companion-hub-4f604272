@@ -51,26 +51,17 @@ const Header = () => {
   }, []);
 
   const [isDark, setIsDark] = useState(() => {
-    if (typeof window !== "undefined") {
-      return document.documentElement.classList.contains("dark");
-    }
-    return false;
+    return localStorage.getItem('theme') === 'dark';
   });
 
   useEffect(() => {
     if (isDark) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
+      document.documentElement.classList.add('dark');
     } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
+      document.documentElement.classList.remove('dark');
     }
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
   }, [isDark]);
-
-  useEffect(() => {
-    const saved = localStorage.getItem("theme");
-    if (saved === "dark") setIsDark(true);
-  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-xl">

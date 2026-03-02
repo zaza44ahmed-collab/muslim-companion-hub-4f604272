@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import BottomNav from "@/components/layout/BottomNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Play, Heart, Clock, Star, Search, X, Plus } from "lucide-react";
+import { Play, Pause, Heart, Clock, Star, Search, X, Plus, Download } from "lucide-react";
 import { audioAlbums, audioCategories, type AudioAlbum } from "@/data/audio";
 import AddAudioDialog from "@/components/audio/AddAudioDialog";
 import { toast } from "@/hooks/use-toast";
@@ -17,6 +17,14 @@ const AudioPage = () => {
   const [favorites, setFavorites] = useState<number[]>([]);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [userAudio, setUserAudio] = useState<any[]>([]);
+
+  // Inline player state
+  const [playingAudio, setPlayingAudio] = useState<any>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [audioProgress, setAudioProgress] = useState(0);
+  const [audioCurrentTime, setAudioCurrentTime] = useState(0);
+  const [audioDuration, setAudioDuration] = useState(0);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const filteredAudio = audioAlbums.filter((a) => {
     const matchesCategory = activeCategory === "all" || a.category === activeCategory;
@@ -39,9 +47,7 @@ const AudioPage = () => {
     setFavorites(prev =>
       prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]
     );
-    toast({
-      title: favorites.includes(id) ? "تمت الإزالة من المفضلة" : "تمت الإضافة للمفضلة",
-    });
+    toast({ title: favorites.includes(id) ? "تمت الإزالة من المفضلة" : "تمت الإضافة للمفضلة" });
   };
 
   const fetchUserAudio = async () => {
@@ -51,13 +57,74 @@ const AudioPage = () => {
 
   useEffect(() => { fetchUserAudio(); }, []);
 
+  // Cleanup audio on unmount
+  useEffect(() => {
+    return () => { if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; } };
+  }, []);
+
   const playUserAudio = (audio: any) => {
-    if (audio.audio_url) {
-      const a = new Audio(audio.audio_url);
-      a.play();
-      toast({ title: `جاري تشغيل: ${audio.title}` });
-    } else {
+    if (!audio.audio_url) {
       toast({ title: "لا يوجد ملف صوتي" });
+      return;
+    }
+
+    // If same audio, toggle play/pause
+    if (playingAudio?.id === audio.id && audioRef.current) {
+      if (isPlaying) { audioRef.current.pause(); setIsPlaying(false); }
+      else { audioRef.current.play(); setIsPlaying(true); }
+      return;
+    }
+
+    // Stop previous
+    if (audioRef.current) { audioRef.current.pause(); }
+
+    const a = new Audio(audio.audio_url);
+    audioRef.current = a;
+    setPlayingAudio(audio);
+    setAudioProgress(0);
+    setAudioCurrentTime(0);
+
+    a.addEventListener("loadedmetadata", () => setAudioDuration(a.duration));
+    a.addEventListener("timeupdate", () => {
+      setAudioCurrentTime(a.currentTime);
+      if (a.duration) setAudioProgress((a.currentTime / a.duration) * 100);
+    });
+    a.addEventListener("ended", () => { setIsPlaying(false); setAudioProgress(0); setAudioCurrentTime(0); });
+
+    a.play();
+    setIsPlaying(true);
+    toast({ title: `جاري تشغيل: ${audio.title}` });
+  };
+
+  const togglePlayPause = () => {
+    if (!audioRef.current) return;
+    if (isPlaying) { audioRef.current.pause(); setIsPlaying(false); }
+    else { audioRef.current.play(); setIsPlaying(true); }
+  };
+
+  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!audioRef.current || !audioDuration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const pct = clickX / rect.width;
+    audioRef.current.currentTime = pct * audioDuration;
+  };
+
+  const formatTime = (s: number) => {
+    if (!s || isNaN(s)) return "0:00";
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60);
+    return `${m}:${String(sec).padStart(2, "0")}`;
+  };
+
+  const downloadAudio = (audio: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (audio.audio_url) {
+      const a = document.createElement("a");
+      a.href = audio.audio_url;
+      a.download = `${audio.title}.mp3`;
+      a.click();
+      toast({ title: "جاري التحميل..." });
     }
   };
 
@@ -78,7 +145,7 @@ const AudioPage = () => {
         )}
 
         {/* Categories */}
-        <div className="flex gap-2 overflow-x-auto pb-2 mb-3 scrollbar-hide">
+        <div className="flex gap-2 overflow-x-auto mb-2 scrollbar-hide">
           {audioCategories.map((cat) => (
             <Button key={cat.id} variant={activeCategory === cat.id ? "islamic" : "outline"} size="sm" className="shrink-0" onClick={() => setActiveCategory(cat.id)}>
               {cat.label}
@@ -94,7 +161,7 @@ const AudioPage = () => {
               {filteredUserAudio.map((audio, index) => (
                 <div
                   key={audio.id}
-                  className="bg-card rounded-xl p-3 shadow-card-islamic animate-fadeIn cursor-pointer hover:shadow-lg transition-shadow"
+                  className={`bg-card rounded-xl p-3 shadow-card-islamic animate-fadeIn cursor-pointer hover:shadow-lg transition-shadow ${playingAudio?.id === audio.id ? "ring-2 ring-primary" : ""}`}
                   style={{ animationDelay: `${index * 80}ms` }}
                   onClick={() => playUserAudio(audio)}
                 >
@@ -109,8 +176,30 @@ const AudioPage = () => {
                     <div className="flex-1 min-w-0">
                       <h3 className="font-bold text-sm">{audio.title}</h3>
                       <p className="text-xs text-muted-foreground">{audio.artist || "غير معروف"}</p>
+                      <div className="flex items-center gap-3 mt-1">
+                        {audio.duration && (
+                          <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Clock className="h-3 w-3" />{audio.duration}
+                          </span>
+                        )}
+                        <span className="flex items-center gap-1 text-xs text-gold">
+                          <Star className="h-3 w-3 fill-gold" />4.5
+                        </span>
+                      </div>
                     </div>
-                    <Play className="h-5 w-5 text-primary shrink-0" />
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => toggleFavorite(audio.id, e)}>
+                        <Heart className={`h-4 w-4 ${favorites.includes(audio.id) ? "fill-red-500 text-red-500" : ""}`} />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => downloadAudio(audio, e)}>
+                        <Download className="h-4 w-4" />
+                      </Button>
+                      {playingAudio?.id === audio.id && isPlaying ? (
+                        <Pause className="h-5 w-5 text-primary shrink-0" />
+                      ) : (
+                        <Play className="h-5 w-5 text-primary shrink-0" />
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -159,9 +248,42 @@ const AudioPage = () => {
         )}
       </main>
 
+      {/* Inline Audio Player */}
+      {playingAudio && (
+        <div className="fixed bottom-[60px] left-0 right-0 z-30 bg-card/95 backdrop-blur-lg border-t border-border shadow-lg">
+          <div className="container px-4 py-2">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
+                {playingAudio.cover_url ? (
+                  <img src={playingAudio.cover_url} alt="" className="h-full w-full object-cover rounded-lg" />
+                ) : (
+                  <Play className="h-4 w-4 text-primary" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-bold truncate">{playingAudio.title}</p>
+                <p className="text-[10px] text-muted-foreground">{playingAudio.artist || "غير معروف"}</p>
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="text-[10px] text-muted-foreground tabular-nums">{formatTime(audioCurrentTime)}</span>
+                <button onClick={togglePlayPause} className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+                  {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4 mr-[-1px]" />}
+                </button>
+                <span className="text-[10px] text-muted-foreground tabular-nums">{formatTime(audioDuration)}</span>
+              </div>
+              <button onClick={() => { audioRef.current?.pause(); setPlayingAudio(null); setIsPlaying(false); }}>
+                <X className="h-4 w-4 text-muted-foreground" />
+              </button>
+            </div>
+            <div className="w-full h-1 bg-muted/30 rounded-full mt-1.5 cursor-pointer" onClick={handleSeek}>
+              <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${audioProgress}%` }} />
+            </div>
+          </div>
+        </div>
+      )}
+
       <AddAudioDialog open={showAddDialog} onOpenChange={setShowAddDialog} onAdded={fetchUserAudio} />
 
-      {/* FAB */}
       <button
         onClick={() => setShowAddDialog(true)}
         className="fixed bottom-24 left-5 z-40 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center active:scale-95 transition-transform"

@@ -228,23 +228,6 @@ const VideosPage = () => {
               </div>
             </div>
 
-            {/* Navigation arrows for up/down */}
-            {currentIndex > 0 && (
-              <button
-                className="absolute top-16 left-1/2 -translate-x-1/2 z-30 text-white/50 hover:text-white transition-colors"
-                onClick={(e) => { e.stopPropagation(); goToPrev(); }}
-              >
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg>
-              </button>
-            )}
-            {currentIndex < reels.length - 1 && (
-              <button
-                className="absolute bottom-[72px] left-1/2 -translate-x-1/2 z-30 text-white/50 hover:text-white transition-colors"
-                onClick={(e) => { e.stopPropagation(); goToNext(); }}
-              >
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-              </button>
-            )}
 
             {/* Progress dots */}
             <div className="absolute right-1.5 top-1/2 -translate-y-1/2 flex flex-col gap-1 z-30">

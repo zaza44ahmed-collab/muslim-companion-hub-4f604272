@@ -116,27 +116,11 @@ const MarketplacePage = () => {
       </header>
 
       <main className="container py-3 space-y-3">
-        {/* Sort buttons */}
-        <div className="flex gap-2 flex-wrap">
-          {([
-            { value: "newest" as SortOption, label: "الأحدث", icon: Clock },
-            { value: "price_low" as SortOption, label: "الأرخص", icon: Tag },
-            { value: "price_high" as SortOption, label: "الأغلى", icon: Tag },
-            { value: "popular" as SortOption, label: "الأكثر مشاهدة", icon: Flame },
-          ]).map((opt) => (
-            <button key={opt.value} onClick={() => setSortBy(opt.value)}
-              className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-colors ${sortBy === opt.value ? "bg-primary text-primary-foreground" : "bg-card border border-secondary/20 text-foreground/70"}`}
-            >
-              <opt.icon className="h-3 w-3" /> {opt.label}
-            </button>
-          ))}
-        </div>
-
         {/* Categories */}
         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
           {categories.map((cat) => (
             <button key={cat.id} onClick={() => setSelectedCategory(cat.id)}
-              className={`flex flex-col items-center gap-1 min-w-[56px] py-2 px-2.5 rounded-xl border transition-all ${selectedCategory === cat.id ? "border-primary bg-primary/10 shadow-sm" : "border-secondary/20 bg-card hover:bg-secondary/10"}`}
+              className={`flex flex-col items-center gap-1 min-w-[56px] py-2 px-2.5 rounded-xl border transition-all ${selectedCategory === cat.id ? "border-primary bg-primary/10 shadow-sm" : "border-transparent bg-card hover:bg-secondary/10"}`}
             >
               <span className="text-lg">{cat.emoji}</span>
               <span className={`text-[9px] font-semibold whitespace-nowrap ${selectedCategory === cat.id ? "text-primary" : "text-foreground/70"}`}>{cat.name}</span>
@@ -158,7 +142,7 @@ const MarketplacePage = () => {
                 >
                   <div className="relative h-24 bg-primary/5 flex items-center justify-center">
                     {item.images[0] ? (
-                      <img src={item.images[0]} alt={item.title} className="h-full w-full object-cover" />
+                      <img src={item.images[0]} alt={item.title} className="h-full w-full object-contain p-1" />
                     ) : (
                       <ImageIcon className="h-8 w-8 text-muted-foreground/30" />
                     )}
@@ -198,7 +182,7 @@ const MarketplacePage = () => {
               >
                 <div className="relative h-28 bg-secondary/5 flex items-center justify-center">
                   {item.images[0] ? (
-                    <img src={item.images[0]} alt={item.title} className="h-full w-full object-cover" />
+                    <img src={item.images[0]} alt={item.title} className="h-full w-full object-contain p-2" />
                   ) : (
                     <ImageIcon className="h-10 w-10 text-muted-foreground/20" />
                   )}
@@ -256,7 +240,7 @@ const MarketplacePage = () => {
             <>
               <div className="relative h-52 bg-secondary/5 flex items-center justify-center">
                 {selectedListing.images[selectedImageIndex] ? (
-                  <img src={selectedListing.images[selectedImageIndex]} alt="" className="h-full w-full object-cover" />
+                  <img src={selectedListing.images[selectedImageIndex]} alt="" className="h-full w-full object-contain" />
                 ) : (
                   <ImageIcon className="h-16 w-16 text-muted-foreground/20" />
                 )}
