@@ -62,7 +62,7 @@ const AppsPage = () => {
         )}
 
         {/* Categories */}
-        <div className="flex gap-2 overflow-x-auto pb-2 mb-3 scrollbar-hide">
+        <div className="flex gap-2 overflow-x-auto mb-2 scrollbar-hide">
           {appCategories.map((cat) => (
             <Button key={cat.id} variant={activeCategory === cat.id ? "islamic" : "outline"} size="sm" className="shrink-0" onClick={() => setActiveCategory(cat.id)}>
               {cat.label}

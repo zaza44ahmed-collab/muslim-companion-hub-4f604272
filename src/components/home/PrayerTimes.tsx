@@ -1,6 +1,11 @@
 import { MapPin, Loader2, LocateFixed } from "lucide-react";
 import { usePrayerTimes } from "@/hooks/usePrayerTimes";
 
+const prayerIcons: Record<string, string> = {
+  "الفجر": "🌅", "الشروق": "🌤️", "الظهر": "☀️",
+  "العصر": "⛅", "المغرب": "🌇", "العشاء": "🌙",
+};
+
 const PrayerTimes = () => {
   const { prayers, currentPrayerIndex, timeToNext, progress, locationName, loading, error, requestLocation } = usePrayerTimes();
 
@@ -75,13 +80,14 @@ const PrayerTimes = () => {
             const isPrayerPassed = prayer.passed;
 
             return (
-              <div key={prayer.name} className="flex flex-col items-center gap-1">
-                <span className={`text-[11px] font-semibold ${
+              <div key={prayer.name} className="flex flex-col items-center gap-0.5">
+                <span className={`text-[10px] font-semibold ${
                   isCurrent ? "text-primary" : isPrayerPassed ? "text-muted-foreground/40" : "text-foreground/70"
                 }`}>
                   {prayer.name}
                 </span>
-                <span className={`text-[11px] font-bold tabular-nums px-2 py-0.5 rounded-md ${
+                <span className="text-sm leading-none">{prayerIcons[prayer.name] || "🕌"}</span>
+                <span className={`text-[10px] font-bold tabular-nums px-1.5 py-0.5 rounded-md ${
                   isCurrent
                     ? "bg-primary text-primary-foreground"
                     : isPrayerPassed
