@@ -1,11 +1,11 @@
 import { useState, useMemo } from "react";
 import {
   Store, Search, MapPin, Heart, Clock, Plus,
-  ArrowLeft, X, Phone, MessageCircle, Share2, Eye,
-  Tag, Flame, Star, Loader2, ImageIcon,
+  X, Phone, MessageCircle, Share2, Eye,
+  Tag, Star, Loader2, ImageIcon,
   Pencil, Trash2,
 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
@@ -27,8 +27,6 @@ const categories = [
   { id: "decor", name: "ديكور إسلامي", emoji: "🏮" },
 ];
 
-type SortOption = "newest" | "price_low" | "price_high" | "popular";
-
 const MarketplacePage = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -38,7 +36,6 @@ const MarketplacePage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedListing, setSelectedListing] = useState<typeof listings[0] | null>(null);
-  const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingListing, setEditingListing] = useState<typeof listings[0] | null>(null);
@@ -55,19 +52,12 @@ const MarketplacePage = () => {
   };
 
   const filteredListings = useMemo(() => {
-    let result = listings.filter((item) => {
+    return listings.filter((item) => {
       const matchesSearch = searchQuery === "" || item.title.includes(searchQuery) || item.description.includes(searchQuery) || item.location.includes(searchQuery);
       const matchesCategory = selectedCategory === "all" || item.category === selectedCategory;
       return matchesSearch && matchesCategory;
     });
-    switch (sortBy) {
-      case "price_low": result = [...result].sort((a, b) => a.price - b.price); break;
-      case "price_high": result = [...result].sort((a, b) => b.price - a.price); break;
-      case "popular": result = [...result].sort((a, b) => b.views - a.views); break;
-      default: break;
-    }
-    return result;
-  }, [searchQuery, selectedCategory, sortBy, listings]);
+  }, [searchQuery, selectedCategory, listings]);
 
   const featuredListings = listings.filter((l) => l.is_featured);
   const formatNumber = (n: number) => n.toLocaleString("ar-SA");
@@ -85,8 +75,8 @@ const MarketplacePage = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20" dir="rtl">
-      {/* Header with search */}
-      <header className="sticky top-0 z-50 w-full bg-card/95 backdrop-blur-lg border-b-2 border-secondary/30">
+      {/* Header - like other pages, search on left */}
+      <header className="sticky top-0 z-50 w-full bg-card/95 backdrop-blur-lg border-b border-border">
         <div className="container flex h-12 items-center justify-between gap-2">
           <div className="flex items-center gap-2 shrink-0">
             <Store className="h-5 w-5 text-secondary" />
@@ -107,17 +97,12 @@ const MarketplacePage = () => {
               </button>
             )}
           </div>
-          <Link to="/">
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-          </Link>
         </div>
       </header>
 
       <main className="container py-3 space-y-3">
-        {/* Categories */}
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+        {/* Categories - no animated underline */}
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide">
           {categories.map((cat) => (
             <button key={cat.id} onClick={() => setSelectedCategory(cat.id)}
               className={`flex flex-col items-center gap-1 min-w-[56px] py-2 px-2.5 rounded-xl border transition-all ${selectedCategory === cat.id ? "border-primary bg-primary/10 shadow-sm" : "border-transparent bg-card hover:bg-secondary/10"}`}
@@ -228,14 +213,9 @@ const MarketplacePage = () => {
         )}
       </main>
 
-      {/* FAB */}
-      <button onClick={handleAddClick} className="fixed bottom-[76px] left-4 z-40 h-12 w-12 rounded-full gradient-islamic shadow-lg flex items-center justify-center hover:scale-105 transition-transform">
-        <Plus className="h-6 w-6 text-primary-foreground" />
-      </button>
-
-      {/* Detail Dialog */}
+      {/* Detail Dialog - fullscreen */}
       <Dialog open={!!selectedListing} onOpenChange={() => setSelectedListing(null)}>
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto p-0 gap-0" dir="rtl">
+        <DialogContent className="max-w-[100vw] w-full h-[100vh] max-h-[100vh] p-0 gap-0 rounded-none border-none overflow-y-auto" dir="rtl">
           {selectedListing && (
             <>
               <div className="relative h-52 bg-secondary/5 flex items-center justify-center">
