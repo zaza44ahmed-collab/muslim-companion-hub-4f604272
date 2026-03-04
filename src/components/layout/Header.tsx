@@ -16,18 +16,8 @@ function getHijriDate(): string {
   }
 }
 
-function getGregorianDate(): string {
-  const formatter = new Intl.DateTimeFormat("ar", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-  return formatter.format(new Date());
-}
-
 const Header = () => {
   const hijriDate = getHijriDate();
-  const gregorianDate = getGregorianDate();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -64,7 +54,7 @@ const Header = () => {
   }, [isDark]);
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-xl border-b border-border">
       <div className="container flex h-14 items-center justify-between">
         {/* Right side - User */}
         <div className="flex items-center gap-2.5">

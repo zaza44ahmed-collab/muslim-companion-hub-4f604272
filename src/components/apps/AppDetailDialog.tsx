@@ -36,15 +36,12 @@ const AppDetailDialog = ({ app, userApp, open, onOpenChange }: AppDetailDialogPr
   const displayFeatures = isUserApp ? [] : (app?.features || []);
   const displayDeveloper = isUserApp ? uploaderName : app?.developer;
 
-  // Fetch ratings, comments, uploader name for user apps
   useEffect(() => {
     if (!open || !isUserApp) return;
     const fetchData = async () => {
-      // Fetch uploader name
       const { data: profile } = await supabase.from("profiles").select("display_name").eq("id", userApp.user_id).single();
       if (profile) setUploaderName(profile.display_name || "مستخدم");
 
-      // Fetch ratings
       const { data: ratings } = await supabase.from("app_ratings").select("*").eq("app_id", userApp.id);
       if (ratings && ratings.length > 0) {
         const avg = ratings.reduce((sum: number, r: any) => sum + r.rating, 0) / ratings.length;
@@ -56,7 +53,6 @@ const AppDetailDialog = ({ app, userApp, open, onOpenChange }: AppDetailDialogPr
         setAvgRating(0); setRatingsCount(0);
       }
 
-      // Fetch comments
       const { data: cmts } = await supabase.from("app_comments").select("*").eq("app_id", userApp.id).order("created_at", { ascending: false });
       if (cmts) {
         const userIds = [...new Set(cmts.map((c: any) => c.user_id))];
@@ -74,7 +70,6 @@ const AppDetailDialog = ({ app, userApp, open, onOpenChange }: AppDetailDialogPr
     if (!user || !isUserApp) return;
     setUserRating(rating);
     await supabase.from("app_ratings").upsert({ app_id: userApp.id, user_id: user.id, rating }, { onConflict: "app_id,user_id" });
-    // Refresh
     const { data: ratings } = await supabase.from("app_ratings").select("*").eq("app_id", userApp.id);
     if (ratings && ratings.length > 0) {
       const avg = ratings.reduce((sum: number, r: any) => sum + r.rating, 0) / ratings.length;
@@ -87,7 +82,6 @@ const AppDetailDialog = ({ app, userApp, open, onOpenChange }: AppDetailDialogPr
     if (!user || !newComment.trim() || !isUserApp) return;
     await supabase.from("app_comments").insert({ app_id: userApp.id, user_id: user.id, content: newComment.trim() });
     setNewComment("");
-    // Refresh comments
     const { data: cmts } = await supabase.from("app_comments").select("*").eq("app_id", userApp.id).order("created_at", { ascending: false });
     if (cmts) {
       const userIds = [...new Set(cmts.map((c: any) => c.user_id))];
@@ -103,7 +97,6 @@ const AppDetailDialog = ({ app, userApp, open, onOpenChange }: AppDetailDialogPr
     if (isUserApp && userApp.app_file_url) {
       setDownloading(true);
       setDownloadProgress(0);
-      // Simulate progress
       const interval = setInterval(() => {
         setDownloadProgress(prev => {
           if (prev >= 95) { clearInterval(interval); return 95; }
@@ -124,9 +117,7 @@ const AppDetailDialog = ({ app, userApp, open, onOpenChange }: AppDetailDialogPr
         a.click();
         URL.revokeObjectURL(url);
 
-        // Update download count
         await supabase.from("user_apps").update({ downloads_count: (userApp.downloads_count || 0) + 1 }).eq("id", userApp.id);
-
         toast({ title: "تم التحميل بنجاح ✅" });
       } catch {
         clearInterval(interval);
@@ -146,8 +137,8 @@ const AppDetailDialog = ({ app, userApp, open, onOpenChange }: AppDetailDialogPr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg p-0 gap-0 max-h-[90vh] overflow-hidden rounded-2xl" dir="rtl">
-        <ScrollArea className="max-h-[90vh]">
+      <DialogContent className="max-w-[100vw] w-full h-[100vh] max-h-[100vh] p-0 gap-0 rounded-none border-none" dir="rtl">
+        <ScrollArea className="h-full">
           {/* Header */}
           <DialogHeader className="p-5 pb-0">
             <div className="flex items-start gap-4">
@@ -204,7 +195,7 @@ const AppDetailDialog = ({ app, userApp, open, onOpenChange }: AppDetailDialogPr
               </div>
             )}
 
-            {/* Screenshots */}
+            {/* Screenshots - no animated indicator */}
             {displayScreenshots.length > 0 && (
               <div className="mb-5">
                 <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">

@@ -25,7 +25,6 @@ const VideosPage = () => {
   const lastTapRef = useRef(0);
   const touchStartY = useRef(0);
 
-  // Reels are already sorted by created_at desc from useReels hook
   const currentReel = reels[currentIndex];
 
   const handleDoubleTap = useCallback((reelId: string) => {
@@ -107,7 +106,6 @@ const VideosPage = () => {
     }
   };
 
-  // Mouse wheel support for desktop
   const handleWheel = (e: React.WheelEvent) => {
     if (e.deltaY > 30) goToNext();
     else if (e.deltaY < -30) goToPrev();
@@ -117,6 +115,11 @@ const VideosPage = () => {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
     if (num >= 1000) return (num / 1000).toFixed(0) + "K";
     return num.toString();
+  };
+
+  // Get actual like count: use likes_count from DB, ensure minimum display is correct
+  const getLikeCount = (reel: typeof reels[0]) => {
+    return reel.likes_count;
   };
 
   return (
@@ -181,7 +184,7 @@ const VideosPage = () => {
 
               <button className="flex flex-col items-center gap-0.5" onClick={(e) => { e.stopPropagation(); handleToggleLike(currentReel.id); }}>
                 <Heart className={`h-5 w-5 transition-all drop-shadow-lg ${likedIds.has(currentReel.id) ? "text-destructive fill-destructive scale-110" : "text-white"}`} />
-                <span className="text-white text-[9px] font-bold drop-shadow">{formatNumber(currentReel.likes_count)}</span>
+                <span className="text-white text-[9px] font-bold drop-shadow">{formatNumber(getLikeCount(currentReel))}</span>
               </button>
 
               <button className="flex flex-col items-center gap-0.5" onClick={(e) => { e.stopPropagation(); setCommentsReelId(currentReel.id); }}>
@@ -227,7 +230,6 @@ const VideosPage = () => {
                 </div>
               </div>
             </div>
-
 
             {/* Progress dots */}
             <div className="absolute right-1.5 top-1/2 -translate-y-1/2 flex flex-col gap-1 z-30">

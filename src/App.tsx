@@ -22,6 +22,7 @@ import MarketplacePage from "./pages/MarketplacePage";
 import NotFound from "./pages/NotFound";
 import OnboardingPage from "./pages/OnboardingPage";
 import BookReaderPage from "./pages/BookReaderPage";
+import OfflinePage from "./pages/OfflinePage";
 
 const queryClient = new QueryClient();
 
@@ -50,7 +51,7 @@ const App = () => (
           <Route path="/marketplace" element={<MarketplacePage />} />
           <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/book-reader" element={<BookReaderPage />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="/offline" element={<OfflinePage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

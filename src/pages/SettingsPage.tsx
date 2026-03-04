@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   User, Edit3, Bookmark, Upload, Bell, Clock, Moon, Sun, Globe, Shield,
-  Info, Star, Share2, Heart, Flag, LogOut, LogIn, ChevronLeft, ArrowLeft,
-  Crown, Volume2, Sparkles,
+  Info, Star, Share2, Heart, Flag, LogOut, LogIn, ChevronLeft, ArrowRight,
+  Crown, Volume2,
 } from "lucide-react";
 import BottomNav from "@/components/layout/BottomNav";
 import { Button } from "@/components/ui/button";
@@ -87,34 +87,39 @@ const SettingsPage = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20" dir="rtl">
-      {/* Header */}
-      <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-lg border-b-2 border-secondary/30">
-        <div className="container flex h-14 items-center gap-2">
+      {/* Header - back button on left */}
+      <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-lg border-b border-border">
+        <div className="container flex h-14 items-center justify-between">
+          <h1 className="text-lg font-bold font-amiri text-gradient-islamic">الإعدادات</h1>
           <Link to="/">
             <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowRight className="h-5 w-5" />
             </Button>
           </Link>
-          <h1 className="text-lg font-bold font-amiri text-gradient-islamic">الإعدادات</h1>
         </div>
       </header>
 
       <main className="container py-4 space-y-5 px-4">
-        {/* Profile Card - Centered */}
+        {/* Profile Card - Centered with frame */}
         <section className="animate-fadeIn text-center py-4">
           <div className="flex flex-col items-center gap-2">
-            <div className="h-20 w-20 rounded-full border-3 border-secondary/40 overflow-hidden bg-muted flex items-center justify-center shadow-lg">
-              {profileData.avatar_url ? (
-                <img src={profileData.avatar_url} alt="الصورة الشخصية" className="h-full w-full object-cover" />
-              ) : (
-                <User className="h-10 w-10 text-muted-foreground" />
-              )}
+            <div className="relative">
+              <div className="h-20 w-20 rounded-full border-4 border-secondary/50 overflow-hidden bg-muted flex items-center justify-center shadow-lg ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
+                {profileData.avatar_url ? (
+                  <img src={profileData.avatar_url} alt="الصورة الشخصية" className="h-full w-full object-cover" />
+                ) : (
+                  <User className="h-10 w-10 text-muted-foreground" />
+                )}
+              </div>
+              {/* Pro badge icon */}
+              <div className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-secondary flex items-center justify-center shadow-md">
+                <Crown className="h-3.5 w-3.5 text-secondary-foreground" />
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-bold text-foreground font-cairo">
                 {profileData.display_name || "مستخدم"}
               </h2>
-              {/* Pro badge placeholder */}
             </div>
             <p className="text-xs text-muted-foreground">{user?.email || "سجل دخولك"}</p>
           </div>
@@ -125,10 +130,8 @@ const SettingsPage = () => {
           <div className="rounded-xl bg-gradient-to-l from-red-500 to-rose-600 p-4 text-white text-center shadow-lg">
             <div className="flex items-center justify-center gap-2 mb-1">
               <Crown className="h-5 w-5" />
-              <h3 className="font-bold text-sm">اشترك في باقة PRO ✨</h3>
+              <h3 className="font-bold text-sm">اشترك في باقة برو</h3>
             </div>
-            <p className="text-xs opacity-80 mt-1">ميزات حصرية ومحتوى بلا حدود</p>
-            <p className="text-[10px] opacity-60 mt-1">الدفع بكارت فيزا أو العملات الرقمية</p>
             <button className="mt-3 px-6 py-2 bg-white text-rose-600 rounded-xl font-bold text-xs hover:bg-white/90 transition-colors">
               اشترك الآن
             </button>

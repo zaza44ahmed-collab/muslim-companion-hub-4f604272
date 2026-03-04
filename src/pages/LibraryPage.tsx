@@ -20,12 +20,6 @@ const LibraryPage = () => {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [userBooks, setUserBooks] = useState<any[]>([]);
 
-  const filteredBooks = books.filter((book) => {
-    const matchesCategory = activeCategory === "all" || book.category === activeCategory;
-    const matchesSearch = !searchQuery || book.title.includes(searchQuery) || book.author.includes(searchQuery);
-    return matchesCategory && matchesSearch;
-  });
-
   const filteredUserBooks = userBooks.filter((book) => {
     const matchesCategory = activeCategory === "all" || book.category === activeCategory;
     const matchesSearch = !searchQuery || book.title.includes(searchQuery) || book.author.includes(searchQuery);
@@ -131,14 +125,16 @@ const LibraryPage = () => {
           </Button>
         </div>
 
+        <div className="border-b border-border mb-3" />
+
         {showSearch && (
           <div className="mb-3 animate-fadeIn">
             <Input placeholder="ابحث عن كتاب..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="text-right" autoFocus />
           </div>
         )}
 
-        {/* Categories */}
-        <div className="flex gap-2 overflow-x-auto mb-2 scrollbar-hide">
+        {/* Categories - no animated underline */}
+        <div className="flex gap-2 overflow-x-auto mb-3 scrollbar-hide">
           {bookCategories.map((cat) => (
             <Button key={cat.id} variant={activeCategory === cat.id ? "islamic" : "outline"} size="sm" className="shrink-0" onClick={() => setActiveCategory(cat.id)}>
               {cat.label}
@@ -146,40 +142,24 @@ const LibraryPage = () => {
           ))}
         </div>
 
-        {/* User uploaded books */}
+        {/* User books - no separate title, no sample books */}
         {filteredUserBooks.length > 0 && (
-          <>
-            <h3 className="font-bold text-sm mb-2">كتب المستخدمين</h3>
-            <div className="grid grid-cols-2 gap-3 mb-4">
-              {filteredUserBooks.map((book, index) => renderBookCard(book, index, true))}
-            </div>
-          </>
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            {filteredUserBooks.map((book, index) => renderBookCard(book, index, true))}
+          </div>
         )}
 
-        {/* All Books Grid */}
-        <h3 className="font-bold text-sm mb-2">جميع الكتب</h3>
-        {filteredBooks.length === 0 ? (
+        {filteredUserBooks.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
             <Search className="h-10 w-10 mb-3 opacity-40" />
-            <p className="font-semibold text-sm">لا توجد نتائج</p>
-            <p className="text-xs mt-1">جرّب كلمات بحث مختلفة</p>
+            <p className="font-semibold text-sm">لا توجد كتب بعد</p>
+            <p className="text-xs mt-1">أضف كتباً لتظهر هنا</p>
           </div>
-        ) : (
-        <div className="grid grid-cols-2 gap-3">
-          {filteredBooks.map((book, index) => renderBookCard(book, index, false))}
-        </div>
-        )}
+        ) : null}
       </main>
 
       <BookDetailDialog book={selectedBook} open={!!selectedBook} onOpenChange={(open) => !open && setSelectedBook(null)} />
       <AddBookDialog open={showAddDialog} onOpenChange={setShowAddDialog} onAdded={fetchUserBooks} />
-
-      <button
-        onClick={() => setShowAddDialog(true)}
-        className="fixed bottom-24 left-5 z-40 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center active:scale-95 transition-transform"
-      >
-        <Plus className="h-6 w-6" />
-      </button>
 
       <BottomNav />
     </div>

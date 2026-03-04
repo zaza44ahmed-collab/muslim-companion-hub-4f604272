@@ -75,16 +75,23 @@ export function useReels() {
   const toggleLike = async (reelId: string) => {
     if (!user) return false;
     const isLiked = likedIds.has(reelId);
+    
+    // Optimistic update - update local state first
+    const currentReel = reels.find(r => r.id === reelId);
+    if (!currentReel) return false;
+
     if (isLiked) {
-      await supabase.from('reel_likes').delete().eq('user_id', user.id).eq('reel_id', reelId);
-      await supabase.from('reels').update({ likes_count: Math.max(0, (reels.find(r => r.id === reelId)?.likes_count || 1) - 1) }).eq('id', reelId);
       setLikedIds(prev => { const n = new Set(prev); n.delete(reelId); return n; });
+      setReels(prev => prev.map(r => r.id === reelId ? { ...r, likes_count: Math.max(0, r.likes_count - 1) } : r));
+      await supabase.from('reel_likes').delete().eq('user_id', user.id).eq('reel_id', reelId);
+      await supabase.from('reels').update({ likes_count: Math.max(0, currentReel.likes_count - 1) }).eq('id', reelId);
     } else {
-      await supabase.from('reel_likes').insert({ user_id: user.id, reel_id: reelId });
-      await supabase.from('reels').update({ likes_count: (reels.find(r => r.id === reelId)?.likes_count || 0) + 1 }).eq('id', reelId);
       setLikedIds(prev => new Set(prev).add(reelId));
+      setReels(prev => prev.map(r => r.id === reelId ? { ...r, likes_count: r.likes_count + 1 } : r));
+      await supabase.from('reel_likes').insert({ user_id: user.id, reel_id: reelId });
+      await supabase.from('reels').update({ likes_count: currentReel.likes_count + 1 }).eq('id', reelId);
     }
-    await fetchReels();
+    
     return true;
   };
 
