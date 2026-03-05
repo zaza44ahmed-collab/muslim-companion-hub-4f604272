@@ -1,12 +1,13 @@
 import { useState, useMemo } from "react";
 import {
-  Store, Search, MapPin, Heart, Clock, Plus,
+  Store, Search, MapPin, Heart, Clock,
   X, Phone, MessageCircle, Share2, Eye,
   Tag, Star, Loader2, ImageIcon,
-  Pencil, Trash2,
+  Pencil, Trash2, Plus, ArrowLeft,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import BottomNav from "@/components/layout/BottomNav";
@@ -34,6 +35,7 @@ const MarketplacePage = () => {
   const { listings, loading, favoriteIds, toggleFavorite, createListing, updateListing, deleteListing } = useListings();
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedListing, setSelectedListing] = useState<typeof listings[0] | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -44,11 +46,6 @@ const MarketplacePage = () => {
   const handleToggleFavorite = async (id: string) => {
     if (!user) { toast({ title: "سجل دخولك أولاً" }); navigate("/auth"); return; }
     await toggleFavorite(id);
-  };
-
-  const handleAddClick = () => {
-    if (!user) { toast({ title: "سجل دخولك أولاً لإضافة إعلان" }); navigate("/auth"); return; }
-    setShowAddDialog(true);
   };
 
   const filteredListings = useMemo(() => {
@@ -75,37 +72,31 @@ const MarketplacePage = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20" dir="rtl">
-      {/* Header - like other pages, search on left */}
+      {/* Header */}
       <header className="sticky top-0 z-50 w-full bg-card/95 backdrop-blur-lg border-b border-border">
         <div className="container flex h-12 items-center justify-between gap-2">
           <div className="flex items-center gap-2 shrink-0">
             <Store className="h-5 w-5 text-secondary" />
             <h1 className="text-base font-bold font-amiri text-primary">متجر إسلامي</h1>
           </div>
-          <div className="flex-1 relative max-w-[200px]">
-            <Search className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="بحث..."
-              className="w-full h-8 pr-8 pl-7 rounded-lg border border-secondary/30 bg-background text-xs focus:outline-none focus:border-primary/60 transition-colors"
-            />
-            {searchQuery && (
-              <button onClick={() => setSearchQuery("")} className="absolute left-2 top-1/2 -translate-y-1/2">
-                <X className="h-3 w-3 text-muted-foreground" />
-              </button>
-            )}
-          </div>
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setShowSearch(!showSearch); if (showSearch) setSearchQuery(""); }}>
+            {showSearch ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
+          </Button>
         </div>
       </header>
 
       <main className="container py-3 space-y-3">
-        {/* Categories - no animated underline */}
+        {showSearch && (
+          <div className="animate-fadeIn">
+            <Input placeholder="بحث..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="text-right" autoFocus />
+          </div>
+        )}
+
+        {/* Categories - no borders, no underlines */}
         <div className="flex gap-2 overflow-x-auto scrollbar-hide">
           {categories.map((cat) => (
             <button key={cat.id} onClick={() => setSelectedCategory(cat.id)}
-              className={`flex flex-col items-center gap-1 min-w-[56px] py-2 px-2.5 rounded-xl border transition-all ${selectedCategory === cat.id ? "border-primary bg-primary/10 shadow-sm" : "border-transparent bg-card hover:bg-secondary/10"}`}
+              className={`flex flex-col items-center gap-1 min-w-[56px] py-2 px-2.5 transition-all ${selectedCategory === cat.id ? "bg-primary/10" : "bg-card hover:bg-secondary/10"}`}
             >
               <span className="text-lg">{cat.emoji}</span>
               <span className={`text-[9px] font-semibold whitespace-nowrap ${selectedCategory === cat.id ? "text-primary" : "text-foreground/70"}`}>{cat.name}</span>
@@ -123,7 +114,7 @@ const MarketplacePage = () => {
             <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide">
               {featuredListings.map((item) => (
                 <button key={item.id} onClick={() => { setSelectedListing(item); setSelectedImageIndex(0); }}
-                  className="min-w-[200px] rounded-2xl border-2 border-primary/30 bg-card overflow-hidden hover:border-primary/50 transition-all text-right"
+                  className="min-w-[200px] bg-card overflow-hidden hover:shadow-md transition-all text-right"
                 >
                   <div className="relative h-24 bg-primary/5 flex items-center justify-center">
                     {item.images[0] ? (
@@ -138,10 +129,6 @@ const MarketplacePage = () => {
                   <div className="p-2 space-y-0.5">
                     <h3 className="text-[11px] font-bold text-foreground line-clamp-1">{item.title}</h3>
                     <p className="text-xs font-bold text-primary">{formatPrice(item.price)} {item.currency}</p>
-                    <div className="flex items-center gap-1 text-muted-foreground">
-                      <MapPin className="h-2.5 w-2.5" />
-                      <span className="text-[9px] line-clamp-1">{item.location}</span>
-                    </div>
                   </div>
                 </button>
               ))}
@@ -149,12 +136,10 @@ const MarketplacePage = () => {
           </section>
         )}
 
-        {/* Results Count */}
         <div className="flex items-center justify-between">
           <p className="text-[11px] text-muted-foreground font-semibold">{filteredListings.length} إعلان</p>
         </div>
 
-        {/* Loading */}
         {loading ? (
           <div className="flex items-center justify-center py-16">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -163,7 +148,7 @@ const MarketplacePage = () => {
           <div className="grid grid-cols-2 gap-2.5">
             {filteredListings.map((item) => (
               <button key={item.id} onClick={() => { setSelectedListing(item); setSelectedImageIndex(0); }}
-                className="rounded-2xl border-2 border-secondary/20 bg-card overflow-hidden hover:border-secondary/40 transition-all text-right group"
+                className="bg-card overflow-hidden hover:shadow-md transition-all text-right group"
               >
                 <div className="relative h-28 bg-secondary/5 flex items-center justify-center">
                   {item.images[0] ? (
@@ -205,10 +190,6 @@ const MarketplacePage = () => {
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <span className="text-5xl mb-3">🔍</span>
             <h3 className="text-sm font-bold text-foreground mb-1">لا توجد إعلانات</h3>
-            <p className="text-xs text-muted-foreground mb-3">كن أول من يضيف إعلاناً!</p>
-            <Button onClick={handleAddClick} className="gradient-islamic text-primary-foreground text-xs">
-              <Plus className="h-4 w-4 ml-1" /> إضافة إعلان
-            </Button>
           </div>
         )}
       </main>
@@ -218,6 +199,14 @@ const MarketplacePage = () => {
         <DialogContent className="max-w-[100vw] w-full h-[100vh] max-h-[100vh] p-0 gap-0 rounded-none border-none overflow-y-auto" dir="rtl">
           {selectedListing && (
             <>
+              {/* Back button */}
+              <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-lg border-b border-border px-4 py-3 flex items-center justify-between">
+                <h2 className="text-base font-bold font-cairo">{selectedListing.title}</h2>
+                <Button variant="ghost" size="icon" onClick={() => setSelectedListing(null)}>
+                  <ArrowLeft className="h-5 w-5" />
+                </Button>
+              </div>
+
               <div className="relative h-52 bg-secondary/5 flex items-center justify-center">
                 {selectedListing.images[selectedImageIndex] ? (
                   <img src={selectedListing.images[selectedImageIndex]} alt="" className="h-full w-full object-contain" />
@@ -234,11 +223,6 @@ const MarketplacePage = () => {
                 >
                   <Share2 className="h-4 w-4 text-foreground/60" />
                 </button>
-                {selectedListing.is_featured && (
-                  <Badge className="absolute top-3 right-3 bg-primary text-primary-foreground text-[10px]">
-                    <Star className="h-3 w-3 ml-1" /> مميز
-                  </Badge>
-                )}
                 {selectedListing.images.length > 1 && (
                   <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
                     {selectedListing.images.map((_: string, i: number) => (
@@ -282,7 +266,6 @@ const MarketplacePage = () => {
                   </div>
                 </div>
 
-                {/* Owner actions */}
                 {user && selectedListing.user_id === user.id && (
                   <div className="flex gap-2">
                     <Button variant="outline" className="flex-1 text-xs gap-1.5" onClick={() => { setEditingListing(selectedListing); setSelectedListing(null); }}>
@@ -320,10 +303,8 @@ const MarketplacePage = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Add Listing Dialog */}
       <AddListingDialog open={showAddDialog} onOpenChange={setShowAddDialog} onSubmit={createListing} />
 
-      {/* Edit Listing Dialog */}
       <AddListingDialog
         open={!!editingListing}
         onOpenChange={(v) => { if (!v) setEditingListing(null); }}

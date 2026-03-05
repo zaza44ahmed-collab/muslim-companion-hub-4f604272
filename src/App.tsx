@@ -23,6 +23,7 @@ import NotFound from "./pages/NotFound";
 import OnboardingPage from "./pages/OnboardingPage";
 import BookReaderPage from "./pages/BookReaderPage";
 import OfflinePage from "./pages/OfflinePage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,7 @@ const App = () => (
           <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/book-reader" element={<BookReaderPage />} />
           <Route path="/offline" element={<OfflinePage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

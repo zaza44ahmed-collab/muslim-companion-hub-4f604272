@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { Star, Download, Share2, Shield, Loader2, MessageCircle, Send } from "lucide-react";
+import { Star, Download, Share2, Shield, Loader2, MessageCircle, Send, ArrowLeft } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
@@ -103,20 +103,17 @@ const AppDetailDialog = ({ app, userApp, open, onOpenChange }: AppDetailDialogPr
           return prev + Math.random() * 15;
         });
       }, 200);
-
       try {
         const response = await fetch(userApp.app_file_url);
         const blob = await response.blob();
         clearInterval(interval);
         setDownloadProgress(100);
-
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
         a.download = `${userApp.name}.apk`;
         a.click();
         URL.revokeObjectURL(url);
-
         await supabase.from("user_apps").update({ downloads_count: (userApp.downloads_count || 0) + 1 }).eq("id", userApp.id);
         toast({ title: "تم التحميل بنجاح ✅" });
       } catch {
@@ -125,9 +122,6 @@ const AppDetailDialog = ({ app, userApp, open, onOpenChange }: AppDetailDialogPr
       } finally {
         setTimeout(() => { setDownloading(false); setDownloadProgress(0); }, 1000);
       }
-    } else if (!isUserApp && app) {
-      const q = encodeURIComponent(app.name);
-      window.open(`https://play.google.com/store/search?q=${q}&c=apps`, "_blank");
     } else {
       toast({ title: "لا يوجد ملف للتحميل" });
     }
@@ -139,9 +133,17 @@ const AppDetailDialog = ({ app, userApp, open, onOpenChange }: AppDetailDialogPr
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[100vw] w-full h-[100vh] max-h-[100vh] p-0 gap-0 rounded-none border-none" dir="rtl">
         <ScrollArea className="h-full">
-          {/* Header */}
-          <DialogHeader className="p-5 pb-0">
-            <div className="flex items-start gap-4">
+          {/* Header with back button */}
+          <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-lg border-b border-border px-4 py-3 flex items-center justify-between">
+            <h2 className="text-base font-bold font-cairo">{displayName}</h2>
+            <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+          </div>
+
+          <div className="p-5">
+            {/* App Info */}
+            <div className="flex items-start gap-4 mb-5">
               <img
                 src={displayIcon || "/placeholder.svg"}
                 alt={displayName}
@@ -149,26 +151,18 @@ const AppDetailDialog = ({ app, userApp, open, onOpenChange }: AppDetailDialogPr
                 onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
               />
               <div className="flex-1 min-w-0 text-right">
-                <DialogTitle className="text-lg font-bold font-cairo text-right">
-                  {displayName}
-                </DialogTitle>
-                <p className="text-sm text-primary font-semibold mt-0.5 text-right">
-                  {displayDeveloper}
-                </p>
-                <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground justify-start">
+                <p className="text-sm text-primary font-semibold mt-0.5">{displayDeveloper}</p>
+                <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Star className="h-3.5 w-3.5 fill-gold text-gold" />
                     {isUserApp ? (avgRating || "—") : app?.rating}
                   </span>
-                  {!isUserApp && <span>{app?.downloads} تنزيل</span>}
                   {isUserApp && <span>{userApp.downloads_count || 0} تنزيل</span>}
-                  {!isUserApp && <span>{app?.size}</span>}
+                  {!isUserApp && <span>{app?.downloads} تنزيل</span>}
                 </div>
               </div>
             </div>
-          </DialogHeader>
 
-          <div className="px-5 pt-4">
             {/* Action Buttons */}
             <div className="flex gap-3 mb-5">
               <Button variant="islamic" className="flex-1 font-bold text-sm h-11" onClick={handleDownload} disabled={downloading}>
@@ -176,18 +170,13 @@ const AppDetailDialog = ({ app, userApp, open, onOpenChange }: AppDetailDialogPr
                 {downloading ? "جاري التحميل..." : "تثبيت"}
               </Button>
               <Button variant="outline" size="icon" className="h-11 w-11 shrink-0" onClick={() => {
-                if (navigator.share) {
-                  navigator.share({ title: displayName, text: displayDesc });
-                } else {
-                  navigator.clipboard.writeText(displayName + " - " + displayDesc);
-                  toast({ title: "تم النسخ" });
-                }
+                if (navigator.share) navigator.share({ title: displayName, text: displayDesc });
+                else { navigator.clipboard.writeText(displayName + " - " + displayDesc); toast({ title: "تم النسخ" }); }
               }}>
                 <Share2 className="h-5 w-5" />
               </Button>
             </div>
 
-            {/* Download Progress */}
             {downloading && (
               <div className="mb-5">
                 <Progress value={downloadProgress} className="h-2" />
@@ -195,15 +184,12 @@ const AppDetailDialog = ({ app, userApp, open, onOpenChange }: AppDetailDialogPr
               </div>
             )}
 
-            {/* Screenshots - no animated indicator */}
+            {/* Screenshots - no border */}
             {displayScreenshots.length > 0 && (
               <div className="mb-5">
                 <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
                   {displayScreenshots.map((src: string, i: number) => (
-                    <img
-                      key={i}
-                      src={src}
-                      alt={`لقطة شاشة ${i + 1}`}
+                    <img key={i} src={src} alt={`لقطة ${i + 1}`}
                       className="h-48 rounded-xl object-cover shadow-sm shrink-0"
                       onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                     />
@@ -214,66 +200,40 @@ const AppDetailDialog = ({ app, userApp, open, onOpenChange }: AppDetailDialogPr
 
             {/* About */}
             <div className="mb-5 text-right">
-              <h3 className="text-base font-bold font-cairo mb-2 text-right">حول التطبيق</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed text-right">
-                {displayDesc}
-              </p>
+              <h3 className="text-base font-bold font-cairo mb-2">حول التطبيق</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">{displayDesc}</p>
             </div>
 
             {/* Features */}
             {displayFeatures.length > 0 && (
               <div className="mb-5 text-right">
-                <h3 className="text-base font-bold font-cairo mb-3 text-right">المميزات</h3>
+                <h3 className="text-base font-bold font-cairo mb-3">المميزات</h3>
                 <div className="space-y-2.5">
                   {displayFeatures.map((feature: string, i: number) => (
                     <div key={i} className="flex items-start gap-2.5">
                       <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
                         <span className="text-primary text-xs font-bold">✓</span>
                       </div>
-                      <span className="text-sm text-foreground text-right">{feature}</span>
+                      <span className="text-sm text-foreground">{feature}</span>
                     </div>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* App Info */}
+            {/* App Info table */}
             <div className="mb-5 bg-muted/10 rounded-xl p-4 text-right">
-              <h3 className="text-base font-bold font-cairo mb-3 text-right">معلومات التطبيق</h3>
+              <h3 className="text-base font-bold font-cairo mb-3">معلومات التطبيق</h3>
               <div className="grid grid-cols-2 gap-3 text-sm">
-                <div className="text-right">
-                  <span className="text-muted-foreground">الإصدار</span>
-                  <p className="font-semibold">{displayVersion}</p>
-                </div>
-                {!isUserApp && (
-                  <>
-                    <div className="text-right">
-                      <span className="text-muted-foreground">الحجم</span>
-                      <p className="font-semibold">{app?.size}</p>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-muted-foreground">آخر تحديث</span>
-                      <p className="font-semibold">{app?.lastUpdate}</p>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-muted-foreground">التنزيلات</span>
-                      <p className="font-semibold">{app?.downloads}</p>
-                    </div>
-                  </>
-                )}
-                {isUserApp && (
-                  <div className="text-right">
-                    <span className="text-muted-foreground">التنزيلات</span>
-                    <p className="font-semibold">{userApp.downloads_count || 0}</p>
-                  </div>
-                )}
+                <div><span className="text-muted-foreground">الإصدار</span><p className="font-semibold">{displayVersion}</p></div>
+                {isUserApp && <div><span className="text-muted-foreground">التنزيلات</span><p className="font-semibold">{userApp.downloads_count || 0}</p></div>}
               </div>
             </div>
 
-            {/* Rating (for user apps) */}
+            {/* Rating */}
             {isUserApp && (
               <div className="mb-5 text-right">
-                <h3 className="text-base font-bold font-cairo mb-3 text-right">التقييم</h3>
+                <h3 className="text-base font-bold font-cairo mb-3">التقييم</h3>
                 <div className="flex items-center gap-3 mb-2">
                   <span className="text-2xl font-bold">{avgRating || "—"}</span>
                   <div className="flex gap-0.5">
@@ -288,10 +248,10 @@ const AppDetailDialog = ({ app, userApp, open, onOpenChange }: AppDetailDialogPr
               </div>
             )}
 
-            {/* Comments (for user apps) */}
+            {/* Comments */}
             {isUserApp && (
               <div className="mb-5 text-right">
-                <h3 className="text-base font-bold font-cairo mb-3 text-right flex items-center gap-2">
+                <h3 className="text-base font-bold font-cairo mb-3 flex items-center gap-2">
                   <MessageCircle className="h-4 w-4" /> التعليقات
                 </h3>
                 {user && (
@@ -310,7 +270,7 @@ const AppDetailDialog = ({ app, userApp, open, onOpenChange }: AppDetailDialogPr
                 )}
                 <div className="space-y-2 max-h-40 overflow-y-auto">
                   {comments.length === 0 ? (
-                    <p className="text-xs text-muted-foreground text-right">لا توجد تعليقات بعد</p>
+                    <p className="text-xs text-muted-foreground">لا توجد تعليقات بعد</p>
                   ) : comments.map((c: any) => (
                     <div key={c.id} className="bg-muted/10 rounded-lg p-2.5 text-right">
                       <p className="text-xs font-bold">{c.author_name}</p>
@@ -321,12 +281,9 @@ const AppDetailDialog = ({ app, userApp, open, onOpenChange }: AppDetailDialogPr
               </div>
             )}
 
-            {/* Safety */}
             <div className="mb-6 flex items-center gap-3 bg-primary/5 rounded-xl p-3">
               <Shield className="h-5 w-5 text-primary shrink-0" />
-              <span className="text-xs text-muted-foreground text-right">
-                تطبيق آمن - تم التحقق من المحتوى الإسلامي
-              </span>
+              <span className="text-xs text-muted-foreground">تطبيق آمن - تم التحقق من المحتوى الإسلامي</span>
             </div>
           </div>
         </ScrollArea>
