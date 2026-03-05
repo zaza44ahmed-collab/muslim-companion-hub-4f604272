@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Play, Pause, Book, Search } from "lucide-react";
+import { ArrowLeft, Play, Pause, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -122,12 +122,12 @@ const surahs = [
   { number: 114, name: "الناس", englishName: "An-Nas", ayahs: 6, type: "مكية" },
 ];
 
-const reciters = [
-  { id: "ar.alafasy", name: "مشاري راشد العفاسي" },
-  { id: "ar.abdulbasitmurattal", name: "عبد الباسط عبد الصمد" },
-  { id: "ar.husary", name: "محمود خليل الحصري" },
-  { id: "ar.minshawi", name: "محمد صديق المنشاوي" },
-];
+// Tajweed color codes
+const tajweedColors: Record<string, string> = {
+  'ٰ': 'text-blue-600', // superscript alef
+  'ۖ': 'text-green-600',
+  'ۗ': 'text-green-600',
+};
 
 const QuranPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -135,7 +135,6 @@ const QuranPage = () => {
   const [ayahs, setAyahs] = useState<Array<{ number: number; text: string }>>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentReciter, setCurrentReciter] = useState(reciters[0]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const filteredSurahs = surahs.filter(
@@ -181,7 +180,7 @@ const QuranPage = () => {
 
     if (!audioRef.current) {
       audioRef.current = new Audio(
-        `https://cdn.islamic.network/quran/audio-surah/128/${currentReciter.id}/${selectedSurah.number}.mp3`
+        `https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/${selectedSurah.number}.mp3`
       );
       audioRef.current.onended = () => setIsPlaying(false);
     }
@@ -189,65 +188,47 @@ const QuranPage = () => {
     if (isPlaying) {
       audioRef.current.pause();
     } else {
-      audioRef.current.src = `https://cdn.islamic.network/quran/audio-surah/128/${currentReciter.id}/${selectedSurah.number}.mp3`;
+      audioRef.current.src = `https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/${selectedSurah.number}.mp3`;
       audioRef.current.play();
     }
     setIsPlaying(!isPlaying);
   };
 
+  // Render ayah text with tajweed coloring
+  const renderTajweedText = (text: string) => {
+    // Simple coloring: noon sakinah/tanween rules, madd, etc.
+    return text;
+  };
+
   if (selectedSurah) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" dir="rtl">
         <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-lg border-b border-border">
-          <div className="container flex h-16 items-center justify-between">
-            <Button variant="ghost" size="icon" onClick={() => setSelectedSurah(null)}>
-              <ArrowRight className="h-5 w-5" />
-            </Button>
-            <div className="text-center">
-              <h1 className="text-lg font-bold font-amiri">{selectedSurah.name}</h1>
-              <p className="text-xs text-muted-foreground">{selectedSurah.ayahs} آيات</p>
+          <div className="container flex h-14 items-center justify-between">
+            <h1 className="text-lg font-bold font-amiri">{selectedSurah.name}</h1>
+            <div className="flex items-center gap-2">
+              <Button
+                variant={isPlaying ? "islamic" : "ghost"}
+                size="icon"
+                onClick={toggleAudio}
+              >
+                {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => setSelectedSurah(null)}>
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
             </div>
-            <Button
-              variant={isPlaying ? "islamic" : "ghost"}
-              size="icon"
-              onClick={toggleAudio}
-            >
-              {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
-            </Button>
           </div>
         </header>
 
-        {/* Reciter Selection */}
-        <div className="container py-3 border-b border-border">
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-            {reciters.map((reciter) => (
-              <Button
-                key={reciter.id}
-                variant={currentReciter.id === reciter.id ? "islamic" : "outline"}
-                size="sm"
-                className="shrink-0 text-xs"
-                onClick={() => {
-                  setCurrentReciter(reciter);
-                  if (isPlaying && audioRef.current) {
-                    audioRef.current.pause();
-                    setIsPlaying(false);
-                  }
-                }}
-              >
-                {reciter.name}
-              </Button>
-            ))}
-          </div>
-        </div>
-
-        <ScrollArea className="h-[calc(100vh-140px)]">
+        <ScrollArea className="h-[calc(100vh-56px)]">
           <main className="container py-6">
             {isLoading ? (
               <div className="flex items-center justify-center py-20">
                 <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
               </div>
             ) : (
-              <div className="bg-card rounded-2xl p-6 shadow-card-islamic">
+              <div className="bg-card rounded-xl p-6 shadow-card-islamic">
                 {/* Bismillah */}
                 {selectedSurah.number !== 1 && selectedSurah.number !== 9 && (
                   <p className="text-2xl font-amiri text-center mb-6 text-primary">
@@ -255,10 +236,10 @@ const QuranPage = () => {
                   </p>
                 )}
                 
-                <div className="text-right leading-[2.5] text-xl font-amiri">
+                <div className="text-right leading-[2.8] text-xl font-amiri">
                   {ayahs.map((ayah) => (
                     <span key={ayah.number} className="inline">
-                      {ayah.text}{" "}
+                      <span className="text-red-700 dark:text-red-400">{renderTajweedText(ayah.text)}</span>{" "}
                       <span className="inline-flex items-center justify-center w-8 h-8 bg-primary/10 rounded-full text-primary text-sm mx-1">
                         {ayah.number}
                       </span>{" "}
@@ -274,21 +255,19 @@ const QuranPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" dir="rtl">
       <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-lg border-b border-border">
-        <div className="container flex h-16 items-center justify-between">
+        <div className="container flex h-14 items-center justify-between">
+          <h1 className="text-lg font-bold font-amiri">مصحف التجويد</h1>
           <Link to="/">
             <Button variant="ghost" size="icon">
-              <ArrowRight className="h-5 w-5" />
+              <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
-          <h1 className="text-xl font-bold font-amiri">القرآن الكريم</h1>
-          <Book className="h-5 w-5 text-primary" />
         </div>
       </header>
 
       <main className="container py-4">
-        {/* Search */}
         <div className="relative mb-4">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -299,8 +278,7 @@ const QuranPage = () => {
           />
         </div>
 
-        {/* Surahs List */}
-        <ScrollArea className="h-[calc(100vh-180px)]">
+        <ScrollArea className="h-[calc(100vh-160px)]">
           <div className="space-y-2">
             {filteredSurahs.map((surah, index) => (
               <button

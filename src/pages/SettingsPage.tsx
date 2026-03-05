@@ -2,16 +2,28 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   User, Edit3, Bookmark, Upload, Bell, Clock, Moon, Sun, Globe, Shield,
-  Info, Star, Share2, Heart, Flag, LogOut, LogIn, ChevronLeft, ArrowRight,
-  Crown, Volume2,
+  Info, Star, Share2, Heart, Flag, LogOut, LogIn, ArrowLeft, ChevronLeft,
+  Crown, Volume2, Lock, Eye, EyeOff, Camera, Loader2,
+  Smartphone, BookOpen, Headphones, Film, Package,
+  CreditCard, Bitcoin, FileText, MessageSquare,
 } from "lucide-react";
 import BottomNav from "@/components/layout/BottomNav";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/hooks/useAuth";
 import { usePreferences } from "@/hooks/usePreferences";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import AddAppDialog from "@/components/apps/AddAppDialog";
+import AddReelDialog from "@/components/reels/AddReelDialog";
+import AddAudioDialog from "@/components/audio/AddAudioDialog";
+import AddBookDialog from "@/components/library/AddBookDialog";
+import AddListingDialog from "@/components/marketplace/AddListingDialog";
+import { useReels } from "@/hooks/useReels";
+import { useListings } from "@/hooks/useListings";
+
+// --- Reusable Sub-components ---
 
 interface MenuItemProps {
   icon: React.ElementType;
@@ -51,11 +63,318 @@ const MenuSection = ({ title, children, delay = "0ms" }: { title: string; childr
   </section>
 );
 
+// --- Sub-pages ---
+
+const EditProfilePage = ({ onBack, user }: { onBack: () => void; user: any }) => {
+  const { toast } = useToast();
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    supabase.from("profiles").select("display_name, avatar_url").eq("id", user.id).single()
+      .then(({ data }) => {
+        if (data) {
+          const parts = (data.display_name || "").split(" ");
+          setFirstName(parts[0] || "");
+          setLastName(parts.slice(1).join(" ") || "");
+          setAvatarUrl(data.avatar_url);
+        }
+      });
+  }, [user]);
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    const ext = file.name.split(".").pop();
+    const path = `${user.id}/avatar.${ext}`;
+    await supabase.storage.from("avatars").upload(path, file, { upsert: true });
+    const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+    const newUrl = `${data.publicUrl}?t=${Date.now()}`;
+    await supabase.from("profiles").update({ avatar_url: newUrl }).eq("id", user.id);
+    setAvatarUrl(newUrl);
+    setUploading(false);
+    toast({ title: "تم تحديث الصورة" });
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    const displayName = `${firstName} ${lastName}`.trim();
+    await supabase.from("profiles").update({ display_name: displayName }).eq("id", user.id);
+    if (newPassword.length >= 6) {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) toast({ title: "خطأ في تغيير كلمة المرور", description: error.message, variant: "destructive" });
+      else toast({ title: "تم تغيير كلمة المرور" });
+    }
+    setSaving(false);
+    toast({ title: "تم حفظ التغييرات" });
+    onBack();
+  };
+
+  return (
+    <div className="space-y-5" dir="rtl">
+      <div className="flex items-center justify-between">
+        <h2 className="text-base font-bold font-cairo">تعديل الملف الشخصي</h2>
+        <Button variant="ghost" size="icon" onClick={onBack}><ArrowLeft className="h-5 w-5" /></Button>
+      </div>
+      <div className="flex flex-col items-center gap-3">
+        <div className="relative">
+          <div className="h-24 w-24 rounded-full border-4 border-secondary/50 overflow-hidden bg-muted flex items-center justify-center">
+            {avatarUrl ? <img src={avatarUrl} alt="" className="h-full w-full object-cover" /> : <User className="h-10 w-10 text-muted-foreground" />}
+          </div>
+          <label className="absolute bottom-0 left-0 h-8 w-8 rounded-full bg-secondary flex items-center justify-center cursor-pointer">
+            {uploading ? <Loader2 className="h-4 w-4 animate-spin text-secondary-foreground" /> : <Camera className="h-4 w-4 text-secondary-foreground" />}
+            <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+          </label>
+        </div>
+      </div>
+      <div className="space-y-3">
+        <div><label className="text-xs font-semibold text-muted-foreground">الاسم الأول</label>
+          <Input value={firstName} onChange={e => setFirstName(e.target.value)} className="text-right h-11 rounded-xl" /></div>
+        <div><label className="text-xs font-semibold text-muted-foreground">الاسم الأخير</label>
+          <Input value={lastName} onChange={e => setLastName(e.target.value)} className="text-right h-11 rounded-xl" /></div>
+        <div className="relative"><label className="text-xs font-semibold text-muted-foreground">كلمة المرور الجديدة (اختياري)</label>
+          <Input type={showPassword ? "text" : "password"} value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="اترك فارغاً إن لم ترد التغيير" className="text-right h-11 rounded-xl pr-3 pl-10" />
+          <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute left-3 top-8 text-muted-foreground">
+            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
+        </div>
+      </div>
+      <Button onClick={handleSave} className="w-full h-11 rounded-xl gradient-islamic text-primary-foreground" disabled={saving}>
+        {saving ? "جاري الحفظ..." : "حفظ التغييرات"}
+      </Button>
+    </div>
+  );
+};
+
+const UploadedFilesPage = ({ onBack }: { onBack: () => void }) => {
+  const [showAppDialog, setShowAppDialog] = useState(false);
+  const [showReelDialog, setShowReelDialog] = useState(false);
+  const [showAudioDialog, setShowAudioDialog] = useState(false);
+  const [showBookDialog, setShowBookDialog] = useState(false);
+  const [showListingDialog, setShowListingDialog] = useState(false);
+  const { createReel } = useReels();
+  const { createListing } = useListings();
+
+  return (
+    <div className="space-y-4" dir="rtl">
+      <div className="flex items-center justify-between">
+        <h2 className="text-base font-bold font-cairo">الملفات المرفوعة</h2>
+        <Button variant="ghost" size="icon" onClick={onBack}><ArrowLeft className="h-5 w-5" /></Button>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        {[
+          { label: "تطبيق", icon: Smartphone, onClick: () => setShowAppDialog(true) },
+          { label: "ريلز", icon: Film, onClick: () => setShowReelDialog(true) },
+          { label: "صوتية", icon: Headphones, onClick: () => setShowAudioDialog(true) },
+          { label: "كتاب", icon: BookOpen, onClick: () => setShowBookDialog(true) },
+          { label: "منتج", icon: Package, onClick: () => setShowListingDialog(true) },
+        ].map((item) => (
+          <button key={item.label} onClick={item.onClick}
+            className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-secondary/30 bg-card hover:bg-accent/50 transition-colors">
+            <item.icon className="h-6 w-6 text-secondary" />
+            <span className="text-xs font-semibold">إضافة {item.label}</span>
+          </button>
+        ))}
+      </div>
+      <AddAppDialog open={showAppDialog} onOpenChange={setShowAppDialog} onAdded={() => {}} />
+      <AddReelDialog open={showReelDialog} onOpenChange={setShowReelDialog} onSubmit={createReel} />
+      <AddAudioDialog open={showAudioDialog} onOpenChange={setShowAudioDialog} onAdded={() => {}} />
+      <AddBookDialog open={showBookDialog} onOpenChange={setShowBookDialog} onAdded={() => {}} />
+      <AddListingDialog open={showListingDialog} onOpenChange={setShowListingDialog} onSubmit={createListing} />
+    </div>
+  );
+};
+
+const NotificationsPage = ({ onBack }: { onBack: () => void }) => (
+  <div className="space-y-4" dir="rtl">
+    <div className="flex items-center justify-between">
+      <h2 className="text-base font-bold font-cairo">التنبيهات</h2>
+      <Button variant="ghost" size="icon" onClick={onBack}><ArrowLeft className="h-5 w-5" /></Button>
+    </div>
+    <div className="text-center py-8 text-muted-foreground">
+      <Bell className="h-10 w-10 mx-auto mb-3 opacity-40" />
+      <p className="text-sm">لا توجد تنبيهات جديدة</p>
+    </div>
+  </div>
+);
+
+const PrivacyPolicyPage = ({ onBack }: { onBack: () => void }) => (
+  <div className="space-y-4" dir="rtl">
+    <div className="flex items-center justify-between">
+      <h2 className="text-base font-bold font-cairo">سياسة الخصوصية</h2>
+      <Button variant="ghost" size="icon" onClick={onBack}><ArrowLeft className="h-5 w-5" /></Button>
+    </div>
+    <div className="bg-card rounded-xl p-4 text-sm text-muted-foreground leading-relaxed space-y-3">
+      <p><strong className="text-foreground">مقدمة:</strong> نلتزم في تطبيق حقيبة المسلم بحماية خصوصيتك وبياناتك الشخصية.</p>
+      <p><strong className="text-foreground">البيانات المجمعة:</strong> نجمع فقط البيانات الضرورية لتشغيل التطبيق مثل البريد الإلكتروني والاسم وبيانات الاستخدام.</p>
+      <p><strong className="text-foreground">استخدام البيانات:</strong> تُستخدم بياناتك حصرياً لتحسين تجربتك في التطبيق ولن تُباع أو تُشارك مع أطراف ثالثة.</p>
+      <p><strong className="text-foreground">الأمان:</strong> نستخدم تشفيراً متقدماً لحماية بياناتك أثناء النقل والتخزين.</p>
+      <p><strong className="text-foreground">حقوقك:</strong> يمكنك طلب حذف حسابك وبياناتك في أي وقت عبر التواصل معنا.</p>
+      <p><strong className="text-foreground">التحديثات:</strong> قد نقوم بتحديث هذه السياسة وسنخطرك بأي تغييرات جوهرية.</p>
+    </div>
+  </div>
+);
+
+const AboutAppPage = ({ onBack }: { onBack: () => void }) => (
+  <div className="space-y-4" dir="rtl">
+    <div className="flex items-center justify-between">
+      <h2 className="text-base font-bold font-cairo">عن التطبيق</h2>
+      <Button variant="ghost" size="icon" onClick={onBack}><ArrowLeft className="h-5 w-5" /></Button>
+    </div>
+    <div className="text-center py-4">
+      <img src="/logo-app.png" alt="حقيبة المسلم" className="h-20 w-20 rounded-2xl mx-auto mb-3 shadow-lg" />
+      <h3 className="text-lg font-bold font-cairo">حقيبة المسلم</h3>
+      <p className="text-xs text-muted-foreground mt-1">الإصدار 1.0.0</p>
+    </div>
+    <div className="bg-card rounded-xl p-4 text-sm text-muted-foreground leading-relaxed">
+      <p>تطبيق حقيبة المسلم هو تطبيق إسلامي شامل يهدف إلى تسهيل حياة المسلم اليومية من خلال توفير القرآن الكريم، الأذكار، أوقات الصلاة، المكتبة الإسلامية، والمتجر الإسلامي في مكان واحد.</p>
+    </div>
+  </div>
+);
+
+const DonationPage = ({ onBack }: { onBack: () => void }) => (
+  <div className="space-y-4" dir="rtl">
+    <div className="flex items-center justify-between">
+      <h2 className="text-base font-bold font-cairo">إعانة مالية</h2>
+      <Button variant="ghost" size="icon" onClick={onBack}><ArrowLeft className="h-5 w-5" /></Button>
+    </div>
+    <p className="text-sm text-muted-foreground">ادعم تطوير التطبيق واحصل على الأجر</p>
+    <div className="space-y-3">
+      {[
+        { icon: CreditCard, label: "بطاقة فيزا / ماستركارد", desc: "ادفع بالبطاقة البنكية" },
+        { icon: Bitcoin, label: "العملات الرقمية", desc: "BTC, ETH, USDT" },
+        { icon: MessageSquare, label: "PayPal", desc: "الدفع عبر PayPal" },
+      ].map((method) => (
+        <div key={method.label} className="flex items-center gap-3 p-3 rounded-xl border-2 border-secondary/30 bg-card cursor-pointer hover:bg-accent/50">
+          <method.icon className="h-5 w-5 text-secondary" />
+          <div>
+            <p className="text-sm font-semibold">{method.label}</p>
+            <p className="text-xs text-muted-foreground">{method.desc}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+const ReportPage = ({ onBack }: { onBack: () => void }) => {
+  const { toast } = useToast();
+  const [message, setMessage] = useState("");
+  return (
+    <div className="space-y-4" dir="rtl">
+      <div className="flex items-center justify-between">
+        <h2 className="text-base font-bold font-cairo">الإبلاغ عن خلل / اقتراح</h2>
+        <Button variant="ghost" size="icon" onClick={onBack}><ArrowLeft className="h-5 w-5" /></Button>
+      </div>
+      <textarea value={message} onChange={e => setMessage(e.target.value)} placeholder="اكتب رسالتك هنا..."
+        className="w-full min-h-[120px] p-3 rounded-xl border-2 border-secondary/30 bg-card text-sm text-right" />
+      <Button className="w-full gradient-islamic text-primary-foreground" onClick={() => { toast({ title: "تم إرسال الرسالة بنجاح" }); setMessage(""); onBack(); }}>
+        إرسال
+      </Button>
+    </div>
+  );
+};
+
+const SubscriptionPage = ({ onBack }: { onBack: () => void }) => (
+  <div className="space-y-4" dir="rtl">
+    <div className="flex items-center justify-between">
+      <h2 className="text-base font-bold font-cairo">اشترك في باقة برو</h2>
+      <Button variant="ghost" size="icon" onClick={onBack}><ArrowLeft className="h-5 w-5" /></Button>
+    </div>
+    <div className="bg-gradient-to-l from-red-500 to-rose-600 rounded-xl p-5 text-white text-center">
+      <Crown className="h-10 w-10 mx-auto mb-2" />
+      <h3 className="text-lg font-bold">باقة برو</h3>
+      <p className="text-sm mt-1 opacity-90">$4.99 / شهرياً</p>
+    </div>
+    <div className="bg-card rounded-xl p-4 space-y-2">
+      <h4 className="text-sm font-bold">مميزات الاشتراك:</h4>
+      {["إزالة الإعلانات", "تحميل غير محدود", "محتوى حصري", "دعم فني أولوي", "شارة المشترك الذهبية"].map(f => (
+        <div key={f} className="flex items-center gap-2 text-sm"><Star className="h-3.5 w-3.5 text-gold fill-gold" />{f}</div>
+      ))}
+    </div>
+    <h4 className="text-sm font-bold">طرق الدفع:</h4>
+    <div className="space-y-2">
+      {[
+        { icon: CreditCard, label: "فيزا / ماستركارد" },
+        { icon: Bitcoin, label: "العملات الرقمية" },
+      ].map(m => (
+        <button key={m.label} className="w-full flex items-center gap-3 p-3 rounded-xl border-2 border-secondary/30 bg-card hover:bg-accent/50">
+          <m.icon className="h-5 w-5 text-secondary" /><span className="text-sm font-semibold">{m.label}</span>
+        </button>
+      ))}
+    </div>
+  </div>
+);
+
+const PrayerCalcPage = ({ onBack }: { onBack: () => void }) => (
+  <div className="space-y-4" dir="rtl">
+    <div className="flex items-center justify-between">
+      <h2 className="text-base font-bold font-cairo">حساب المواقيت والمذهب</h2>
+      <Button variant="ghost" size="icon" onClick={onBack}><ArrowLeft className="h-5 w-5" /></Button>
+    </div>
+    <div className="bg-card rounded-xl p-4 space-y-3">
+      {["أم القرى (السعودية)", "رابطة العالم الإسلامي", "الاتحاد الإسلامي لأمريكا الشمالية", "الهيئة المصرية العامة للمساحة"].map(m => (
+        <label key={m} className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent/50 cursor-pointer">
+          <input type="radio" name="calc" defaultChecked={m.includes("أم القرى")} className="accent-primary" />
+          <span className="text-sm">{m}</span>
+        </label>
+      ))}
+    </div>
+  </div>
+);
+
+const AdhanSettingsPage = ({ onBack }: { onBack: () => void }) => (
+  <div className="space-y-4" dir="rtl">
+    <div className="flex items-center justify-between">
+      <h2 className="text-base font-bold font-cairo">إعدادات المؤذن والتنبيهات</h2>
+      <Button variant="ghost" size="icon" onClick={onBack}><ArrowLeft className="h-5 w-5" /></Button>
+    </div>
+    <div className="bg-card rounded-xl p-4 space-y-3">
+      {["الفجر", "الظهر", "العصر", "المغرب", "العشاء"].map(p => (
+        <div key={p} className="flex items-center justify-between py-2">
+          <span className="text-sm font-semibold">{p}</span>
+          <Switch defaultChecked />
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+const LanguagePage = ({ onBack }: { onBack: () => void }) => {
+  const { preferences, updatePreference } = usePreferences();
+  return (
+    <div className="space-y-4" dir="rtl">
+      <div className="flex items-center justify-between">
+        <h2 className="text-base font-bold font-cairo">اختيار اللغة</h2>
+        <Button variant="ghost" size="icon" onClick={onBack}><ArrowLeft className="h-5 w-5" /></Button>
+      </div>
+      <div className="bg-card rounded-xl p-4 space-y-3">
+        {[{ id: "ar", label: "العربية" }, { id: "en", label: "English" }].map(lang => (
+          <label key={lang.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent/50 cursor-pointer">
+            <input type="radio" name="lang" checked={preferences.language === lang.id}
+              onChange={() => updatePreference("language", lang.id)} className="accent-primary" />
+            <span className="text-sm">{lang.label}</span>
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// --- Main Settings Page ---
+
 const SettingsPage = () => {
   const { user, loading: authLoading, signOut } = useAuth();
   const { preferences, updatePreference } = usePreferences();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [activePage, setActivePage] = useState<string | null>(null);
   const [profileData, setProfileData] = useState<{ display_name: string | null; avatar_url: string | null; email: string | null }>({
     display_name: null, avatar_url: null, email: null,
   });
@@ -63,11 +382,9 @@ const SettingsPage = () => {
   useEffect(() => {
     if (user) {
       supabase.from("profiles").select("display_name, avatar_url, email").eq("id", user.id).single()
-        .then(({ data }) => {
-          if (data) setProfileData(data);
-        });
+        .then(({ data }) => { if (data) setProfileData(data); });
     }
-  }, [user]);
+  }, [user, activePage]);
 
   const handleShare = () => {
     if (navigator.share) {
@@ -85,49 +402,81 @@ const SettingsPage = () => {
     updatePreference("theme", newTheme);
   };
 
+  // Sub-pages
+  if (activePage) {
+    const pages: Record<string, React.ReactNode> = {
+      editProfile: <EditProfilePage onBack={() => setActivePage(null)} user={user} />,
+      uploads: <UploadedFilesPage onBack={() => setActivePage(null)} />,
+      notifications: <NotificationsPage onBack={() => setActivePage(null)} />,
+      privacy: <PrivacyPolicyPage onBack={() => setActivePage(null)} />,
+      about: <AboutAppPage onBack={() => setActivePage(null)} />,
+      donation: <DonationPage onBack={() => setActivePage(null)} />,
+      report: <ReportPage onBack={() => setActivePage(null)} />,
+      subscription: <SubscriptionPage onBack={() => setActivePage(null)} />,
+      prayerCalc: <PrayerCalcPage onBack={() => setActivePage(null)} />,
+      adhanSettings: <AdhanSettingsPage onBack={() => setActivePage(null)} />,
+      language: <LanguagePage onBack={() => setActivePage(null)} />,
+    };
+
+    return (
+      <div className="min-h-screen bg-background pb-20" dir="rtl">
+        <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-lg border-b border-border">
+          <div className="container flex h-14 items-center justify-between">
+            <h1 className="text-lg font-bold font-amiri text-foreground">الإعدادات</h1>
+            <Button variant="ghost" size="icon" onClick={() => setActivePage(null)}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+          </div>
+        </header>
+        <main className="container py-4 px-4 max-w-md mx-auto">
+          {pages[activePage]}
+        </main>
+        <BottomNav />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background pb-20" dir="rtl">
-      {/* Header - back button on left */}
       <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="container flex h-14 items-center justify-between">
-          <h1 className="text-lg font-bold font-amiri text-gradient-islamic">الإعدادات</h1>
+          <h1 className="text-lg font-bold font-amiri text-foreground">الإعدادات</h1>
           <Link to="/">
             <Button variant="ghost" size="icon">
-              <ArrowRight className="h-5 w-5" />
+              <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
         </div>
       </header>
 
       <main className="container py-4 space-y-5 px-4">
-        {/* Profile Card - Centered with frame */}
+        {/* Profile Card with golden frame */}
         <section className="animate-fadeIn text-center py-4">
-          <div className="flex flex-col items-center gap-2">
-            <div className="relative">
-              <div className="h-20 w-20 rounded-full border-4 border-secondary/50 overflow-hidden bg-muted flex items-center justify-center shadow-lg ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
-                {profileData.avatar_url ? (
-                  <img src={profileData.avatar_url} alt="الصورة الشخصية" className="h-full w-full object-cover" />
-                ) : (
-                  <User className="h-10 w-10 text-muted-foreground" />
-                )}
+          <div className="rounded-2xl border-2 border-secondary p-5 bg-card shadow-sm">
+            <div className="flex flex-col items-center gap-2">
+              <div className="relative">
+                <div className="h-20 w-20 rounded-full border-4 border-secondary/50 overflow-hidden bg-muted flex items-center justify-center shadow-lg ring-2 ring-secondary/30 ring-offset-2 ring-offset-background">
+                  {profileData.avatar_url ? (
+                    <img src={profileData.avatar_url} alt="الصورة الشخصية" className="h-full w-full object-cover" />
+                  ) : (
+                    <User className="h-10 w-10 text-muted-foreground" />
+                  )}
+                </div>
+                <div className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-secondary flex items-center justify-center shadow-md">
+                  <Crown className="h-3.5 w-3.5 text-secondary-foreground" />
+                </div>
               </div>
-              {/* Pro badge icon */}
-              <div className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-secondary flex items-center justify-center shadow-md">
-                <Crown className="h-3.5 w-3.5 text-secondary-foreground" />
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
               <h2 className="text-lg font-bold text-foreground font-cairo">
                 {profileData.display_name || "مستخدم"}
               </h2>
+              <p className="text-xs text-muted-foreground">{user?.email || "سجل دخولك"}</p>
             </div>
-            <p className="text-xs text-muted-foreground">{user?.email || "سجل دخولك"}</p>
           </div>
         </section>
 
         {/* Subscription CTA */}
         <section className="animate-fadeIn" style={{ animationDelay: "50ms" }}>
-          <div className="rounded-xl bg-gradient-to-l from-red-500 to-rose-600 p-4 text-white text-center shadow-lg">
+          <div className="rounded-xl bg-gradient-to-l from-red-500 to-rose-600 p-4 text-white text-center shadow-lg cursor-pointer" onClick={() => setActivePage("subscription")}>
             <div className="flex items-center justify-center gap-2 mb-1">
               <Crown className="h-5 w-5" />
               <h3 className="font-bold text-sm">اشترك في باقة برو</h3>
@@ -140,16 +489,16 @@ const SettingsPage = () => {
 
         {/* أ. الملف الشخصي */}
         <MenuSection title="أ. الملف الشخصي" delay="100ms">
-          <MenuItem icon={Edit3} label="تعديل الملف الشخصي" subtitle="الصورة، الاسم، كلمة المرور" onClick={() => navigate("/profile")} />
+          <MenuItem icon={Edit3} label="تعديل الملف الشخصي" subtitle="الصورة، الاسم، كلمة المرور" onClick={() => setActivePage("editProfile")} />
           <MenuItem icon={Bookmark} label="المحفوظات" subtitle="تطبيقات • ريلز • صوتيات • كتب • مبيعات" />
-          <MenuItem icon={Upload} label="الملفات المرفوعة" subtitle="المحتوى الذي رفعته" />
-          <MenuItem icon={Bell} label="التنبيهات" subtitle="تحذيرات وتحديثات من الإدارة" />
+          <MenuItem icon={Upload} label="الملفات المرفوعة" subtitle="المحتوى الذي رفعته" onClick={() => setActivePage("uploads")} />
+          <MenuItem icon={Bell} label="التنبيهات" subtitle="تحذيرات وتحديثات" onClick={() => setActivePage("notifications")} />
         </MenuSection>
 
         {/* ب. إعدادات أوقات الصلاة */}
         <MenuSection title="ب. إعدادات أوقات الصلاة" delay="150ms">
-          <MenuItem icon={Clock} label="طريقة حساب المواقيت والمذهب" subtitle="أم القرى" />
-          <MenuItem icon={Volume2} label="إعدادات المؤذن والتنبيهات" subtitle="أصوات الأذان والتنبيهات" />
+          <MenuItem icon={Clock} label="طريقة حساب المواقيت والمذهب" subtitle="أم القرى" onClick={() => setActivePage("prayerCalc")} />
+          <MenuItem icon={Volume2} label="إعدادات المؤذن والتنبيهات" subtitle="أصوات الأذان والتنبيهات" onClick={() => setActivePage("adhanSettings")} />
         </MenuSection>
 
         {/* ج. إعدادات عامة */}
@@ -161,17 +510,17 @@ const SettingsPage = () => {
             onClick={toggleTheme}
             trailing={<Switch checked={preferences.theme === "dark"} onCheckedChange={toggleTheme} />}
           />
-          <MenuItem icon={Globe} label="اختيار اللغة" subtitle="العربية" />
-          <MenuItem icon={Shield} label="سياسة الخصوصية" />
+          <MenuItem icon={Globe} label="اختيار اللغة" subtitle={preferences.language === "ar" ? "العربية" : "English"} onClick={() => setActivePage("language")} />
+          <MenuItem icon={Shield} label="سياسة الخصوصية" onClick={() => setActivePage("privacy")} />
         </MenuSection>
 
         {/* د. حول التطبيق */}
         <MenuSection title="د. حول التطبيق" delay="250ms">
-          <MenuItem icon={Info} label="عن التطبيق" subtitle="الإصدار 1.0.0" />
+          <MenuItem icon={Info} label="عن التطبيق" subtitle="الإصدار 1.0.0" onClick={() => setActivePage("about")} />
           <MenuItem icon={Star} label="تقييم التطبيق" subtitle="قيّمنا على المتجر" />
           <MenuItem icon={Share2} label="شارك تؤجر" subtitle="أخبر أصدقاءك وانشر الخير" onClick={handleShare} />
-          <MenuItem icon={Heart} label="إعانة مالية" subtitle="ادعم تطوير التطبيق" />
-          <MenuItem icon={Flag} label="الإبلاغ عن خلل / اقتراح تحسين" />
+          <MenuItem icon={Heart} label="إعانة مالية" subtitle="ادعم تطوير التطبيق" onClick={() => setActivePage("donation")} />
+          <MenuItem icon={Flag} label="الإبلاغ عن خلل / اقتراح تحسين" onClick={() => setActivePage("report")} />
         </MenuSection>
 
         {/* تسجيل الخروج / الدخول */}
