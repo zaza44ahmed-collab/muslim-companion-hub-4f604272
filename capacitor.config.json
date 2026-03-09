@@ -1,0 +1,9 @@
+{
+  "appId": "app.lovable.1c6cc134f2304fbc852652b665dac184",
+  "appName": "حقيبة المسلم",
+  "webDir": "dist",
+  "server": {
+    "url": "https://1c6cc134-f230-4fbc-8526-52b665dac184.lovableproject.com?forceHideBadge=true",
+    "cleartext": true
+  }
+}

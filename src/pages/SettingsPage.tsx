@@ -22,6 +22,7 @@ import AddBookDialog from "@/components/library/AddBookDialog";
 import AddListingDialog from "@/components/marketplace/AddListingDialog";
 import { useReels } from "@/hooks/useReels";
 import { useListings } from "@/hooks/useListings";
+import { useSavedItems, type SavedItemType } from "@/hooks/useSavedItems";
 
 // --- Reusable Sub-components ---
 
@@ -156,13 +157,14 @@ const EditProfilePage = ({ onBack, user }: { onBack: () => void; user: any }) =>
 };
 
 const SavedItemsPage = ({ onBack }: { onBack: () => void }) => {
-  const [tab, setTab] = useState("apps");
-  const tabs = [
-    { id: "apps", label: "تطبيقات", icon: Smartphone },
-    { id: "reels", label: "ريلز", icon: Film },
+  const [tab, setTab] = useState<SavedItemType>("app");
+  const { savedItems, loading: savedLoading, toggleSave } = useSavedItems(tab);
+  const tabs: { id: SavedItemType; label: string; icon: React.ElementType }[] = [
+    { id: "app", label: "تطبيقات", icon: Smartphone },
+    { id: "reel", label: "ريلز", icon: Film },
     { id: "audio", label: "صوتيات", icon: Headphones },
-    { id: "books", label: "كتب", icon: BookOpen },
-    { id: "listings", label: "مبيعات", icon: Package },
+    { id: "book", label: "كتب", icon: BookOpen },
+    { id: "listing", label: "مبيعات", icon: Package },
   ];
   return (
     <div className="space-y-4" dir="rtl">
@@ -174,11 +176,30 @@ const SavedItemsPage = ({ onBack }: { onBack: () => void }) => {
           </button>
         ))}
       </div>
-      <div className="text-center py-8 text-muted-foreground">
-        <Bookmark className="h-10 w-10 mx-auto mb-3 opacity-40" />
-        <p className="text-sm font-semibold">لا توجد عناصر محفوظة</p>
-        <p className="text-xs mt-1">احفظ المحتوى لتجده هنا</p>
-      </div>
+      {savedLoading ? (
+        <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+      ) : savedItems.length > 0 ? (
+        <div className="space-y-2">
+          {savedItems.map((item: any) => (
+            <div key={item.id} className="flex items-center justify-between p-3 rounded-xl bg-card border border-border/50">
+              <div className="flex-1">
+                <p className="text-sm font-bold">{item.item_id}</p>
+                <p className="text-xs text-muted-foreground">{new Date(item.created_at).toLocaleDateString("ar-SA")}</p>
+              </div>
+              <button onClick={() => toggleSave(item.item_type, item.item_id)}
+                className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-destructive/10">
+                <Heart className="h-4 w-4 fill-destructive text-destructive" />
+              </button>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-8 text-muted-foreground">
+          <Bookmark className="h-10 w-10 mx-auto mb-3 opacity-40" />
+          <p className="text-sm font-semibold">لا توجد عناصر محفوظة</p>
+          <p className="text-xs mt-1">احفظ المحتوى لتجده هنا</p>
+        </div>
+      )}
     </div>
   );
 };
