@@ -22,6 +22,7 @@ import AddBookDialog from "@/components/library/AddBookDialog";
 import AddListingDialog from "@/components/marketplace/AddListingDialog";
 import { useReels } from "@/hooks/useReels";
 import { useListings } from "@/hooks/useListings";
+import { useSavedItems, type SavedItemType } from "@/hooks/useSavedItems";
 
 // --- Reusable Sub-components ---
 

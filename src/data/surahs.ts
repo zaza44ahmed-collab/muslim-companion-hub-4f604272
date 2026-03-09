@@ -48,6 +48,16 @@ export const featuredReciters: ReciterInfo[] = [
   { id: 23, name: "محمد صديق المنشاوي", server: "https://server10.mp3quran.net/minsh/", availableSurahs: allSurahs },
   { id: 24, name: "عبدالله المطرود", server: "https://server8.mp3quran.net/mtrod/", availableSurahs: allSurahs },
   { id: 25, name: "يوسف الشويعي", server: "https://server6.mp3quran.net/shwai/", availableSurahs: allSurahs },
+  { id: 26, name: "عبدالله بصفر", server: "https://server13.mp3quran.net/bsfr/", availableSurahs: allSurahs },
+  { id: 27, name: "توفيق الصائغ", server: "https://server11.mp3quran.net/twfeeq/", availableSurahs: allSurahs },
+  { id: 28, name: "محمد الطبلاوي", server: "https://server8.mp3quran.net/tblawi/", availableSurahs: allSurahs },
+  { id: 29, name: "عبدالباري الثبيتي", server: "https://server7.mp3quran.net/thubti/", availableSurahs: allSurahs },
+  { id: 30, name: "ماهر شخاشيرو", server: "https://server12.mp3quran.net/maher_sh/", availableSurahs: allSurahs },
+  { id: 31, name: "عبدالمحسن القاسم", server: "https://server6.mp3quran.net/qasm/", availableSurahs: allSurahs },
+  { id: 32, name: "أحمد نعينع", server: "https://server8.mp3quran.net/na3ena3/", availableSurahs: allSurahs },
+  { id: 33, name: "محمد جبريل", server: "https://server8.mp3quran.net/jbrl/", availableSurahs: allSurahs },
+  { id: 34, name: "عبدالله خياط", server: "https://server6.mp3quran.net/khyat/", availableSurahs: allSurahs },
+  { id: 35, name: "إبراهيم الأخضر", server: "https://server8.mp3quran.net/akhdr/", availableSurahs: allSurahs },
 ];
 
 export function getSurahUrl(server: string, surahNumber: number): string {
