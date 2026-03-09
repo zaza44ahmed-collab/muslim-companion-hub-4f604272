@@ -501,15 +501,15 @@ const SettingsPage = () => {
           </div>
         </section>
 
-        {/* Subscription CTA */}
+        {/* Donation CTA */}
         <section className="animate-fadeIn" style={{ animationDelay: "50ms" }}>
-          <div className="rounded-xl bg-gradient-to-l from-red-500 to-rose-600 p-4 text-white text-center shadow-lg cursor-pointer" onClick={() => setActivePage("subscription")}>
+          <div className="rounded-xl bg-gradient-to-l from-emerald-600 to-teal-700 p-4 text-white text-center shadow-lg cursor-pointer" onClick={() => setActivePage("donation")}>
             <div className="flex items-center justify-center gap-2 mb-1">
-              <Crown className="h-5 w-5" />
-              <h3 className="font-bold text-sm">اشترك في باقة برو</h3>
+              <Heart className="h-5 w-5" />
+              <h3 className="font-bold text-sm">ادعم تطوير التطبيق</h3>
             </div>
-            <button className="mt-3 px-6 py-2 bg-white text-rose-600 rounded-xl font-bold text-xs hover:bg-white/90 transition-colors">
-              اشترك الآن
+            <button className="mt-3 px-6 py-2 bg-white text-emerald-700 rounded-xl font-bold text-xs hover:bg-white/90 transition-colors">
+              تبرع الآن 🤲
             </button>
           </div>
         </section>
