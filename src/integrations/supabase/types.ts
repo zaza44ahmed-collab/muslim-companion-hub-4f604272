@@ -99,6 +99,39 @@ export type Database = {
         }
         Relationships: []
       }
+      donations: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          payment_method: string
+          status: string
+          transaction_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          id?: string
+          payment_method: string
+          status?: string
+          transaction_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          payment_method?: string
+          status?: string
+          transaction_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       listing_favorites: {
         Row: {
           created_at: string
@@ -366,6 +399,30 @@ export type Database = {
           user_id?: string
           video_url?: string
           views_count?: number
+        }
+        Relationships: []
+      }
+      saved_items: {
+        Row: {
+          created_at: string
+          id: string
+          item_id: string
+          item_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_id: string
+          item_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_id?: string
+          item_type?: string
+          user_id?: string
         }
         Relationships: []
       }

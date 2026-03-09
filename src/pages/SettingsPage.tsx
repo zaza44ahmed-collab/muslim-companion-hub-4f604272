@@ -270,26 +270,44 @@ const AboutAppPage = ({ onBack }: { onBack: () => void }) => (
   </div>
 );
 
-const DonationPage = ({ onBack }: { onBack: () => void }) => (
-  <div className="space-y-4" dir="rtl">
-    <p className="text-sm text-muted-foreground">ادعم تطوير التطبيق واحصل على الأجر</p>
-    <div className="space-y-3">
-      {[
-        { icon: CreditCard, label: "بطاقة فيزا / ماستركارد", desc: "ادفع بالبطاقة البنكية" },
-        { icon: Bitcoin, label: "العملات الرقمية", desc: "BTC, ETH, USDT" },
-        { icon: MessageSquare, label: "PayPal", desc: "الدفع عبر PayPal" },
-      ].map((method) => (
-        <div key={method.label} className="flex items-center gap-3 p-3 rounded-xl border-2 border-secondary/30 bg-card cursor-pointer hover:bg-accent/50">
-          <method.icon className="h-5 w-5 text-secondary" />
-          <div>
-            <p className="text-sm font-semibold">{method.label}</p>
-            <p className="text-xs text-muted-foreground">{method.desc}</p>
+const DonationPage = ({ onBack }: { onBack: () => void }) => {
+  const [amount, setAmount] = useState("5");
+  const [method, setMethod] = useState("");
+  const { toast } = useToast();
+  const amounts = ["1", "3", "5", "10"];
+  return (
+    <div className="space-y-4" dir="rtl">
+      <p className="text-sm text-muted-foreground">يمكنك دعم تطوير التطبيق ليستمر في تقديم القرآن والدروس الإسلامية مجاناً.</p>
+      <div className="flex gap-2">
+        {amounts.map(a => (
+          <button key={a} onClick={() => setAmount(a)}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-colors ${amount === a ? "bg-primary text-primary-foreground" : "bg-card border border-border"}`}>
+            ${a}
+          </button>
+        ))}
+      </div>
+      <Input value={amount} onChange={e => setAmount(e.target.value)} placeholder="مبلغ مخصص" className="text-right h-11 rounded-xl" type="number" />
+      <h4 className="text-sm font-bold">طريقة الدفع:</h4>
+      <div className="space-y-2">
+        {[
+          { id: "card", icon: CreditCard, label: "بطاقة فيزا / ماستركارد", desc: "ادفع بالبطاقة البنكية" },
+          { id: "crypto", icon: Bitcoin, label: "العملات الرقمية", desc: "BTC, ETH, USDT" },
+          { id: "paypal", icon: MessageSquare, label: "PayPal", desc: "الدفع عبر PayPal" },
+        ].map(m => (
+          <div key={m.id} onClick={() => setMethod(m.id)}
+            className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-colors ${method === m.id ? "border-primary bg-primary/5" : "border-secondary/30 bg-card hover:bg-accent/50"}`}>
+            <m.icon className="h-5 w-5 text-secondary" />
+            <div><p className="text-sm font-semibold">{m.label}</p><p className="text-xs text-muted-foreground">{m.desc}</p></div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
+      <Button className="w-full h-12 rounded-xl gradient-islamic text-primary-foreground text-sm font-bold"
+        onClick={() => toast({ title: "شكراً لك على دعمك لتطوير التطبيق، جزاك الله خيراً 🤲" })}>
+        🤲 تبرع بمبلغ ${amount}
+      </Button>
     </div>
-  </div>
-);
+  );
+};
 
 const ReportPage = ({ onBack }: { onBack: () => void }) => {
   const { toast } = useToast();
@@ -349,7 +367,21 @@ const PrayerCalcPage = ({ onBack }: { onBack: () => void }) => (
   <div className="space-y-4" dir="rtl">
     <div className="bg-card rounded-xl p-4 space-y-3">
       <h4 className="text-sm font-bold">طريقة الحساب</h4>
-      {["أم القرى (السعودية)", "رابطة العالم الإسلامي", "الاتحاد الإسلامي لأمريكا الشمالية", "الهيئة المصرية العامة للمساحة"].map(m => (
+      {[
+        "أم القرى (السعودية)",
+        "رابطة العالم الإسلامي",
+        "الاتحاد الإسلامي لأمريكا الشمالية (ISNA)",
+        "الهيئة المصرية العامة للمساحة",
+        "جامعة العلوم الإسلامية بكراتشي",
+        "معهد الجيوفيزياء بجامعة طهران",
+        "اتحاد المنظمات الإسلامية الفرنسية",
+        "وزارة الأوقاف والشؤون الإسلامية - الكويت",
+        "وزارة الشؤون الدينية - تركيا",
+        "الهيئة العامة للمساحة - دبي",
+        "وزارة الشؤون الدينية - قطر",
+        "وزارة الشؤون الدينية - الأردن",
+        "مجلس التنمية الإسلامية بسنغافورة (MUIS)",
+      ].map(m => (
         <label key={m} className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent/50 cursor-pointer">
           <input type="radio" name="calc" defaultChecked={m.includes("أم القرى")} className="accent-primary" />
           <span className="text-sm">{m}</span>
@@ -444,7 +476,6 @@ const SettingsPage = () => {
     about: { title: "عن التطبيق", component: <AboutAppPage onBack={() => setActivePage(null)} /> },
     donation: { title: "إعانة مالية", component: <DonationPage onBack={() => setActivePage(null)} /> },
     report: { title: "الإبلاغ عن خلل / اقتراح", component: <ReportPage onBack={() => setActivePage(null)} /> },
-    subscription: { title: "اشترك في باقة برو", component: <SubscriptionPage onBack={() => setActivePage(null)} /> },
     prayerCalc: { title: "حساب المواقيت والمذهب", component: <PrayerCalcPage onBack={() => setActivePage(null)} /> },
     adhanSettings: { title: "إعدادات المؤذن", component: <AdhanSettingsPage onBack={() => setActivePage(null)} /> },
     language: { title: "اختيار اللغة", component: <LanguagePage onBack={() => setActivePage(null)} preferences={preferences} updatePreference={updatePreference} /> },
@@ -501,15 +532,15 @@ const SettingsPage = () => {
           </div>
         </section>
 
-        {/* Subscription CTA */}
+        {/* Donation CTA */}
         <section className="animate-fadeIn" style={{ animationDelay: "50ms" }}>
-          <div className="rounded-xl bg-gradient-to-l from-red-500 to-rose-600 p-4 text-white text-center shadow-lg cursor-pointer" onClick={() => setActivePage("subscription")}>
+          <div className="rounded-xl bg-gradient-to-l from-emerald-600 to-teal-700 p-4 text-white text-center shadow-lg cursor-pointer" onClick={() => setActivePage("donation")}>
             <div className="flex items-center justify-center gap-2 mb-1">
-              <Crown className="h-5 w-5" />
-              <h3 className="font-bold text-sm">اشترك في باقة برو</h3>
+              <Heart className="h-5 w-5" />
+              <h3 className="font-bold text-sm">ادعم تطوير التطبيق</h3>
             </div>
-            <button className="mt-3 px-6 py-2 bg-white text-rose-600 rounded-xl font-bold text-xs hover:bg-white/90 transition-colors">
-              اشترك الآن
+            <button className="mt-3 px-6 py-2 bg-white text-emerald-700 rounded-xl font-bold text-xs hover:bg-white/90 transition-colors">
+              تبرع الآن 🤲
             </button>
           </div>
         </section>

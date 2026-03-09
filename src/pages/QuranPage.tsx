@@ -204,20 +204,11 @@ const QuranPage = () => {
     return (
       <div className="min-h-screen bg-background" dir="rtl">
         <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-lg border-b border-border">
-          <div className="container flex h-14 items-center justify-between">
+            <div className="container flex h-14 items-center justify-between">
             <h1 className="text-lg font-bold font-amiri">{selectedSurah.name}</h1>
-            <div className="flex items-center gap-2">
-              <Button
-                variant={isPlaying ? "islamic" : "ghost"}
-                size="icon"
-                onClick={toggleAudio}
-              >
-                {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
-              </Button>
-              <Button variant="ghost" size="icon" onClick={() => setSelectedSurah(null)}>
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-            </div>
+            <Button variant="ghost" size="icon" onClick={() => setSelectedSurah(null)}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
           </div>
         </header>
 
