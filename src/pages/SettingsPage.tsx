@@ -367,7 +367,21 @@ const PrayerCalcPage = ({ onBack }: { onBack: () => void }) => (
   <div className="space-y-4" dir="rtl">
     <div className="bg-card rounded-xl p-4 space-y-3">
       <h4 className="text-sm font-bold">طريقة الحساب</h4>
-      {["أم القرى (السعودية)", "رابطة العالم الإسلامي", "الاتحاد الإسلامي لأمريكا الشمالية", "الهيئة المصرية العامة للمساحة"].map(m => (
+      {[
+        "أم القرى (السعودية)",
+        "رابطة العالم الإسلامي",
+        "الاتحاد الإسلامي لأمريكا الشمالية (ISNA)",
+        "الهيئة المصرية العامة للمساحة",
+        "جامعة العلوم الإسلامية بكراتشي",
+        "معهد الجيوفيزياء بجامعة طهران",
+        "اتحاد المنظمات الإسلامية الفرنسية",
+        "وزارة الأوقاف والشؤون الإسلامية - الكويت",
+        "وزارة الشؤون الدينية - تركيا",
+        "الهيئة العامة للمساحة - دبي",
+        "وزارة الشؤون الدينية - قطر",
+        "وزارة الشؤون الدينية - الأردن",
+        "مجلس التنمية الإسلامية بسنغافورة (MUIS)",
+      ].map(m => (
         <label key={m} className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent/50 cursor-pointer">
           <input type="radio" name="calc" defaultChecked={m.includes("أم القرى")} className="accent-primary" />
           <span className="text-sm">{m}</span>
