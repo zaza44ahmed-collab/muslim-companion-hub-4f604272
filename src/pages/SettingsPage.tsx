@@ -270,26 +270,44 @@ const AboutAppPage = ({ onBack }: { onBack: () => void }) => (
   </div>
 );
 
-const DonationPage = ({ onBack }: { onBack: () => void }) => (
-  <div className="space-y-4" dir="rtl">
-    <p className="text-sm text-muted-foreground">ادعم تطوير التطبيق واحصل على الأجر</p>
-    <div className="space-y-3">
-      {[
-        { icon: CreditCard, label: "بطاقة فيزا / ماستركارد", desc: "ادفع بالبطاقة البنكية" },
-        { icon: Bitcoin, label: "العملات الرقمية", desc: "BTC, ETH, USDT" },
-        { icon: MessageSquare, label: "PayPal", desc: "الدفع عبر PayPal" },
-      ].map((method) => (
-        <div key={method.label} className="flex items-center gap-3 p-3 rounded-xl border-2 border-secondary/30 bg-card cursor-pointer hover:bg-accent/50">
-          <method.icon className="h-5 w-5 text-secondary" />
-          <div>
-            <p className="text-sm font-semibold">{method.label}</p>
-            <p className="text-xs text-muted-foreground">{method.desc}</p>
+const DonationPage = ({ onBack }: { onBack: () => void }) => {
+  const [amount, setAmount] = useState("5");
+  const [method, setMethod] = useState("");
+  const { toast } = useToast();
+  const amounts = ["1", "3", "5", "10"];
+  return (
+    <div className="space-y-4" dir="rtl">
+      <p className="text-sm text-muted-foreground">يمكنك دعم تطوير التطبيق ليستمر في تقديم القرآن والدروس الإسلامية مجاناً.</p>
+      <div className="flex gap-2">
+        {amounts.map(a => (
+          <button key={a} onClick={() => setAmount(a)}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-colors ${amount === a ? "bg-primary text-primary-foreground" : "bg-card border border-border"}`}>
+            ${a}
+          </button>
+        ))}
+      </div>
+      <Input value={amount} onChange={e => setAmount(e.target.value)} placeholder="مبلغ مخصص" className="text-right h-11 rounded-xl" type="number" />
+      <h4 className="text-sm font-bold">طريقة الدفع:</h4>
+      <div className="space-y-2">
+        {[
+          { id: "card", icon: CreditCard, label: "بطاقة فيزا / ماستركارد", desc: "ادفع بالبطاقة البنكية" },
+          { id: "crypto", icon: Bitcoin, label: "العملات الرقمية", desc: "BTC, ETH, USDT" },
+          { id: "paypal", icon: MessageSquare, label: "PayPal", desc: "الدفع عبر PayPal" },
+        ].map(m => (
+          <div key={m.id} onClick={() => setMethod(m.id)}
+            className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-colors ${method === m.id ? "border-primary bg-primary/5" : "border-secondary/30 bg-card hover:bg-accent/50"}`}>
+            <m.icon className="h-5 w-5 text-secondary" />
+            <div><p className="text-sm font-semibold">{m.label}</p><p className="text-xs text-muted-foreground">{m.desc}</p></div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
+      <Button className="w-full h-12 rounded-xl gradient-islamic text-primary-foreground text-sm font-bold"
+        onClick={() => toast({ title: "شكراً لك على دعمك لتطوير التطبيق، جزاك الله خيراً 🤲" })}>
+        🤲 تبرع بمبلغ ${amount}
+      </Button>
     </div>
-  </div>
-);
+  );
+};
 
 const ReportPage = ({ onBack }: { onBack: () => void }) => {
   const { toast } = useToast();
