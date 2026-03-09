@@ -444,7 +444,6 @@ const SettingsPage = () => {
     about: { title: "عن التطبيق", component: <AboutAppPage onBack={() => setActivePage(null)} /> },
     donation: { title: "إعانة مالية", component: <DonationPage onBack={() => setActivePage(null)} /> },
     report: { title: "الإبلاغ عن خلل / اقتراح", component: <ReportPage onBack={() => setActivePage(null)} /> },
-    subscription: { title: "اشترك في باقة برو", component: <SubscriptionPage onBack={() => setActivePage(null)} /> },
     prayerCalc: { title: "حساب المواقيت والمذهب", component: <PrayerCalcPage onBack={() => setActivePage(null)} /> },
     adhanSettings: { title: "إعدادات المؤذن", component: <AdhanSettingsPage onBack={() => setActivePage(null)} /> },
     language: { title: "اختيار اللغة", component: <LanguagePage onBack={() => setActivePage(null)} preferences={preferences} updatePreference={updatePreference} /> },
