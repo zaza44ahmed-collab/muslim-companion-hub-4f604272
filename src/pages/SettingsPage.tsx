@@ -436,7 +436,7 @@ const SettingsPage = () => {
 
   // Sub-pages map with titles
   const pageConfig: Record<string, { title: string; component: React.ReactNode }> = {
-    editProfile: { title: "تعديل الملف الشخصي", component: <EditProfilePage onBack={() => setActivePage(null)} user={user} /> },
+    editProfile: { title: "تعديل الملف الشخصي", component: user ? <EditProfilePage onBack={() => setActivePage(null)} user={user} /> : null },
     savedItems: { title: "المحفوظات", component: <SavedItemsPage onBack={() => setActivePage(null)} /> },
     uploads: { title: "الملفات المرفوعة", component: <UploadedFilesPage onBack={() => setActivePage(null)} /> },
     notifications: { title: "التنبيهات", component: <NotificationsPage onBack={() => setActivePage(null)} /> },
