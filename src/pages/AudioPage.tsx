@@ -11,6 +11,7 @@ import { toast } from "@/hooks/use-toast";
 import { surahs, featuredReciters, getSurahUrl, type ReciterInfo } from "@/data/surahs";
 import { scholars, audioCategories, azkarAudio, khutabAudio, storiesAudio, kidsAudio, type Scholar, type AudioSectionItem } from "@/data/scholars";
 import { useAudioPlayer, type AudioTrackInfo } from "@/hooks/useAudioPlayer";
+import { useSavedItems } from "@/hooks/useSavedItems";
 
 // --- Sub Views ---
 
@@ -23,18 +24,10 @@ const CategoryCard = ({ cat, onClick }: { cat: typeof audioCategories[0]; onClic
 
 // --- Generic Audio List Section ---
 const AudioListSection = ({ title, items, player }: { title: string; items: AudioSectionItem[]; player: ReturnType<typeof useAudioPlayer> }) => {
-  const [favorites, setFavorites] = useState<Set<string>>(() => {
-    const saved = localStorage.getItem(`fav_${title}`);
-    return saved ? new Set(JSON.parse(saved)) : new Set();
-  });
+  const savedItems = useSavedItems('audio');
 
   const toggleFav = (id: string) => {
-    setFavorites(prev => {
-      const n = new Set(prev);
-      if (n.has(id)) n.delete(id); else n.add(id);
-      localStorage.setItem(`fav_${title}`, JSON.stringify([...n]));
-      return n;
-    });
+    savedItems.toggleSave('audio', id);
   };
 
   const playlist: AudioTrackInfo[] = items.map(item => ({
@@ -59,7 +52,7 @@ const AudioListSection = ({ title, items, player }: { title: string; items: Audi
               </div>
               <div className="flex items-center gap-1">
                 <button onClick={e => { e.stopPropagation(); toggleFav(item.id); }} className="h-7 w-7 rounded-full flex items-center justify-center hover:bg-muted/30">
-                  <Bookmark className={`h-3.5 w-3.5 ${favorites.has(item.id) ? "fill-primary text-primary" : "text-muted-foreground"}`} />
+                  <Bookmark className={`h-3.5 w-3.5 ${savedItems.isSaved('audio', item.id) ? "fill-primary text-primary" : "text-muted-foreground"}`} />
                 </button>
                 <button onClick={e => { e.stopPropagation(); const a = document.createElement("a"); a.href = item.audioUrl; a.download = `${item.title}.mp3`; a.target = "_blank"; a.click(); toast({ title: "جاري التحميل..." }); }}
                   className="h-7 w-7 rounded-full flex items-center justify-center hover:bg-muted/30">
@@ -101,18 +94,10 @@ const QuranRecitersView = ({ onSelectReciter }: { onSelectReciter: (r: ReciterIn
 
 const SurahListView = ({ reciter, player }: { reciter: ReciterInfo; player: ReturnType<typeof useAudioPlayer> }) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [favorites, setFavorites] = useState<Set<number>>(() => {
-    const saved = localStorage.getItem("favSurahs");
-    return saved ? new Set(JSON.parse(saved)) : new Set();
-  });
+  const savedItems = useSavedItems('audio');
 
   const toggleFav = (num: number) => {
-    setFavorites(prev => {
-      const n = new Set(prev);
-      if (n.has(num)) n.delete(num); else n.add(num);
-      localStorage.setItem("favSurahs", JSON.stringify([...n]));
-      return n;
-    });
+    savedItems.toggleSave('audio', `surah-${reciter.id}-${num}`);
   };
 
   const filteredSurahs = useMemo(() => {
@@ -158,7 +143,7 @@ const SurahListView = ({ reciter, player }: { reciter: ReciterInfo; player: Retu
               </div>
               <div className="flex items-center gap-1">
                 <button onClick={e => { e.stopPropagation(); toggleFav(num); }} className="h-7 w-7 rounded-full flex items-center justify-center hover:bg-muted/30">
-                  <Bookmark className={`h-3.5 w-3.5 ${favorites.has(num) ? "fill-primary text-primary" : "text-muted-foreground"}`} />
+                  <Bookmark className={`h-3.5 w-3.5 ${savedItems.isSaved('audio', `surah-${reciter.id}-${num}`) ? "fill-primary text-primary" : "text-muted-foreground"}`} />
                 </button>
                 <button onClick={e => { e.stopPropagation(); const a = document.createElement("a"); a.href = getSurahUrl(reciter.server, num); a.download = `${name}.mp3`; a.target = "_blank"; a.click(); toast({ title: "جاري التحميل..." }); }}
                   className="h-7 w-7 rounded-full flex items-center justify-center hover:bg-muted/30">
