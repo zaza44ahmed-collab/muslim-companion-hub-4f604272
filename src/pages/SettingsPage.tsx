@@ -5,7 +5,7 @@ import {
   Info, Star, Share2, Heart, Flag, LogOut, LogIn, ArrowLeft, ChevronLeft,
   Crown, Volume2, Lock, Eye, EyeOff, Camera, Loader2,
   Smartphone, BookOpen, Headphones, Film, Package,
-  CreditCard, Bitcoin, FileText, MessageSquare, Mail,
+  CreditCard, Bitcoin, FileText, MessageSquare, Mail, ImageIcon,
 } from "lucide-react";
 import BottomNav from "@/components/layout/BottomNav";
 import { Button } from "@/components/ui/button";
@@ -159,6 +159,44 @@ const EditProfilePage = ({ onBack, user }: { onBack: () => void; user: any }) =>
 const SavedItemsPage = ({ onBack }: { onBack: () => void }) => {
   const [tab, setTab] = useState<SavedItemType>("app");
   const { savedItems, loading: savedLoading, toggleSave } = useSavedItems(tab);
+  const [resolvedNames, setResolvedNames] = useState<Record<string, { name: string; subtitle?: string }>>({});
+
+  // Resolve item names from database
+  useEffect(() => {
+    const resolveNames = async () => {
+      const names: Record<string, { name: string; subtitle?: string }> = {};
+      for (const item of savedItems) {
+        const key = `${item.item_type}:${item.item_id}`;
+        if (resolvedNames[key]) { names[key] = resolvedNames[key]; continue; }
+        
+        try {
+          if (item.item_type === 'app') {
+            const { data } = await supabase.from('user_apps').select('name, category').eq('id', item.item_id).single();
+            if (data) names[key] = { name: data.name, subtitle: data.category };
+          } else if (item.item_type === 'book') {
+            const { data } = await supabase.from('user_books').select('title, author').eq('id', item.item_id).single();
+            if (data) names[key] = { name: data.title, subtitle: data.author };
+          } else if (item.item_type === 'audio') {
+            const { data } = await supabase.from('user_audio').select('title, artist').eq('id', item.item_id).single();
+            if (data) names[key] = { name: data.title, subtitle: data.artist };
+            else names[key] = { name: item.item_id, subtitle: 'صوتية' };
+          } else if (item.item_type === 'reel') {
+            const { data } = await supabase.from('reels').select('title').eq('id', item.item_id).single();
+            if (data) names[key] = { name: data.title };
+          } else if (item.item_type === 'listing') {
+            const { data } = await supabase.from('listings').select('title, price, currency').eq('id', item.item_id).single();
+            if (data) names[key] = { name: data.title, subtitle: `${data.price} ${data.currency}` };
+          }
+        } catch {
+          names[key] = { name: item.item_id };
+        }
+        if (!names[key]) names[key] = { name: item.item_id };
+      }
+      setResolvedNames(prev => ({ ...prev, ...names }));
+    };
+    if (savedItems.length > 0) resolveNames();
+  }, [savedItems]);
+
   const tabs: { id: SavedItemType; label: string; icon: React.ElementType }[] = [
     { id: "app", label: "تطبيقات", icon: Smartphone },
     { id: "reel", label: "ريلز", icon: Film },
@@ -166,6 +204,14 @@ const SavedItemsPage = ({ onBack }: { onBack: () => void }) => {
     { id: "book", label: "كتب", icon: BookOpen },
     { id: "listing", label: "مبيعات", icon: Package },
   ];
+
+  const getItemIcon = (type: SavedItemType) => {
+    const icons: Record<SavedItemType, React.ElementType> = {
+      app: Smartphone, reel: Film, audio: Headphones, book: BookOpen, listing: Package,
+    };
+    return icons[type];
+  };
+
   return (
     <div className="space-y-4" dir="rtl">
       <div className="flex gap-2 overflow-x-auto scrollbar-hide">
@@ -180,18 +226,29 @@ const SavedItemsPage = ({ onBack }: { onBack: () => void }) => {
         <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
       ) : savedItems.length > 0 ? (
         <div className="space-y-2">
-          {savedItems.map((item: any) => (
-            <div key={item.id} className="flex items-center justify-between p-3 rounded-xl bg-card border border-border/50">
-              <div className="flex-1">
-                <p className="text-sm font-bold">{item.item_id}</p>
-                <p className="text-xs text-muted-foreground">{new Date(item.created_at).toLocaleDateString("ar-SA")}</p>
+          {savedItems.map((item: any) => {
+            const resolved = resolvedNames[`${item.item_type}:${item.item_id}`];
+            const ItemIcon = getItemIcon(item.item_type);
+            return (
+              <div key={item.id} className="flex items-center justify-between p-3 rounded-xl bg-card border border-border/50">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <ItemIcon className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold truncate">{resolved?.name || "..."}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {resolved?.subtitle || new Date(item.created_at).toLocaleDateString("ar-SA")}
+                    </p>
+                  </div>
+                </div>
+                <button onClick={() => toggleSave(item.item_type, item.item_id)}
+                  className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-destructive/10 shrink-0">
+                  <Heart className="h-4 w-4 fill-destructive text-destructive" />
+                </button>
               </div>
-              <button onClick={() => toggleSave(item.item_type, item.item_id)}
-                className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-destructive/10">
-                <Heart className="h-4 w-4 fill-destructive text-destructive" />
-              </button>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="text-center py-8 text-muted-foreground">
@@ -239,29 +296,62 @@ const UploadedFilesPage = ({ onBack }: { onBack: () => void }) => {
   );
 };
 
-const NotificationsPage = ({ onBack }: { onBack: () => void }) => (
-  <div className="space-y-4" dir="rtl">
-    <div className="text-center py-8 text-muted-foreground">
-      <Bell className="h-10 w-10 mx-auto mb-3 opacity-40" />
-      <p className="text-sm">لا توجد تنبيهات جديدة</p>
+const NotificationsPage = ({ onBack }: { onBack: () => void }) => {
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      const { data } = await (supabase as any)
+        .from('admin_notifications')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50);
+      if (data) setNotifications(data);
+      setLoading(false);
+    };
+    fetchNotifications();
+  }, []);
+
+  return (
+    <div className="space-y-4" dir="rtl">
+      {loading ? (
+        <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+      ) : notifications.length > 0 ? (
+        <div className="space-y-2">
+          {notifications.map((n: any) => (
+            <div key={n.id} className="p-3 rounded-xl bg-card border border-border/50">
+              <div className="flex items-start gap-3">
+                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                  <Bell className="h-4 w-4 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-bold">{n.title}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{n.message}</p>
+                  <p className="text-[10px] text-muted-foreground/60 mt-1">{new Date(n.created_at).toLocaleDateString("ar-SA")}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-8 text-muted-foreground">
+          <Bell className="h-10 w-10 mx-auto mb-3 opacity-40" />
+          <p className="text-sm">لا توجد تنبيهات جديدة</p>
+        </div>
+      )}
     </div>
-  </div>
-);
+  );
+};
 
 const PrivacyPolicyPage = ({ onBack }: { onBack: () => void }) => (
   <div className="space-y-4" dir="rtl">
     <div className="bg-card rounded-xl p-4 text-sm text-muted-foreground leading-relaxed space-y-3">
       <p><strong className="text-foreground">مقدمة:</strong> نلتزم في تطبيق حقيبة المسلم بحماية خصوصيتك وبياناتك الشخصية وفقاً لأعلى المعايير الدولية لحماية البيانات.</p>
-      <p><strong className="text-foreground">1. البيانات المجمعة:</strong> نجمع فقط البيانات الضرورية لتشغيل التطبيق مثل البريد الإلكتروني والاسم وبيانات الاستخدام الأساسية. لا نجمع أي بيانات حساسة مثل الموقع الجغرافي الدقيق أو المعلومات المالية بدون إذنك الصريح.</p>
-      <p><strong className="text-foreground">2. استخدام البيانات:</strong> تُستخدم بياناتك حصرياً لتحسين تجربتك في التطبيق وتقديم المحتوى المناسب. لا نبيع بياناتك أبداً ولا نشاركها مع أطراف ثالثة لأغراض تسويقية.</p>
-      <p><strong className="text-foreground">3. التخزين والأمان:</strong> نستخدم تشفيراً متقدماً (AES-256) لحماية بياناتك أثناء النقل والتخزين. يتم تخزين البيانات على خوادم آمنة ومحمية ضمن أحدث البنى التحتية السحابية.</p>
-      <p><strong className="text-foreground">4. ملفات تعريف الارتباط (Cookies):</strong> نستخدم ملفات تعريف الارتباط الأساسية فقط لضمان عمل التطبيق بشكل سليم وتذكر تفضيلاتك مثل اللغة ووضع العرض.</p>
-      <p><strong className="text-foreground">5. مشاركة البيانات:</strong> لا نشارك بياناتك الشخصية مع أي جهة خارجية باستثناء مزودي الخدمات الضرورية لتشغيل التطبيق (مثل خدمات المصادقة والدفع) والذين يلتزمون بسياسات خصوصية صارمة.</p>
-      <p><strong className="text-foreground">6. حقوقك:</strong> يحق لك طلب الاطلاع على بياناتك الشخصية أو تعديلها أو حذفها بالكامل في أي وقت. كما يحق لك الاعتراض على معالجة بياناتك أو طلب نقلها.</p>
-      <p><strong className="text-foreground">7. حماية الأطفال:</strong> لا نجمع بيانات من الأطفال دون سن 13 عاماً بشكل متعمد. إذا اكتشفنا ذلك، سنحذف تلك البيانات فوراً.</p>
-      <p><strong className="text-foreground">8. الإعلانات:</strong> في حالة عرض إعلانات، نلتزم بعرض إعلانات ملائمة ومحترمة فقط، ولا نستخدم بيانات تتبع متقدمة.</p>
-      <p><strong className="text-foreground">9. التحديثات:</strong> قد نقوم بتحديث هذه السياسة بشكل دوري وسنخطرك بأي تغييرات جوهرية عبر إشعار داخل التطبيق أو البريد الإلكتروني.</p>
-      <p><strong className="text-foreground">10. التواصل:</strong> لأي استفسارات تتعلق بالخصوصية، تواصل معنا عبر البريد الإلكتروني: privacy@haqibatalmuslim.com</p>
+      <p><strong className="text-foreground">1. البيانات المجمعة:</strong> نجمع فقط البيانات الضرورية لتشغيل التطبيق مثل البريد الإلكتروني والاسم وبيانات الاستخدام الأساسية.</p>
+      <p><strong className="text-foreground">2. استخدام البيانات:</strong> تُستخدم بياناتك حصرياً لتحسين تجربتك في التطبيق. لا نبيع بياناتك أبداً.</p>
+      <p><strong className="text-foreground">3. التخزين والأمان:</strong> نستخدم تشفيراً متقدماً لحماية بياناتك أثناء النقل والتخزين.</p>
+      <p><strong className="text-foreground">4. حقوقك:</strong> يحق لك طلب الاطلاع على بياناتك أو تعديلها أو حذفها في أي وقت.</p>
       <p className="text-xs text-muted-foreground/60 pt-2 border-t border-border/50">آخر تحديث: مارس 2026</p>
     </div>
   </div>
@@ -275,9 +365,7 @@ const AboutAppPage = ({ onBack }: { onBack: () => void }) => (
       <p className="text-xs text-muted-foreground mt-1">الإصدار 1.0.0</p>
     </div>
     <div className="bg-card rounded-xl p-4 text-sm text-muted-foreground leading-relaxed space-y-2">
-      <p>تطبيق حقيبة المسلم هو تطبيق إسلامي شامل يهدف إلى تسهيل حياة المسلم اليومية من خلال توفير القرآن الكريم، الأذكار، أوقات الصلاة، المكتبة الإسلامية، الصوتيات، والمتجر الإسلامي في مكان واحد.</p>
-      <p>تم تطويره بحب وإتقان ليكون رفيقك الإسلامي في كل وقت وحين.</p>
-      <p className="text-xs font-semibold text-foreground">المميزات الرئيسية:</p>
+      <p>تطبيق حقيبة المسلم هو تطبيق إسلامي شامل يهدف إلى تسهيل حياة المسلم اليومية.</p>
       <ul className="list-disc list-inside text-xs space-y-1">
         <li>القرآن الكريم بأصوات أشهر القراء</li>
         <li>أذكار الصباح والمساء والأدعية</li>
@@ -332,8 +420,55 @@ const DonationPage = ({ onBack }: { onBack: () => void }) => {
 
 const ReportPage = ({ onBack }: { onBack: () => void }) => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [message, setMessage] = useState("");
   const [type, setType] = useState("bug");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => setImagePreview(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const handleSend = async () => {
+    if (!message.trim()) { toast({ title: "اكتب رسالتك أولاً", variant: "destructive" }); return; }
+    setSending(true);
+    
+    let imageUrl = null;
+    if (imageFile && user) {
+      const ext = imageFile.name.split(".").pop();
+      const path = `reports/${user.id}/${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("user-content").upload(path, imageFile);
+      if (!error) {
+        const { data } = supabase.storage.from("user-content").getPublicUrl(path);
+        imageUrl = data.publicUrl;
+      }
+    }
+
+    // Store report as admin notification
+    if (user) {
+      await (supabase as any).from('admin_notifications').insert({
+        title: type === "bug" ? "🐛 إبلاغ عن خلل" : "💡 اقتراح تحسين",
+        message: `${message}${imageUrl ? `\n\nصورة مرفقة: ${imageUrl}` : ''}`,
+        type: 'report',
+        user_id: user.id,
+      });
+    }
+
+    setSending(false);
+    toast({ title: "تم إرسال الرسالة بنجاح ✅" });
+    setMessage("");
+    setImageFile(null);
+    setImagePreview(null);
+    onBack();
+  };
+
   return (
     <div className="space-y-4" dir="rtl">
       <div className="flex gap-2">
@@ -347,15 +482,31 @@ const ReportPage = ({ onBack }: { onBack: () => void }) => {
         </button>
       </div>
       <textarea value={message} onChange={e => setMessage(e.target.value)} placeholder="اكتب رسالتك هنا..."
-        className="w-full min-h-[120px] p-3 rounded-xl border-2 border-secondary/30 bg-card text-sm text-right" />
-      <Button className="w-full gradient-islamic text-primary-foreground" onClick={() => { toast({ title: "تم إرسال الرسالة بنجاح ✅" }); setMessage(""); onBack(); }}>
+        className="w-full min-h-[120px] p-3 rounded-xl border-2 border-secondary/30 bg-card text-sm text-right resize-none" />
+      
+      {/* Image Attachment */}
+      <div>
+        <label className="flex items-center gap-2 p-3 rounded-xl border-2 border-dashed border-secondary/30 bg-card cursor-pointer hover:bg-accent/50 transition-colors">
+          <ImageIcon className="h-5 w-5 text-secondary" />
+          <span className="text-xs font-semibold text-muted-foreground">إرفاق صورة (اختياري)</span>
+          <input type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
+        </label>
+        {imagePreview && (
+          <div className="mt-2 relative inline-block">
+            <img src={imagePreview} alt="مرفق" className="h-24 w-24 rounded-xl object-cover border border-border" />
+            <button onClick={() => { setImageFile(null); setImagePreview(null); }}
+              className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-white flex items-center justify-center text-[10px]">✕</button>
+          </div>
+        )}
+      </div>
+
+      <Button className="w-full gradient-islamic text-primary-foreground" onClick={handleSend} disabled={sending}>
+        {sending ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : null}
         إرسال
       </Button>
     </div>
   );
 };
-
-// SubscriptionPage removed - replaced by donation system
 
 const PrayerCalcPage = ({ onBack }: { onBack: () => void }) => {
   const calcMethods = [
@@ -417,18 +568,60 @@ const PrayerCalcPage = ({ onBack }: { onBack: () => void }) => {
   );
 };
 
-const AdhanSettingsPage = ({ onBack }: { onBack: () => void }) => (
-  <div className="space-y-4" dir="rtl">
-    <div className="bg-card rounded-xl p-4 space-y-3">
-      {["الفجر", "الظهر", "العصر", "المغرب", "العشاء"].map(p => (
-        <div key={p} className="flex items-center justify-between py-2">
-          <span className="text-sm font-semibold">{p}</span>
-          <Switch defaultChecked />
-        </div>
-      ))}
+const AdhanSettingsPage = ({ onBack }: { onBack: () => void }) => {
+  const { toast } = useToast();
+  const muezzins = [
+    { id: "makkah", name: "أذان الحرم المكي", label: "مكة المكرمة" },
+    { id: "madinah", name: "أذان المسجد النبوي", label: "المدينة المنورة" },
+    { id: "mishary", name: "مشاري راشد العفاسي", label: "الكويت" },
+    { id: "mansoor", name: "منصور الزهراني", label: "السعودية" },
+    { id: "naqshbandi", name: "النقشبندي", label: "مصر" },
+  ];
+  const [selectedMuezzin, setSelectedMuezzin] = useState(() => localStorage.getItem("adhan_muezzin") || "makkah");
+  const [prayerAlerts, setPrayerAlerts] = useState<Record<string, boolean>>(() => {
+    const saved = localStorage.getItem("prayer_alerts");
+    return saved ? JSON.parse(saved) : { الفجر: true, الظهر: true, العصر: true, المغرب: true, العشاء: true };
+  });
+
+  const togglePrayer = (name: string) => {
+    const updated = { ...prayerAlerts, [name]: !prayerAlerts[name] };
+    setPrayerAlerts(updated);
+    localStorage.setItem("prayer_alerts", JSON.stringify(updated));
+  };
+
+  const saveMuezzin = (id: string) => {
+    setSelectedMuezzin(id);
+    localStorage.setItem("adhan_muezzin", id);
+    toast({ title: "تم تغيير صوت المؤذن ✅" });
+  };
+
+  return (
+    <div className="space-y-4" dir="rtl">
+      <div className="bg-card rounded-xl p-4 space-y-3">
+        <h4 className="text-sm font-bold">تنبيهات الصلوات</h4>
+        {["الفجر", "الظهر", "العصر", "المغرب", "العشاء"].map(p => (
+          <div key={p} className="flex items-center justify-between py-2">
+            <span className="text-sm font-semibold">{p}</span>
+            <Switch checked={prayerAlerts[p] !== false} onCheckedChange={() => togglePrayer(p)} />
+          </div>
+        ))}
+      </div>
+      <div className="bg-card rounded-xl p-4 space-y-3">
+        <h4 className="text-sm font-bold">صوت المؤذن</h4>
+        {muezzins.map(m => (
+          <label key={m.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent/50 cursor-pointer">
+            <input type="radio" name="muezzin" checked={selectedMuezzin === m.id}
+              onChange={() => saveMuezzin(m.id)} className="accent-primary" />
+            <div>
+              <span className="text-sm font-semibold">{m.name}</span>
+              <p className="text-xs text-muted-foreground">{m.label}</p>
+            </div>
+          </label>
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const LanguagePage = ({ onBack, preferences, updatePreference }: { onBack: () => void; preferences: any; updatePreference: any }) => (
   <div className="space-y-4" dir="rtl">
@@ -498,7 +691,7 @@ const SettingsPage = () => {
     language: { title: "اختيار اللغة", component: <LanguagePage onBack={() => setActivePage(null)} preferences={preferences} updatePreference={updatePreference} /> },
   };
 
-  // Sub-page view - NO top header bar
+  // Sub-page view
   if (activePage && pageConfig[activePage]) {
     return (
       <div className="min-h-screen bg-background pb-20" dir="rtl">
@@ -624,12 +817,8 @@ const SettingsPage = () => {
           </button>
         )}
 
-        <div className="text-center py-2 animate-fadeIn" style={{ animationDelay: "350ms" }}>
-          <p className="text-xs text-muted-foreground font-cairo">حقيبة المسلم</p>
-          <p className="text-[10px] text-muted-foreground/60 mt-1">الإصدار 1.0.0</p>
-        </div>
+        <p className="text-center text-[10px] text-muted-foreground/50 py-2">حقيبة المسلم v1.0.0</p>
       </main>
-
       <BottomNav />
     </div>
   );
