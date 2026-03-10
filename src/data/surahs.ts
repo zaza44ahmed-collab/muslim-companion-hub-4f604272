@@ -58,6 +58,17 @@ export const featuredReciters: ReciterInfo[] = [
   { id: 33, name: "محمد جبريل", server: "https://server8.mp3quran.net/jbrl/", availableSurahs: allSurahs },
   { id: 34, name: "عبدالله خياط", server: "https://server6.mp3quran.net/khyat/", availableSurahs: allSurahs },
   { id: 35, name: "إبراهيم الأخضر", server: "https://server8.mp3quran.net/akhdr/", availableSurahs: allSurahs },
+  // قراء إضافيون
+  { id: 36, name: "ياسين الجزائري", server: "https://server6.mp3quran.net/yassin/", availableSurahs: allSurahs },
+  { id: 37, name: "علي جابر", server: "https://server11.mp3quran.net/a_jbr/", availableSurahs: allSurahs },
+  { id: 38, name: "محمد المحيسني", server: "https://server10.mp3quran.net/mohaisny/", availableSurahs: allSurahs },
+  { id: 39, name: "عبدالولي الأركاني", server: "https://server6.mp3quran.net/arkani/", availableSurahs: allSurahs },
+  { id: 40, name: "صلاح بوخاطر", server: "https://server6.mp3quran.net/bo_khtr/", availableSurahs: allSurahs },
+  { id: 41, name: "عبدالبارئ محمد", server: "https://server6.mp3quran.net/abarym/", availableSurahs: allSurahs },
+  { id: 42, name: "محمود علي البنا", server: "https://server8.mp3quran.net/bna/", availableSurahs: allSurahs },
+  { id: 43, name: "عماد زهير حافظ", server: "https://server8.mp3quran.net/imad/", availableSurahs: allSurahs },
+  { id: 44, name: "وديع اليمني", server: "https://server6.mp3quran.net/wdee3/", availableSurahs: allSurahs },
+  { id: 45, name: "نعمة الحسان", server: "https://server8.mp3quran.net/ne3ma/", availableSurahs: allSurahs },
 ];
 
 export function getSurahUrl(server: string, surahNumber: number): string {

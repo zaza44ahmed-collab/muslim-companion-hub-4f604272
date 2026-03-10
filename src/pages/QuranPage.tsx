@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Play, Pause, Search } from "lucide-react";
+import { ArrowLeft, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -101,7 +101,7 @@ const surahs = [
   { number: 93, name: "الضحى", englishName: "Ad-Duha", ayahs: 11, type: "مكية" },
   { number: 94, name: "الشرح", englishName: "Ash-Sharh", ayahs: 8, type: "مكية" },
   { number: 95, name: "التين", englishName: "At-Tin", ayahs: 8, type: "مكية" },
-  { number: 96, name: "العلق", englishName: "Al-Alaq", ayahs: 19, type: "مكية" },
+  { id: 96, number: 96, name: "العلق", englishName: "Al-Alaq", ayahs: 19, type: "مكية" },
   { number: 97, name: "القدر", englishName: "Al-Qadr", ayahs: 5, type: "مكية" },
   { number: 98, name: "البينة", englishName: "Al-Bayyinah", ayahs: 8, type: "مدنية" },
   { number: 99, name: "الزلزلة", englishName: "Az-Zalzalah", ayahs: 8, type: "مدنية" },
@@ -122,20 +122,42 @@ const surahs = [
   { number: 114, name: "الناس", englishName: "An-Nas", ayahs: 6, type: "مكية" },
 ];
 
-// Tajweed color codes
-const tajweedColors: Record<string, string> = {
-  'ٰ': 'text-blue-600', // superscript alef
-  'ۖ': 'text-green-600',
-  'ۗ': 'text-green-600',
+// Juz / Hizb data
+const getJuzHizb = (surahNumber: number) => {
+  // Simplified mapping
+  if (surahNumber <= 2) return { juz: 1, hizb: 1 };
+  if (surahNumber <= 3) return { juz: 3, hizb: 5 };
+  if (surahNumber <= 5) return { juz: 6, hizb: 11 };
+  if (surahNumber <= 7) return { juz: 8, hizb: 15 };
+  if (surahNumber <= 10) return { juz: 11, hizb: 21 };
+  if (surahNumber <= 15) return { juz: 14, hizb: 27 };
+  if (surahNumber <= 20) return { juz: 16, hizb: 31 };
+  if (surahNumber <= 25) return { juz: 19, hizb: 37 };
+  if (surahNumber <= 30) return { juz: 21, hizb: 41 };
+  if (surahNumber <= 36) return { juz: 23, hizb: 45 };
+  if (surahNumber <= 45) return { juz: 25, hizb: 49 };
+  if (surahNumber <= 55) return { juz: 27, hizb: 53 };
+  if (surahNumber <= 77) return { juz: 29, hizb: 57 };
+  return { juz: 30, hizb: 59 };
 };
+
+// Tajweed color legend
+const tajweedLegend = [
+  { color: "text-red-600", label: "مد 6 حركات لزوماً" },
+  { color: "text-green-600", label: "إخفاء، ومواقع الغُنّة" },
+  { color: "text-blue-600", label: "مد 2 أو 4 أو 6 جوازاً" },
+  { color: "text-purple-600", label: "إدغام، وما لا يُلفظ" },
+  { color: "text-cyan-600", label: "مد مشبع 6 حركات" },
+  { color: "text-orange-600", label: "قلقلة" },
+  { color: "text-teal-600", label: "تفخيم" },
+  { color: "text-pink-600", label: "مد حركتان" },
+];
 
 const QuranPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSurah, setSelectedSurah] = useState<typeof surahs[0] | null>(null);
   const [ayahs, setAyahs] = useState<Array<{ number: number; text: string }>>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const filteredSurahs = surahs.filter(
     (surah) =>
@@ -169,76 +191,78 @@ const QuranPage = () => {
   const handleSurahSelect = (surah: typeof surahs[0]) => {
     setSelectedSurah(surah);
     fetchSurahText(surah.number);
-    setIsPlaying(false);
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
-  };
-
-  const toggleAudio = () => {
-    if (!selectedSurah) return;
-
-    if (!audioRef.current) {
-      audioRef.current = new Audio(
-        `https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/${selectedSurah.number}.mp3`
-      );
-      audioRef.current.onended = () => setIsPlaying(false);
-    }
-
-    if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.src = `https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/${selectedSurah.number}.mp3`;
-      audioRef.current.play();
-    }
-    setIsPlaying(!isPlaying);
-  };
-
-  // Render ayah text with tajweed coloring
-  const renderTajweedText = (text: string) => {
-    // Simple coloring: noon sakinah/tanween rules, madd, etc.
-    return text;
   };
 
   if (selectedSurah) {
+    const { juz, hizb } = getJuzHizb(selectedSurah.number);
     return (
-      <div className="min-h-screen bg-background" dir="rtl">
-        <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-lg border-b border-border">
-            <div className="container flex h-14 items-center justify-between">
-            <h1 className="text-lg font-bold font-amiri">{selectedSurah.name}</h1>
-            <Button variant="ghost" size="icon" onClick={() => setSelectedSurah(null)}>
+      <div className="min-h-screen bg-[#FFFDE7]" dir="rtl">
+        {/* Surah Header - Tajweed Mushaf Style */}
+        <header className="sticky top-0 z-50 w-full bg-[#1B5E20] text-white shadow-lg">
+          <div className="flex items-center justify-between px-4 py-2">
+            <div className="text-xs font-bold">حزب {hizb}</div>
+            <div className="text-center">
+              <h1 className="text-lg font-bold font-amiri">سُورَةُ {selectedSurah.name}</h1>
+              <p className="text-[10px] opacity-80">آياتها {selectedSurah.ayahs}</p>
+            </div>
+            <div className="text-xs font-bold">سورة {selectedSurah.name} {selectedSurah.number}</div>
+          </div>
+          <div className="flex items-center justify-between px-4 pb-1">
+            <Button variant="ghost" size="icon" className="text-white hover:bg-white/20" onClick={() => setSelectedSurah(null)}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </div>
         </header>
 
-        <ScrollArea className="h-[calc(100vh-56px)]">
-          <main className="container py-6">
+        <ScrollArea className="h-[calc(100vh-80px)]">
+          <main className="px-4 py-4">
             {isLoading ? (
               <div className="flex items-center justify-center py-20">
-                <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
+                <div className="animate-spin h-8 w-8 border-4 border-[#1B5E20] border-t-transparent rounded-full" />
               </div>
             ) : (
-              <div className="bg-card rounded-xl p-6 shadow-card-islamic">
-                {/* Bismillah */}
+              <div className="bg-[#FFFFF0] rounded-lg border-2 border-[#1B5E20]/30 p-4 shadow-md">
+                {/* Bismillah - decorated */}
                 {selectedSurah.number !== 1 && selectedSurah.number !== 9 && (
-                  <p className="text-2xl font-amiri text-center mb-6 text-primary">
-                    بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
-                  </p>
+                  <div className="text-center mb-6 py-3 border-b-2 border-[#1B5E20]/20">
+                    <p className="text-2xl font-amiri text-[#1B5E20] font-bold">
+                      بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
+                    </p>
+                  </div>
                 )}
                 
-                <div className="text-right leading-[2.8] text-xl font-amiri">
+                {/* Ayahs in flowing text */}
+                <div className="text-right leading-[3] text-xl font-amiri text-[#333]">
                   {ayahs.map((ayah) => (
                     <span key={ayah.number} className="inline">
-                      <span className="text-red-700 dark:text-red-400">{renderTajweedText(ayah.text)}</span>{" "}
-                      <span className="inline-flex items-center justify-center w-8 h-8 bg-primary/10 rounded-full text-primary text-sm mx-1">
+                      <span>{ayah.text}</span>{" "}
+                      <span className="inline-flex items-center justify-center w-7 h-7 rounded-full text-[#1B5E20] text-xs font-bold mx-0.5"
+                        style={{ 
+                          backgroundImage: 'radial-gradient(circle, rgba(27,94,32,0.1) 0%, transparent 70%)',
+                          border: '1.5px solid rgba(27,94,32,0.4)'
+                        }}>
                         {ayah.number}
                       </span>{" "}
                     </span>
                   ))}
                 </div>
+
+                {/* Footer info */}
+                <div className="mt-6 pt-3 border-t-2 border-[#1B5E20]/20 text-center">
+                  <p className="text-sm font-bold text-[#1B5E20] font-amiri">الجزء {juz} الحزب {hizb}</p>
+                </div>
               </div>
             )}
+
+            {/* Tajweed Legend */}
+            <div className="mt-4 grid grid-cols-2 gap-1 text-[8px] font-bold">
+              {tajweedLegend.map((item, i) => (
+                <div key={i} className="flex items-center gap-1">
+                  <span className={`w-2 h-2 rounded-full ${item.color.replace('text-', 'bg-')}`} />
+                  <span className="text-muted-foreground">{item.label}</span>
+                </div>
+              ))}
+            </div>
           </main>
         </ScrollArea>
       </div>
@@ -247,11 +271,11 @@ const QuranPage = () => {
 
   return (
     <div className="min-h-screen bg-background" dir="rtl">
-      <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-lg border-b border-border">
+      <header className="sticky top-0 z-50 w-full bg-[#1B5E20] text-white shadow-lg">
         <div className="container flex h-14 items-center justify-between">
-          <h1 className="text-lg font-bold font-amiri">مصحف التجويد</h1>
+          <h1 className="text-lg font-bold font-amiri">📖 مصحف التجويد</h1>
           <Link to="/">
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
@@ -275,21 +299,24 @@ const QuranPage = () => {
               <button
                 key={surah.number}
                 onClick={() => handleSurahSelect(surah)}
-                className="w-full bg-card rounded-xl p-4 shadow-sm hover:shadow-md transition-all animate-fadeIn flex items-center gap-4"
-                style={{ animationDelay: `${Math.min(index * 30, 500)}ms` }}
+                className="w-full bg-card rounded-xl p-3 shadow-sm hover:shadow-md transition-all animate-fadeIn flex items-center gap-3"
+                style={{ animationDelay: `${Math.min(index * 20, 400)}ms` }}
               >
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center text-primary font-bold shrink-0">
+                <div className="h-10 w-10 rounded-lg flex items-center justify-center text-white font-bold text-sm shrink-0"
+                  style={{ background: 'linear-gradient(135deg, #1B5E20, #2E7D32)' }}>
                   {surah.number}
                 </div>
                 
                 <div className="flex-1 text-right">
-                  <h3 className="font-bold text-lg font-amiri">{surah.name}</h3>
-                  <p className="text-sm text-muted-foreground">{surah.englishName}</p>
+                  <h3 className="font-bold text-base font-amiri">{surah.name}</h3>
+                  <p className="text-xs text-muted-foreground">{surah.englishName}</p>
                 </div>
                 
-                <div className="text-left text-sm text-muted-foreground">
+                <div className="text-left text-xs text-muted-foreground">
                   <p>{surah.ayahs} آيات</p>
-                  <p className="text-xs">{surah.type}</p>
+                  <p className={`text-[10px] px-1.5 py-0.5 rounded-full ${surah.type === "مكية" ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700"}`}>
+                    {surah.type}
+                  </p>
                 </div>
               </button>
             ))}
