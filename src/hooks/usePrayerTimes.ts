@@ -120,8 +120,10 @@ export function usePrayerTimes() {
       const mm = today.getMonth() + 1;
       const yyyy = today.getFullYear();
       
+      const method = localStorage.getItem("prayer_method") || "5";
+      const school = localStorage.getItem("prayer_madhab") || "0";
       const response = await fetch(
-        `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lng}&method=5`
+        `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lng}&method=${method}&school=${school}`
       );
       
       const contentType = response.headers.get("content-type");
