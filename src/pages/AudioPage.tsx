@@ -143,7 +143,7 @@ const SurahListView = ({ reciter, player }: { reciter: ReciterInfo; player: Retu
               </div>
               <div className="flex items-center gap-1">
                 <button onClick={e => { e.stopPropagation(); toggleFav(num); }} className="h-7 w-7 rounded-full flex items-center justify-center hover:bg-muted/30">
-                  <Bookmark className={`h-3.5 w-3.5 ${favorites.has(num) ? "fill-primary text-primary" : "text-muted-foreground"}`} />
+                  <Bookmark className={`h-3.5 w-3.5 ${savedItems.isSaved('audio', `surah-${reciter.id}-${num}`) ? "fill-primary text-primary" : "text-muted-foreground"}`} />
                 </button>
                 <button onClick={e => { e.stopPropagation(); const a = document.createElement("a"); a.href = getSurahUrl(reciter.server, num); a.download = `${name}.mp3`; a.target = "_blank"; a.click(); toast({ title: "جاري التحميل..." }); }}
                   className="h-7 w-7 rounded-full flex items-center justify-center hover:bg-muted/30">
