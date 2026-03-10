@@ -4,12 +4,12 @@ import BottomNav from "@/components/layout/BottomNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Play, Pause, Heart, Search, X, Download, SkipBack, SkipForward,
-  ArrowLeft, Share2, ChevronLeft, Clock, Timer, Loader2, Music,
+  Play, Pause, Bookmark, Search, X, Download, SkipBack, SkipForward,
+  ArrowLeft, Share2, ChevronLeft, Clock, Timer, Music,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { surahs, featuredReciters, getSurahUrl, type ReciterInfo } from "@/data/surahs";
-import { scholars, audioCategories, type Scholar } from "@/data/scholars";
+import { scholars, audioCategories, azkarAudio, khutabAudio, storiesAudio, kidsAudio, type Scholar, type AudioSectionItem } from "@/data/scholars";
 import { useAudioPlayer, type AudioTrackInfo } from "@/hooks/useAudioPlayer";
 
 // --- Sub Views ---
@@ -21,34 +21,83 @@ const CategoryCard = ({ cat, onClick }: { cat: typeof audioCategories[0]; onClic
   </button>
 );
 
-// --- Quran Section ---
-const QuranRecitersView = ({ onSelectReciter }: { onSelectReciter: (r: ReciterInfo) => void }) => {
-  const [apiReciters, setApiReciters] = useState<ReciterInfo[]>(featuredReciters);
+// --- Generic Audio List Section ---
+const AudioListSection = ({ title, items, player }: { title: string; items: AudioSectionItem[]; player: ReturnType<typeof useAudioPlayer> }) => {
+  const [favorites, setFavorites] = useState<Set<string>>(() => {
+    const saved = localStorage.getItem(`fav_${title}`);
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
+
+  const toggleFav = (id: string) => {
+    setFavorites(prev => {
+      const n = new Set(prev);
+      if (n.has(id)) n.delete(id); else n.add(id);
+      localStorage.setItem(`fav_${title}`, JSON.stringify([...n]));
+      return n;
+    });
+  };
+
+  const playlist: AudioTrackInfo[] = items.map(item => ({
+    id: item.id, title: item.title, artist: item.artist, url: item.audioUrl,
+  }));
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-bold text-foreground text-right">اختر القارئ</h3>
+      <h3 className="text-sm font-bold text-foreground text-right">{title}</h3>
       <div className="space-y-2">
-        {apiReciters.map((r) => (
-          <button key={r.id} onClick={() => onSelectReciter(r)}
-            className="w-full flex items-center justify-between p-3 rounded-xl bg-card border border-border/50 hover:bg-accent/50 transition-colors"
-            dir="rtl">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <Music className="h-5 w-5 text-primary" />
+        {items.map(item => {
+          const isActive = player.currentTrack?.id === item.id;
+          return (
+            <div key={item.id} className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-colors ${isActive ? "bg-primary/10 ring-1 ring-primary" : "bg-card border border-border/50 hover:bg-accent/50"}`}
+              dir="rtl" onClick={() => player.play({ id: item.id, title: item.title, artist: item.artist, url: item.audioUrl }, playlist)}>
+              <div className="flex-1">
+                <p className="text-sm font-bold">{item.title}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-xs text-muted-foreground">{item.artist}</span>
+                  {item.duration && <span className="flex items-center gap-1 text-xs text-muted-foreground"><Clock className="h-3 w-3" />{item.duration}</span>}
+                </div>
               </div>
-              <div className="text-right">
-                <p className="text-sm font-bold">{r.name}</p>
-                <p className="text-xs text-muted-foreground">{r.availableSurahs.length} سورة</p>
+              <div className="flex items-center gap-1">
+                <button onClick={e => { e.stopPropagation(); toggleFav(item.id); }} className="h-7 w-7 rounded-full flex items-center justify-center hover:bg-muted/30">
+                  <Bookmark className={`h-3.5 w-3.5 ${favorites.has(item.id) ? "fill-primary text-primary" : "text-muted-foreground"}`} />
+                </button>
+                <button onClick={e => { e.stopPropagation(); const a = document.createElement("a"); a.href = item.audioUrl; a.download = `${item.title}.mp3`; a.target = "_blank"; a.click(); toast({ title: "جاري التحميل..." }); }}
+                  className="h-7 w-7 rounded-full flex items-center justify-center hover:bg-muted/30">
+                  <Download className="h-3.5 w-3.5 text-muted-foreground" />
+                </button>
+                {isActive && player.isPlaying ? <Pause className="h-4 w-4 text-primary" /> : <Play className="h-4 w-4 text-primary" />}
               </div>
             </div>
-            <ChevronLeft className="h-4 w-4 text-muted-foreground" />
-          </button>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
 };
+
+// --- Quran Section ---
+const QuranRecitersView = ({ onSelectReciter }: { onSelectReciter: (r: ReciterInfo) => void }) => (
+  <div className="space-y-3">
+    <h3 className="text-sm font-bold text-foreground text-right">اختر القارئ</h3>
+    <div className="space-y-2">
+      {featuredReciters.map((r) => (
+        <button key={r.id} onClick={() => onSelectReciter(r)}
+          className="w-full flex items-center justify-between p-3 rounded-xl bg-card border border-border/50 hover:bg-accent/50 transition-colors" dir="rtl">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <Music className="h-5 w-5 text-primary" />
+            </div>
+            <div className="text-right">
+              <p className="text-sm font-bold">{r.name}</p>
+              <p className="text-xs text-muted-foreground">{r.availableSurahs.length} سورة</p>
+            </div>
+          </div>
+          <ChevronLeft className="h-4 w-4 text-muted-foreground" />
+        </button>
+      ))}
+    </div>
+  </div>
+);
 
 const SurahListView = ({ reciter, player }: { reciter: ReciterInfo; player: ReturnType<typeof useAudioPlayer> }) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -109,7 +158,7 @@ const SurahListView = ({ reciter, player }: { reciter: ReciterInfo; player: Retu
               </div>
               <div className="flex items-center gap-1">
                 <button onClick={e => { e.stopPropagation(); toggleFav(num); }} className="h-7 w-7 rounded-full flex items-center justify-center hover:bg-muted/30">
-                  <Heart className={`h-3.5 w-3.5 ${favorites.has(num) ? "fill-destructive text-destructive" : "text-muted-foreground"}`} />
+                  <Bookmark className={`h-3.5 w-3.5 ${favorites.has(num) ? "fill-primary text-primary" : "text-muted-foreground"}`} />
                 </button>
                 <button onClick={e => { e.stopPropagation(); const a = document.createElement("a"); a.href = getSurahUrl(reciter.server, num); a.download = `${name}.mp3`; a.target = "_blank"; a.click(); toast({ title: "جاري التحميل..." }); }}
                   className="h-7 w-7 rounded-full flex items-center justify-center hover:bg-muted/30">
@@ -210,23 +259,15 @@ const LecturesView = ({ player }: { player: ReturnType<typeof useAudioPlayer> })
   );
 };
 
-// --- Placeholder sections ---
-const PlaceholderSection = ({ title, icon }: { title: string; icon: string }) => (
-  <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-    <span className="text-5xl mb-3">{icon}</span>
-    <p className="text-sm font-bold">{title}</p>
-    <p className="text-xs mt-1">قريباً بإذن الله</p>
-  </div>
-);
-
 // --- Main Audio Page ---
 const AudioPage = () => {
   const player = useAudioPlayer();
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [selectedReciter, setSelectedReciter] = useState<ReciterInfo | null>(null);
   const [showSleepTimer, setShowSleepTimer] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
 
-  // Navigate back logic
   const handleBack = () => {
     if (selectedReciter) { setSelectedReciter(null); return; }
     setActiveSection(null);
@@ -242,7 +283,6 @@ const AudioPage = () => {
               <CategoryCard key={cat.id} cat={cat} onClick={() => setActiveSection(cat.id)} />
             ))}
           </div>
-          {/* Last Played */}
           {(() => {
             const last = localStorage.getItem("lastPlayed");
             if (!last) return null;
@@ -276,21 +316,25 @@ const AudioPage = () => {
     }
 
     if (activeSection === "lectures") return <LecturesView player={player} />;
-    if (activeSection === "azkar") return <PlaceholderSection title="الأذكار الصوتية" icon="🤲" />;
-    if (activeSection === "khutab") return <PlaceholderSection title="خطب الجمعة" icon="🕌" />;
-    if (activeSection === "stories") return <PlaceholderSection title="قصص الأنبياء" icon="📜" />;
-    if (activeSection === "kids") return <PlaceholderSection title="تعليم الأطفال" icon="👶" />;
+    if (activeSection === "azkar") return <AudioListSection title="الأذكار الصوتية" items={azkarAudio} player={player} />;
+    if (activeSection === "khutab") return <AudioListSection title="خطب الجمعة" items={khutabAudio} player={player} />;
+    if (activeSection === "stories") return <AudioListSection title="قصص الأنبياء" items={storiesAudio} player={player} />;
+    if (activeSection === "kids") return <AudioListSection title="تعليم الأطفال - جزء عمّ" items={kidsAudio} player={player} />;
 
     return null;
   };
 
   return (
     <div className="min-h-screen bg-background pb-20" dir="rtl">
-      {/* Header */}
       <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="container flex h-14 items-center justify-between">
           <h1 className="text-lg font-bold font-amiri text-foreground">الصوتيات الإسلامية</h1>
           <div className="flex items-center gap-1">
+            {activeSection && (
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setShowSearch(!showSearch); if (showSearch) setSearchQuery(""); }}>
+                {showSearch ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
+              </Button>
+            )}
             {player.currentTrack && (
               <button onClick={() => setShowSleepTimer(!showSleepTimer)} className="h-9 w-9 rounded-full flex items-center justify-center hover:bg-muted/20">
                 <Timer className={`h-4 w-4 ${player.sleepTimer ? "text-primary" : "text-muted-foreground"}`} />
@@ -309,7 +353,6 @@ const AudioPage = () => {
         </div>
       </header>
 
-      {/* Sleep Timer Popup */}
       {showSleepTimer && (
         <div className="container px-4 py-2">
           <div className="bg-card rounded-xl p-3 border border-border/50 flex items-center gap-2 flex-wrap" dir="rtl">
@@ -332,7 +375,6 @@ const AudioPage = () => {
         {renderContent()}
       </main>
 
-      {/* Sticky Audio Player */}
       {player.currentTrack && (
         <div className="fixed bottom-[60px] left-0 right-0 z-30 bg-card/95 backdrop-blur-lg border-t border-border shadow-lg">
           <div className="container px-4 py-2">
