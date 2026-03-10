@@ -216,7 +216,7 @@ const MarketplacePage = () => {
                 <button onClick={() => handleToggleFavorite(selectedListing.id)}
                   className="absolute top-3 left-3 h-9 w-9 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center"
                 >
-                  <Heart className={`h-5 w-5 ${favoriteIds.has(selectedListing.id) ? "fill-destructive text-destructive" : "text-foreground/50"}`} />
+                  <Bookmark className={`h-5 w-5 ${favoriteIds.has(selectedListing.id) ? "fill-primary text-primary" : "text-foreground/50"}`} />
                 </button>
                 <button onClick={() => { if (navigator.share) navigator.share({ title: selectedListing.title, text: selectedListing.description }); }}
                   className="absolute top-3 left-14 h-9 w-9 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center"
