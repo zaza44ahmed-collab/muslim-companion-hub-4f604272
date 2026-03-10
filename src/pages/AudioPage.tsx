@@ -94,18 +94,10 @@ const QuranRecitersView = ({ onSelectReciter }: { onSelectReciter: (r: ReciterIn
 
 const SurahListView = ({ reciter, player }: { reciter: ReciterInfo; player: ReturnType<typeof useAudioPlayer> }) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [favorites, setFavorites] = useState<Set<number>>(() => {
-    const saved = localStorage.getItem("favSurahs");
-    return saved ? new Set(JSON.parse(saved)) : new Set();
-  });
+  const savedItems = useSavedItems('audio');
 
   const toggleFav = (num: number) => {
-    setFavorites(prev => {
-      const n = new Set(prev);
-      if (n.has(num)) n.delete(num); else n.add(num);
-      localStorage.setItem("favSurahs", JSON.stringify([...n]));
-      return n;
-    });
+    savedItems.toggleSave('audio', `surah-${reciter.id}-${num}`);
   };
 
   const filteredSurahs = useMemo(() => {
