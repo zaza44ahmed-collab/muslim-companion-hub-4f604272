@@ -302,7 +302,7 @@ const NotificationsPage = ({ onBack }: { onBack: () => void }) => {
 
   useEffect(() => {
     const fetchNotifications = async () => {
-      const { data } = await supabase
+      const { data } = await (supabase as any)
         .from('admin_notifications')
         .select('*')
         .order('created_at', { ascending: false })
