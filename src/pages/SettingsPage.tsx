@@ -357,42 +357,65 @@ const ReportPage = ({ onBack }: { onBack: () => void }) => {
 
 // SubscriptionPage removed - replaced by donation system
 
-const PrayerCalcPage = ({ onBack }: { onBack: () => void }) => (
-  <div className="space-y-4" dir="rtl">
-    <div className="bg-card rounded-xl p-4 space-y-3">
-      <h4 className="text-sm font-bold">طريقة الحساب</h4>
-      {[
-        "أم القرى (السعودية)",
-        "رابطة العالم الإسلامي",
-        "الاتحاد الإسلامي لأمريكا الشمالية (ISNA)",
-        "الهيئة المصرية العامة للمساحة",
-        "جامعة العلوم الإسلامية بكراتشي",
-        "معهد الجيوفيزياء بجامعة طهران",
-        "اتحاد المنظمات الإسلامية الفرنسية",
-        "وزارة الأوقاف والشؤون الإسلامية - الكويت",
-        "وزارة الشؤون الدينية - تركيا",
-        "الهيئة العامة للمساحة - دبي",
-        "وزارة الشؤون الدينية - قطر",
-        "وزارة الشؤون الدينية - الأردن",
-        "مجلس التنمية الإسلامية بسنغافورة (MUIS)",
-      ].map(m => (
-        <label key={m} className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent/50 cursor-pointer">
-          <input type="radio" name="calc" defaultChecked={m.includes("أم القرى")} className="accent-primary" />
-          <span className="text-sm">{m}</span>
-        </label>
-      ))}
+const PrayerCalcPage = ({ onBack }: { onBack: () => void }) => {
+  const calcMethods = [
+    { id: 3, name: "رابطة العالم الإسلامي" },
+    { id: 4, name: "أم القرى (السعودية)" },
+    { id: 2, name: "الاتحاد الإسلامي لأمريكا الشمالية (ISNA)" },
+    { id: 5, name: "الهيئة المصرية العامة للمساحة" },
+    { id: 1, name: "جامعة العلوم الإسلامية بكراتشي" },
+    { id: 7, name: "معهد الجيوفيزياء بجامعة طهران" },
+    { id: 12, name: "اتحاد المنظمات الإسلامية الفرنسية" },
+    { id: 9, name: "وزارة الأوقاف - الكويت" },
+    { id: 13, name: "وزارة الشؤون الدينية - تركيا" },
+    { id: 16, name: "الهيئة العامة للمساحة - دبي" },
+    { id: 10, name: "وزارة الشؤون الدينية - قطر" },
+    { id: 14, name: "وزارة الأوقاف - الأردن" },
+    { id: 11, name: "مجلس التنمية الإسلامية بسنغافورة (MUIS)" },
+  ];
+  const madhabs = [
+    { id: 0, name: "الشافعي (قياسي)" },
+    { id: 1, name: "الحنفي" },
+  ];
+  const [selectedMethod, setSelectedMethod] = useState(() => Number(localStorage.getItem("prayer_method") || "5"));
+  const [selectedMadhab, setSelectedMadhab] = useState(() => Number(localStorage.getItem("prayer_madhab") || "0"));
+  const { toast } = useToast();
+
+  const handleSave = () => {
+    localStorage.setItem("prayer_method", String(selectedMethod));
+    localStorage.setItem("prayer_madhab", String(selectedMadhab));
+    toast({ title: "تم حفظ إعدادات المواقيت ✅" });
+    onBack();
+  };
+
+  return (
+    <div className="space-y-4" dir="rtl">
+      <div className="bg-card rounded-xl p-4 space-y-3">
+        <h4 className="text-sm font-bold">طريقة الحساب</h4>
+        {calcMethods.map(m => (
+          <label key={m.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent/50 cursor-pointer">
+            <input type="radio" name="calc" checked={selectedMethod === m.id}
+              onChange={() => setSelectedMethod(m.id)} className="accent-primary" />
+            <span className="text-sm">{m.name}</span>
+          </label>
+        ))}
+      </div>
+      <div className="bg-card rounded-xl p-4 space-y-3">
+        <h4 className="text-sm font-bold">المذهب الفقهي (حساب العصر)</h4>
+        {madhabs.map(m => (
+          <label key={m.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent/50 cursor-pointer">
+            <input type="radio" name="madhab" checked={selectedMadhab === m.id}
+              onChange={() => setSelectedMadhab(m.id)} className="accent-primary" />
+            <span className="text-sm">{m.name}</span>
+          </label>
+        ))}
+      </div>
+      <Button onClick={handleSave} className="w-full h-11 rounded-xl gradient-islamic text-primary-foreground">
+        حفظ الإعدادات
+      </Button>
     </div>
-    <div className="bg-card rounded-xl p-4 space-y-3">
-      <h4 className="text-sm font-bold">المذهب الفقهي</h4>
-      {["الحنفي", "المالكي", "الشافعي", "الحنبلي"].map(m => (
-        <label key={m} className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent/50 cursor-pointer">
-          <input type="radio" name="madhab" defaultChecked={m === "الحنبلي"} className="accent-primary" />
-          <span className="text-sm">{m}</span>
-        </label>
-      ))}
-    </div>
-  </div>
-);
+  );
+};
 
 const AdhanSettingsPage = ({ onBack }: { onBack: () => void }) => (
   <div className="space-y-4" dir="rtl">
