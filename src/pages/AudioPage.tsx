@@ -24,18 +24,10 @@ const CategoryCard = ({ cat, onClick }: { cat: typeof audioCategories[0]; onClic
 
 // --- Generic Audio List Section ---
 const AudioListSection = ({ title, items, player }: { title: string; items: AudioSectionItem[]; player: ReturnType<typeof useAudioPlayer> }) => {
-  const [favorites, setFavorites] = useState<Set<string>>(() => {
-    const saved = localStorage.getItem(`fav_${title}`);
-    return saved ? new Set(JSON.parse(saved)) : new Set();
-  });
+  const savedItems = useSavedItems('audio');
 
   const toggleFav = (id: string) => {
-    setFavorites(prev => {
-      const n = new Set(prev);
-      if (n.has(id)) n.delete(id); else n.add(id);
-      localStorage.setItem(`fav_${title}`, JSON.stringify([...n]));
-      return n;
-    });
+    savedItems.toggleSave('audio', id);
   };
 
   const playlist: AudioTrackInfo[] = items.map(item => ({
