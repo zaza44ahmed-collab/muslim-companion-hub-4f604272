@@ -162,7 +162,7 @@ const MarketplacePage = () => {
                   <button onClick={(e) => { e.stopPropagation(); handleToggleFavorite(item.id); }}
                     className="absolute top-1.5 left-1.5 h-7 w-7 rounded-full bg-card/70 backdrop-blur-sm flex items-center justify-center"
                   >
-                    <Heart className={`h-3.5 w-3.5 transition-colors ${favoriteIds.has(item.id) ? "fill-destructive text-destructive" : "text-foreground/50"}`} />
+                    <Bookmark className={`h-3.5 w-3.5 transition-colors ${favoriteIds.has(item.id) ? "fill-primary text-primary" : "text-foreground/50"}`} />
                   </button>
                   <div className="absolute bottom-1.5 left-1.5 flex items-center gap-0.5 bg-card/70 backdrop-blur-sm rounded-full px-1.5 py-0.5">
                     <Eye className="h-2.5 w-2.5 text-muted-foreground" />
