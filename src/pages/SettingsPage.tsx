@@ -453,7 +453,7 @@ const ReportPage = ({ onBack }: { onBack: () => void }) => {
 
     // Store report as admin notification
     if (user) {
-      await supabase.from('admin_notifications' as any).insert({
+      await (supabase as any).from('admin_notifications').insert({
         title: type === "bug" ? "🐛 إبلاغ عن خلل" : "💡 اقتراح تحسين",
         message: `${message}${imageUrl ? `\n\nصورة مرفقة: ${imageUrl}` : ''}`,
         type: 'report',
