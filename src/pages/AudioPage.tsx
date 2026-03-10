@@ -11,6 +11,7 @@ import { toast } from "@/hooks/use-toast";
 import { surahs, featuredReciters, getSurahUrl, type ReciterInfo } from "@/data/surahs";
 import { scholars, audioCategories, azkarAudio, khutabAudio, storiesAudio, kidsAudio, type Scholar, type AudioSectionItem } from "@/data/scholars";
 import { useAudioPlayer, type AudioTrackInfo } from "@/hooks/useAudioPlayer";
+import { useSavedItems } from "@/hooks/useSavedItems";
 
 // --- Sub Views ---
 
