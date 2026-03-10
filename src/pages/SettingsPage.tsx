@@ -355,34 +355,7 @@ const ReportPage = ({ onBack }: { onBack: () => void }) => {
   );
 };
 
-const SubscriptionPage = ({ onBack }: { onBack: () => void }) => (
-  <div className="space-y-4" dir="rtl">
-    <div className="bg-gradient-to-l from-red-500 to-rose-600 rounded-xl p-5 text-white text-center">
-      <Crown className="h-10 w-10 mx-auto mb-2" />
-      <h3 className="text-lg font-bold">باقة برو</h3>
-      <p className="text-sm mt-1 opacity-90">$4.99 / شهرياً</p>
-      <p className="text-xs mt-1 opacity-70">أو $39.99 / سنوياً (وفر 33%)</p>
-    </div>
-    <div className="bg-card rounded-xl p-4 space-y-2">
-      <h4 className="text-sm font-bold">مميزات الاشتراك:</h4>
-      {["إزالة الإعلانات", "تحميل غير محدود للصوتيات", "محتوى حصري ودروس متقدمة", "دعم فني أولوي", "شارة المشترك الذهبية", "الوصول المبكر للتحديثات"].map(f => (
-        <div key={f} className="flex items-center gap-2 text-sm"><Star className="h-3.5 w-3.5 text-secondary fill-secondary" />{f}</div>
-      ))}
-    </div>
-    <h4 className="text-sm font-bold">طرق الدفع:</h4>
-    <div className="space-y-2">
-      {[
-        { icon: CreditCard, label: "فيزا / ماستركارد" },
-        { icon: Bitcoin, label: "العملات الرقمية" },
-        { icon: MessageSquare, label: "PayPal" },
-      ].map(m => (
-        <button key={m.label} className="w-full flex items-center gap-3 p-3 rounded-xl border-2 border-secondary/30 bg-card hover:bg-accent/50">
-          <m.icon className="h-5 w-5 text-secondary" /><span className="text-sm font-semibold">{m.label}</span>
-        </button>
-      ))}
-    </div>
-  </div>
-);
+// SubscriptionPage removed - replaced by donation system
 
 const PrayerCalcPage = ({ onBack }: { onBack: () => void }) => (
   <div className="space-y-4" dir="rtl">
