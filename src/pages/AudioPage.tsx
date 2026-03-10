@@ -132,6 +132,12 @@ const SurahListView = ({ reciter, player }: { reciter: ReciterInfo; player: Retu
 // --- Lectures Section ---
 const LecturesView = ({ player }: { player: ReturnType<typeof useAudioPlayer> }) => {
   const [selectedScholar, setSelectedScholar] = useState<Scholar | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredScholars = useMemo(() => {
+    if (!searchQuery) return scholars;
+    return scholars.filter(s => s.name.includes(searchQuery) || s.specialty.includes(searchQuery));
+  }, [searchQuery]);
 
   if (selectedScholar) {
     const playlist: AudioTrackInfo[] = selectedScholar.lectures.map(l => ({
@@ -157,7 +163,13 @@ const LecturesView = ({ player }: { player: ReturnType<typeof useAudioPlayer> })
                     {l.duration && <span className="flex items-center gap-1 text-xs text-muted-foreground"><Clock className="h-3 w-3" />{l.duration}</span>}
                   </div>
                 </div>
-                {isActive && player.isPlaying ? <Pause className="h-4 w-4 text-primary" /> : <Play className="h-4 w-4 text-primary" />}
+                <div className="flex items-center gap-1">
+                  <button onClick={e => { e.stopPropagation(); const a = document.createElement("a"); a.href = l.audioUrl; a.download = `${l.title}.mp3`; a.target = "_blank"; a.click(); toast({ title: "جاري التحميل..." }); }}
+                    className="h-7 w-7 rounded-full flex items-center justify-center hover:bg-muted/30">
+                    <Download className="h-3.5 w-3.5 text-muted-foreground" />
+                  </button>
+                  {isActive && player.isPlaying ? <Pause className="h-4 w-4 text-primary" /> : <Play className="h-4 w-4 text-primary" />}
+                </div>
               </div>
             );
           })}
@@ -169,8 +181,10 @@ const LecturesView = ({ player }: { player: ReturnType<typeof useAudioPlayer> })
   return (
     <div className="space-y-3">
       <h3 className="text-sm font-bold text-foreground text-right">العلماء والدعاة</h3>
+      <Input placeholder="ابحث عن عالم أو داعية..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+        className="text-right h-10 rounded-xl" dir="rtl" />
       <div className="space-y-2">
-        {scholars.map(s => (
+        {filteredScholars.map(s => (
           <button key={s.id} onClick={() => setSelectedScholar(s)}
             className="w-full flex items-center justify-between p-3 rounded-xl bg-card border border-border/50 hover:bg-accent/50 transition-colors" dir="rtl">
             <div className="flex items-center gap-3">
@@ -185,6 +199,12 @@ const LecturesView = ({ player }: { player: ReturnType<typeof useAudioPlayer> })
             <ChevronLeft className="h-4 w-4 text-muted-foreground" />
           </button>
         ))}
+        {filteredScholars.length === 0 && (
+          <div className="text-center py-8 text-muted-foreground">
+            <Search className="h-8 w-8 mx-auto mb-2 opacity-40" />
+            <p className="text-sm">لا توجد نتائج</p>
+          </div>
+        )}
       </div>
     </div>
   );
