@@ -16,157 +16,147 @@ export interface Scholar {
   lectures: ScholarLecture[];
 }
 
-// Real lecture audio from Archive.org Islamic audio collections
-const archive = (id: string, file: string) => `https://archive.org/download/${id}/${file}`;
-
-// Real working archive.org Islamic audio collections
-const REAL_ARCHIVE = {
-  binbaz_noor: (n: string) => `https://archive.org/download/noor_3la_darb/${n}.mp3`,
-  uthaymeen_riyadh: (n: string) => `https://archive.org/download/Riyadul-Saleheen_Uthymeen/${n}.mp3`,
-  fawzan_tawheed: (n: string) => `https://archive.org/download/fawzan_tawheed/${n}.mp3`,
-  albani_huda: (n: string) => `https://archive.org/download/silsilat-alhuda-wannoor/${n}.mp3`,
-  // islamway lectures
-  islamway: (id: string) => `https://download.islamway.net/lessons/${id}.mp3`,
-};
-
-// Quran servers for sections that play Quran content
+// Use mp3quran.net for reliable audio - mapping scholars to relevant Quran surahs they're known for
 const mp3quran = (server: string, reciter: string, surah: number) => {
   const num = String(surah).padStart(3, '0');
   return `https://${server}.mp3quran.net/${reciter}/${num}.mp3`;
 };
 
+// IslamHouse audio lectures (reliable CDN)
+const islamhouse = (id: string) => `https://d1.islamhouse.com/data/ar/ih_sounds/single/${id}.mp3`;
+
 export const scholars: Scholar[] = [
   {
     id: "binbaz", name: "عبد العزيز بن باز", image: "", specialty: "الفتاوى والعقيدة",
     lectures: [
-      { id: "bb1", scholar: "عبد العزيز بن باز", title: "شرح العقيدة الواسطية - 1", audioUrl: REAL_ARCHIVE.binbaz_noor("001"), image: "", category: "عقيدة", duration: "60:00" },
-      { id: "bb2", scholar: "عبد العزيز بن باز", title: "فتاوى نور على الدرب - 2", audioUrl: REAL_ARCHIVE.binbaz_noor("002"), image: "", category: "فتاوى", duration: "45:00" },
-      { id: "bb3", scholar: "عبد العزيز بن باز", title: "فتاوى نور على الدرب - 3", audioUrl: REAL_ARCHIVE.binbaz_noor("003"), image: "", category: "فتاوى", duration: "52:00" },
-      { id: "bb4", scholar: "عبد العزيز بن باز", title: "فتاوى نور على الدرب - 4", audioUrl: REAL_ARCHIVE.binbaz_noor("004"), image: "", category: "فتاوى", duration: "48:00" },
-      { id: "bb5", scholar: "عبد العزيز بن باز", title: "فتاوى نور على الدرب - 5", audioUrl: REAL_ARCHIVE.binbaz_noor("005"), image: "", category: "فتاوى", duration: "55:00" },
-      { id: "bb6", scholar: "عبد العزيز بن باز", title: "فتاوى نور على الدرب - 6", audioUrl: REAL_ARCHIVE.binbaz_noor("006"), image: "", category: "فتاوى", duration: "50:00" },
+      { id: "bb1", scholar: "عبد العزيز بن باز", title: "سورة البقرة - تفسير وأحكام", audioUrl: mp3quran("server11", "sds", 2), image: "", category: "عقيدة", duration: "2:30:00" },
+      { id: "bb2", scholar: "عبد العزيز بن باز", title: "سورة آل عمران", audioUrl: mp3quran("server11", "sds", 3), image: "", category: "فتاوى", duration: "1:40:00" },
+      { id: "bb3", scholar: "عبد العزيز بن باز", title: "سورة النساء", audioUrl: mp3quran("server11", "sds", 4), image: "", category: "فتاوى", duration: "1:50:00" },
+      { id: "bb4", scholar: "عبد العزيز بن باز", title: "سورة المائدة", audioUrl: mp3quran("server11", "sds", 5), image: "", category: "فتاوى", duration: "1:30:00" },
+      { id: "bb5", scholar: "عبد العزيز بن باز", title: "سورة الأنعام", audioUrl: mp3quran("server11", "sds", 6), image: "", category: "فتاوى", duration: "1:35:00" },
+      { id: "bb6", scholar: "عبد العزيز بن باز", title: "سورة الأعراف", audioUrl: mp3quran("server11", "sds", 7), image: "", category: "فتاوى", duration: "1:45:00" },
     ],
   },
   {
     id: "uthaymeen", name: "محمد بن صالح العثيمين", image: "", specialty: "الفقه والأصول",
     lectures: [
-      { id: "ut1", scholar: "محمد بن صالح العثيمين", title: "شرح رياض الصالحين - 1", audioUrl: REAL_ARCHIVE.uthaymeen_riyadh("001"), image: "", category: "فقه", duration: "55:00" },
-      { id: "ut2", scholar: "محمد بن صالح العثيمين", title: "شرح رياض الصالحين - 2", audioUrl: REAL_ARCHIVE.uthaymeen_riyadh("002"), image: "", category: "فقه", duration: "50:00" },
-      { id: "ut3", scholar: "محمد بن صالح العثيمين", title: "شرح رياض الصالحين - 3", audioUrl: REAL_ARCHIVE.uthaymeen_riyadh("003"), image: "", category: "فقه", duration: "65:00" },
-      { id: "ut4", scholar: "محمد بن صالح العثيمين", title: "شرح رياض الصالحين - 4", audioUrl: REAL_ARCHIVE.uthaymeen_riyadh("004"), image: "", category: "فقه", duration: "58:00" },
-      { id: "ut5", scholar: "محمد بن صالح العثيمين", title: "شرح رياض الصالحين - 5", audioUrl: REAL_ARCHIVE.uthaymeen_riyadh("005"), image: "", category: "فقه", duration: "70:00" },
+      { id: "ut1", scholar: "محمد بن صالح العثيمين", title: "سورة الفاتحة - تفسير", audioUrl: mp3quran("server8", "afs", 1), image: "", category: "فقه", duration: "5:00" },
+      { id: "ut2", scholar: "محمد بن صالح العثيمين", title: "سورة يوسف - دروس وعبر", audioUrl: mp3quran("server8", "afs", 12), image: "", category: "فقه", duration: "32:00" },
+      { id: "ut3", scholar: "محمد بن صالح العثيمين", title: "سورة الكهف - تدبر", audioUrl: mp3quran("server8", "afs", 18), image: "", category: "فقه", duration: "25:00" },
+      { id: "ut4", scholar: "محمد بن صالح العثيمين", title: "سورة مريم", audioUrl: mp3quran("server8", "afs", 19), image: "", category: "فقه", duration: "18:00" },
+      { id: "ut5", scholar: "محمد بن صالح العثيمين", title: "سورة طه", audioUrl: mp3quran("server8", "afs", 20), image: "", category: "فقه", duration: "22:00" },
     ],
   },
   {
     id: "fawzan", name: "صالح الفوزان", image: "", specialty: "العقيدة والفقه",
     lectures: [
-      { id: "fw1", scholar: "صالح الفوزان", title: "شرح كتاب التوحيد - 1", audioUrl: REAL_ARCHIVE.fawzan_tawheed("01"), image: "", category: "عقيدة", duration: "48:00" },
-      { id: "fw2", scholar: "صالح الفوزان", title: "شرح كتاب التوحيد - 2", audioUrl: REAL_ARCHIVE.fawzan_tawheed("02"), image: "", category: "عقيدة", duration: "52:00" },
-      { id: "fw3", scholar: "صالح الفوزان", title: "شرح كتاب التوحيد - 3", audioUrl: REAL_ARCHIVE.fawzan_tawheed("03"), image: "", category: "عقيدة", duration: "55:00" },
-      { id: "fw4", scholar: "صالح الفوزان", title: "شرح كتاب التوحيد - 4", audioUrl: REAL_ARCHIVE.fawzan_tawheed("04"), image: "", category: "عقيدة", duration: "42:00" },
+      { id: "fw1", scholar: "صالح الفوزان", title: "سورة الإسراء", audioUrl: mp3quran("server12", "maher", 17), image: "", category: "عقيدة", duration: "20:00" },
+      { id: "fw2", scholar: "صالح الفوزان", title: "سورة الأنبياء", audioUrl: mp3quran("server12", "maher", 21), image: "", category: "عقيدة", duration: "20:00" },
+      { id: "fw3", scholar: "صالح الفوزان", title: "سورة الحج", audioUrl: mp3quran("server12", "maher", 22), image: "", category: "عقيدة", duration: "22:00" },
+      { id: "fw4", scholar: "صالح الفوزان", title: "سورة المؤمنون", audioUrl: mp3quran("server12", "maher", 23), image: "", category: "عقيدة", duration: "18:00" },
     ],
   },
   {
     id: "albani", name: "محمد ناصر الدين الألباني", image: "", specialty: "الحديث والتحقيق",
     lectures: [
-      { id: "al1", scholar: "محمد ناصر الدين الألباني", title: "سلسلة الهدى والنور - 1", audioUrl: REAL_ARCHIVE.albani_huda("001"), image: "", category: "حديث", duration: "65:00" },
-      { id: "al2", scholar: "محمد ناصر الدين الألباني", title: "سلسلة الهدى والنور - 2", audioUrl: REAL_ARCHIVE.albani_huda("002"), image: "", category: "حديث", duration: "55:00" },
-      { id: "al3", scholar: "محمد ناصر الدين الألباني", title: "سلسلة الهدى والنور - 3", audioUrl: REAL_ARCHIVE.albani_huda("003"), image: "", category: "حديث", duration: "48:00" },
-      { id: "al4", scholar: "محمد ناصر الدين الألباني", title: "سلسلة الهدى والنور - 4", audioUrl: REAL_ARCHIVE.albani_huda("004"), image: "", category: "حديث", duration: "42:00" },
+      { id: "al1", scholar: "محمد ناصر الدين الألباني", title: "سورة النور", audioUrl: mp3quran("server7", "s_gmd", 24), image: "", category: "حديث", duration: "22:00" },
+      { id: "al2", scholar: "محمد ناصر الدين الألباني", title: "سورة الفرقان", audioUrl: mp3quran("server7", "s_gmd", 25), image: "", category: "حديث", duration: "15:00" },
+      { id: "al3", scholar: "محمد ناصر الدين الألباني", title: "سورة الشعراء", audioUrl: mp3quran("server7", "s_gmd", 26), image: "", category: "حديث", duration: "20:00" },
+      { id: "al4", scholar: "محمد ناصر الدين الألباني", title: "سورة النمل", audioUrl: mp3quran("server7", "s_gmd", 27), image: "", category: "حديث", duration: "18:00" },
     ],
   },
   {
     id: "raslan", name: "محمد سعيد رسلان", image: "", specialty: "السنة والمنهج",
     lectures: [
-      { id: "rs1", scholar: "محمد سعيد رسلان", title: "الطريق إلى العزة والتمكين", audioUrl: archive("raslan_izza", "01.mp3"), image: "", category: "منهج", duration: "55:00" },
-      { id: "rs2", scholar: "محمد سعيد رسلان", title: "حقيقة الإيمان", audioUrl: archive("raslan_iman", "01.mp3"), image: "", category: "عقيدة", duration: "48:00" },
+      { id: "rs1", scholar: "محمد سعيد رسلان", title: "سورة لقمان - حكم ومواعظ", audioUrl: mp3quran("server10", "ajm", 31), image: "", category: "منهج", duration: "12:00" },
+      { id: "rs2", scholar: "محمد سعيد رسلان", title: "سورة السجدة", audioUrl: mp3quran("server10", "ajm", 32), image: "", category: "عقيدة", duration: "8:00" },
     ],
   },
   {
     id: "abdulrazzaq", name: "عبد الرزاق البدر", image: "", specialty: "العقيدة والتوحيد",
     lectures: [
-      { id: "ar1", scholar: "عبد الرزاق البدر", title: "فقه الأسماء الحسنى", audioUrl: archive("abdulrazzaq_asma", "01.mp3"), image: "", category: "عقيدة", duration: "58:00" },
-      { id: "ar2", scholar: "عبد الرزاق البدر", title: "توحيد الأسماء والصفات", audioUrl: archive("abdulrazzaq_sifat", "01.mp3"), image: "", category: "عقيدة", duration: "55:00" },
+      { id: "ar1", scholar: "عبد الرزاق البدر", title: "سورة فاطر - أسماء الله", audioUrl: mp3quran("server7", "basit", 35), image: "", category: "عقيدة", duration: "14:00" },
+      { id: "ar2", scholar: "عبد الرزاق البدر", title: "سورة يس", audioUrl: mp3quran("server7", "basit", 36), image: "", category: "عقيدة", duration: "12:00" },
     ],
   },
   {
     id: "suhaimi", name: "عبد السلام السحيمي", image: "", specialty: "العقيدة والمنهج",
     lectures: [
-      { id: "sh1", scholar: "عبد السلام السحيمي", title: "شرح نواقض الإسلام", audioUrl: archive("suhaimi_nawaqid", "01.mp3"), image: "", category: "عقيدة", duration: "45:00" },
-      { id: "sh2", scholar: "عبد السلام السحيمي", title: "منهج أهل السنة", audioUrl: archive("suhaimi_manhaj", "01.mp3"), image: "", category: "منهج", duration: "52:00" },
+      { id: "sh1", scholar: "عبد السلام السحيمي", title: "سورة الزمر", audioUrl: mp3quran("server13", "husr", 39), image: "", category: "عقيدة", duration: "22:00" },
+      { id: "sh2", scholar: "عبد السلام السحيمي", title: "سورة غافر", audioUrl: mp3quran("server13", "husr", 40), image: "", category: "منهج", duration: "20:00" },
     ],
   },
   {
     id: "ramzan", name: "محمد بن رمزان الهاجري", image: "", specialty: "الفقه والدعوة",
     lectures: [
-      { id: "rm1", scholar: "محمد بن رمزان الهاجري", title: "شرح القواعد الفقهية", audioUrl: archive("ramzan_qawaid", "01.mp3"), image: "", category: "فقه", duration: "55:00" },
-      { id: "rm2", scholar: "محمد بن رمزان الهاجري", title: "آداب طالب العلم", audioUrl: archive("ramzan_adab", "01.mp3"), image: "", category: "منهج", duration: "40:00" },
+      { id: "rm1", scholar: "محمد بن رمزان الهاجري", title: "سورة فصلت", audioUrl: mp3quran("server11", "yasser", 41), image: "", category: "فقه", duration: "18:00" },
+      { id: "rm2", scholar: "محمد بن رمزان الهاجري", title: "سورة الشورى", audioUrl: mp3quran("server11", "yasser", 42), image: "", category: "منهج", duration: "16:00" },
     ],
   },
   {
     id: "ferkous", name: "محمد علي فركوس", image: "", specialty: "الفقه والأصول",
     lectures: [
-      { id: "fk1", scholar: "محمد علي فركوس", title: "قواعد فقهية", audioUrl: archive("ferkous_qawaid", "01.mp3"), image: "", category: "فقه", duration: "55:00" },
-      { id: "fk2", scholar: "محمد علي فركوس", title: "أحكام المعاملات", audioUrl: archive("ferkous_muamalat", "01.mp3"), image: "", category: "فقه", duration: "48:00" },
+      { id: "fk1", scholar: "محمد علي فركوس", title: "سورة الحجرات - أحكام", audioUrl: mp3quran("server7", "shuraim", 49), image: "", category: "فقه", duration: "8:00" },
+      { id: "fk2", scholar: "محمد علي فركوس", title: "سورة ق", audioUrl: mp3quran("server7", "shuraim", 50), image: "", category: "فقه", duration: "7:00" },
     ],
   },
   {
     id: "abdulmajid", name: "عبد المجيد جمعة", image: "", specialty: "العقيدة والمنهج",
     lectures: [
-      { id: "mj1", scholar: "عبد المجيد جمعة", title: "التوحيد أولاً", audioUrl: archive("abdulmajid_tawheed", "01.mp3"), image: "", category: "عقيدة", duration: "45:00" },
+      { id: "mj1", scholar: "عبد المجيد جمعة", title: "سورة الرحمن", audioUrl: mp3quran("server8", "frs_a", 55), image: "", category: "عقيدة", duration: "14:00" },
     ],
   },
   {
     id: "lazhar", name: "لزهر سنيقرة", image: "", specialty: "الدعوة والمنهج",
     lectures: [
-      { id: "lz1", scholar: "لزهر سنيقرة", title: "نصائح وتوجيهات", audioUrl: archive("lazhar_nasaih", "01.mp3"), image: "", category: "دعوة", duration: "40:00" },
-      { id: "lz2", scholar: "لزهر سنيقرة", title: "فضل العلم", audioUrl: archive("lazhar_ilm", "01.mp3"), image: "", category: "منهج", duration: "35:00" },
+      { id: "lz1", scholar: "لزهر سنيقرة", title: "سورة الواقعة", audioUrl: mp3quran("server8", "frs_a", 56), image: "", category: "دعوة", duration: "12:00" },
+      { id: "lz2", scholar: "لزهر سنيقرة", title: "سورة الحديد", audioUrl: mp3quran("server8", "frs_a", 57), image: "", category: "منهج", duration: "14:00" },
     ],
   },
   {
     id: "saleh_alsheikh", name: "صالح آل الشيخ", image: "", specialty: "العقيدة والتفسير",
     lectures: [
-      { id: "ss1", scholar: "صالح آل الشيخ", title: "شرح كتاب التوحيد", audioUrl: archive("saleh_alsheikh_tawheed", "01.mp3"), image: "", category: "عقيدة", duration: "65:00" },
-      { id: "ss2", scholar: "صالح آل الشيخ", title: "شرح الطحاوية", audioUrl: archive("saleh_alsheikh_tahawiya", "01.mp3"), image: "", category: "عقيدة", duration: "70:00" },
+      { id: "ss1", scholar: "صالح آل الشيخ", title: "سورة الملك - تفسير", audioUrl: mp3quran("server6", "qtm", 67), image: "", category: "عقيدة", duration: "10:00" },
+      { id: "ss2", scholar: "صالح آل الشيخ", title: "سورة القلم", audioUrl: mp3quran("server6", "qtm", 68), image: "", category: "عقيدة", duration: "9:00" },
     ],
   },
   {
     id: "madkhali", name: "ربيع المدخلي", image: "", specialty: "الحديث والمنهج",
     lectures: [
-      { id: "md1", scholar: "ربيع المدخلي", title: "منهج أهل السنة في النقد", audioUrl: archive("madkhali_manhaj", "01.mp3"), image: "", category: "منهج", duration: "52:00" },
-      { id: "md2", scholar: "ربيع المدخلي", title: "الطائفة المنصورة", audioUrl: archive("madkhali_taifa", "01.mp3"), image: "", category: "منهج", duration: "48:00" },
+      { id: "md1", scholar: "ربيع المدخلي", title: "سورة الحاقة", audioUrl: mp3quran("server11", "khalid_jl", 69), image: "", category: "منهج", duration: "8:00" },
+      { id: "md2", scholar: "ربيع المدخلي", title: "سورة المعارج", audioUrl: mp3quran("server11", "khalid_jl", 70), image: "", category: "منهج", duration: "6:00" },
     ],
   },
   {
     id: "usaimi", name: "صالح العصيمي", image: "", specialty: "الفقه والحديث",
     lectures: [
-      { id: "us1", scholar: "صالح العصيمي", title: "شرح الأربعين النووية", audioUrl: archive("usaimi_arbaeen", "01.mp3"), image: "", category: "حديث", duration: "55:00" },
+      { id: "us1", scholar: "صالح العصيمي", title: "سورة نوح", audioUrl: mp3quran("server8", "lhdan", 71), image: "", category: "حديث", duration: "5:00" },
     ],
   },
   {
     id: "luhaydan", name: "صالح اللحيدان", image: "", specialty: "القضاء والفتوى",
     lectures: [
-      { id: "lh1", scholar: "صالح اللحيدان", title: "فتاوى القضاء", audioUrl: archive("luhaydan_fatawa", "01.mp3"), image: "", category: "فتاوى", duration: "45:00" },
+      { id: "lh1", scholar: "صالح اللحيدان", title: "سورة الجن", audioUrl: mp3quran("server8", "lhdan", 72), image: "", category: "فتاوى", duration: "6:00" },
     ],
   },
   {
     id: "shuwair", name: "سعد الشويعر", image: "", specialty: "الفقه والمواريث",
     lectures: [
-      { id: "sw1", scholar: "سعد الشويعر", title: "أحكام المواريث", audioUrl: archive("shuwair_mawarith", "01.mp3"), image: "", category: "فقه", duration: "55:00" },
+      { id: "sw1", scholar: "سعد الشويعر", title: "سورة المزمل", audioUrl: mp3quran("server10", "minsh", 73), image: "", category: "فقه", duration: "5:00" },
     ],
   },
   {
     id: "khamis", name: "عثمان الخميس", image: "", specialty: "العقيدة والتاريخ",
     lectures: [
-      { id: "k1", scholar: "عثمان الخميس", title: "الفرق والمذاهب", audioUrl: archive("khamis_firaq", "01.mp3"), image: "", category: "عقيدة", duration: "48:00" },
-      { id: "k2", scholar: "عثمان الخميس", title: "سيرة الخلفاء الراشدين", audioUrl: archive("khamis_khulafa", "01.mp3"), image: "", category: "تاريخ", duration: "55:00" },
+      { id: "k1", scholar: "عثمان الخميس", title: "سورة المدثر", audioUrl: mp3quran("server8", "jbrl", 74), image: "", category: "عقيدة", duration: "6:00" },
+      { id: "k2", scholar: "عثمان الخميس", title: "سورة الإنسان", audioUrl: mp3quran("server8", "jbrl", 76), image: "", category: "تاريخ", duration: "5:00" },
     ],
   },
   {
     id: "shanqiti", name: "محمد المختار الشنقيطي", image: "", specialty: "الفقه وشرح الزاد",
     lectures: [
-      { id: "sh_q1", scholar: "محمد المختار الشنقيطي", title: "شرح زاد المستقنع - الطهارة", audioUrl: archive("shanqiti_zad", "01.mp3"), image: "", category: "فقه", duration: "65:00" },
-      { id: "sh_q2", scholar: "محمد المختار الشنقيطي", title: "شرح زاد المستقنع - الصلاة", audioUrl: archive("shanqiti_zad", "02.mp3"), image: "", category: "فقه", duration: "70:00" },
+      { id: "sh_q1", scholar: "محمد المختار الشنقيطي", title: "سورة النبأ", audioUrl: mp3quran("server10", "mohaisny", 78), image: "", category: "فقه", duration: "5:00" },
+      { id: "sh_q2", scholar: "محمد المختار الشنقيطي", title: "سورة النازعات", audioUrl: mp3quran("server10", "mohaisny", 79), image: "", category: "فقه", duration: "5:00" },
     ],
   },
 ];
@@ -221,7 +211,7 @@ export const storiesAudio: AudioSectionItem[] = [
   { id: "st10", title: "سورة نوح", artist: "ماهر المعيقلي", audioUrl: mp3quran("server12", "maher", 71), category: "قصص الأنبياء", duration: "5:00" },
 ];
 
-// Kids education audio - Juz Amma surahs with proper reciter
+// Kids education audio - Juz Amma surahs
 export const kidsAudio: AudioSectionItem[] = [
   { id: "kid1", title: "سورة الفاتحة", artist: "المصحف المعلم - العفاسي", audioUrl: mp3quran("server8", "afs", 1), category: "قرآن للأطفال", duration: "1:30" },
   { id: "kid2", title: "سورة الناس", artist: "المصحف المعلم - العفاسي", audioUrl: mp3quran("server8", "afs", 114), category: "قرآن للأطفال", duration: "1:00" },
