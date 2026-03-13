@@ -322,12 +322,15 @@ const NotificationsPage = ({ onBack }: { onBack: () => void }) => {
           {notifications.map((n: any) => (
             <div key={n.id} className="p-3 rounded-xl bg-card border border-border/50">
               <div className="flex items-start gap-3">
-                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                  <Bell className="h-4 w-4 text-primary" />
+                <div className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${n.type === 'report' ? 'bg-destructive/10' : 'bg-primary/10'}`}>
+                  {n.type === 'report' ? <Flag className="h-4 w-4 text-destructive" /> : <Bell className="h-4 w-4 text-primary" />}
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-bold">{n.title}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{n.message}</p>
+                  <p className="text-xs text-muted-foreground mt-1 whitespace-pre-line">{n.message}</p>
+                  {n.image_url && (
+                    <img src={n.image_url} alt="مرفق" className="mt-2 rounded-lg max-h-32 object-cover border border-border/50" />
+                  )}
                   <p className="text-[10px] text-muted-foreground/60 mt-1">{new Date(n.created_at).toLocaleDateString("ar-SA")}</p>
                 </div>
               </div>
