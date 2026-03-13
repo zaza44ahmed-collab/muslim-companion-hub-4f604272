@@ -108,7 +108,7 @@ const LibraryPage = () => {
                     <BookOpen className="h-10 w-10 text-muted-foreground/30" />
                   )}
                   <button className="absolute top-2 left-2 p-2 bg-white/80 dark:bg-black/50 rounded-full" onClick={(e) => toggleFavorite(book.id, e)}>
-                    <Bookmark className={`h-4 w-4 ${favorites.includes(book.id) ? "fill-primary text-primary" : "text-muted-foreground"}`} />
+                    <Bookmark className={`h-4 w-4 ${savedItems.isSaved('book', book.id) ? "fill-primary text-primary" : "text-muted-foreground"}`} />
                   </button>
                 </div>
                 <div className="p-3">
