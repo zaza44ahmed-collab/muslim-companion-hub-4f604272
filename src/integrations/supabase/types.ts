@@ -666,6 +666,45 @@ export type Database = {
         }
         Relationships: []
       }
+      youtube_cache: {
+        Row: {
+          channel_handle: string | null
+          channel_title: string | null
+          description: string | null
+          fetched_at: string
+          id: string
+          published_at: string | null
+          thumbnail: string | null
+          title: string
+          video_id: string
+          video_url: string
+        }
+        Insert: {
+          channel_handle?: string | null
+          channel_title?: string | null
+          description?: string | null
+          fetched_at?: string
+          id?: string
+          published_at?: string | null
+          thumbnail?: string | null
+          title: string
+          video_id: string
+          video_url: string
+        }
+        Update: {
+          channel_handle?: string | null
+          channel_title?: string | null
+          description?: string | null
+          fetched_at?: string
+          id?: string
+          published_at?: string | null
+          thumbnail?: string | null
+          title?: string
+          video_id?: string
+          video_url?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
