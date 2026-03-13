@@ -160,8 +160,8 @@ const SavedItemsPage = ({ onBack }: { onBack: () => void }) => {
   const [tab, setTab] = useState<SavedItemType>("app");
   const { savedItems, loading: savedLoading, toggleSave } = useSavedItems(tab);
   const [resolvedNames, setResolvedNames] = useState<Record<string, { name: string; subtitle?: string }>>({});
+  const navigate = useNavigate();
 
-  // Resolve item names from database
   useEffect(() => {
     const resolveNames = async () => {
       const names: Record<string, { name: string; subtitle?: string }> = {};
@@ -178,11 +178,24 @@ const SavedItemsPage = ({ onBack }: { onBack: () => void }) => {
             if (data) names[key] = { name: data.title, subtitle: data.author };
           } else if (item.item_type === 'audio') {
             const { data } = await supabase.from('user_audio').select('title, artist').eq('id', item.item_id).single();
-            if (data) names[key] = { name: data.title, subtitle: data.artist };
-            else names[key] = { name: item.item_id, subtitle: 'صوتية' };
+            if (data) {
+              names[key] = { name: data.title, subtitle: data.artist };
+            } else {
+              const id = item.item_id;
+              if (id.startsWith('surah-')) {
+                names[key] = { name: 'سورة محفوظة', subtitle: 'قرآن كريم' };
+              } else {
+                const staticMap: Record<string, string> = {
+                  'az': 'أذكار', 'kh': 'خطبة', 'st': 'قصة نبي', 'kid': 'جزء عمّ',
+                };
+                const prefix = id.replace(/\d+$/, '');
+                names[key] = { name: staticMap[prefix] || id, subtitle: 'صوتية' };
+              }
+            }
           } else if (item.item_type === 'reel') {
             const { data } = await supabase.from('reels').select('title').eq('id', item.item_id).single();
             if (data) names[key] = { name: data.title };
+            else names[key] = { name: 'ريلز محفوظ' };
           } else if (item.item_type === 'listing') {
             const { data } = await supabase.from('listings').select('title, price, currency').eq('id', item.item_id).single();
             if (data) names[key] = { name: data.title, subtitle: `${data.price} ${data.currency}` };
@@ -212,6 +225,14 @@ const SavedItemsPage = ({ onBack }: { onBack: () => void }) => {
     return icons[type];
   };
 
+  const handleItemClick = (item: any) => {
+    if (item.item_type === 'book') navigate('/library');
+    else if (item.item_type === 'audio') navigate('/audio');
+    else if (item.item_type === 'reel') navigate('/videos');
+    else if (item.item_type === 'app') navigate('/apps');
+    else if (item.item_type === 'listing') navigate('/marketplace');
+  };
+
   return (
     <div className="space-y-4" dir="rtl">
       <div className="flex gap-2 overflow-x-auto scrollbar-hide">
@@ -230,7 +251,8 @@ const SavedItemsPage = ({ onBack }: { onBack: () => void }) => {
             const resolved = resolvedNames[`${item.item_type}:${item.item_id}`];
             const ItemIcon = getItemIcon(item.item_type);
             return (
-              <div key={item.id} className="flex items-center justify-between p-3 rounded-xl bg-card border border-border/50">
+              <div key={item.id} className="flex items-center justify-between p-3 rounded-xl bg-card border border-border/50 cursor-pointer hover:bg-accent/50 transition-colors"
+                onClick={() => handleItemClick(item)}>
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                     <ItemIcon className="h-4 w-4 text-primary" />
@@ -242,7 +264,7 @@ const SavedItemsPage = ({ onBack }: { onBack: () => void }) => {
                     </p>
                   </div>
                 </div>
-                <button onClick={() => toggleSave(item.item_type, item.item_id)}
+                <button onClick={(e) => { e.stopPropagation(); toggleSave(item.item_type, item.item_id); }}
                   className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-destructive/10 shrink-0">
                   <Heart className="h-4 w-4 fill-destructive text-destructive" />
                 </button>
