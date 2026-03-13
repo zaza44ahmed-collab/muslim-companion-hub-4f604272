@@ -53,12 +53,9 @@ const LibraryPage = () => {
 
   const toggleFavorite = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setFavorites(prev => {
-      const next = prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id];
-      localStorage.setItem("bookFavorites", JSON.stringify(next));
-      return next;
-    });
-    toast({ title: favorites.includes(id) ? "تمت الإزالة من المحفوظات" : "تم الحفظ ✓" });
+    if (!user) { navigate("/auth"); return; }
+    savedItems.toggleSave('book', id);
+    toast({ title: savedItems.isSaved('book', id) ? "تمت الإزالة من المحفوظات" : "تم الحفظ ✓" });
   };
 
   const fetchUserBooks = async () => {
