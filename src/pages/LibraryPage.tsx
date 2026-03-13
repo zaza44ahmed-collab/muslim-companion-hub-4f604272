@@ -8,16 +8,16 @@ import { bookCategories } from "@/data/books";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import UserBookDetailDialog from "@/components/library/UserBookDetailDialog";
+import { useSavedItems } from "@/hooks/useSavedItems";
+import { useAuth } from "@/hooks/useAuth";
 
 const LibraryPage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const savedItems = useSavedItems('book');
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
-  const [favorites, setFavorites] = useState<string[]>(() => {
-    const saved = localStorage.getItem("bookFavorites");
-    return saved ? JSON.parse(saved) : [];
-  });
   const [userBooks, setUserBooks] = useState<any[]>([]);
   const [selectedUserBook, setSelectedUserBook] = useState<any | null>(null);
 
