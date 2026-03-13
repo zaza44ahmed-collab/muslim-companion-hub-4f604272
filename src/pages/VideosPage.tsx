@@ -1,26 +1,24 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import { Heart, Share2, Bookmark, MessageCircle, Music2, Plus, Loader2, Trash2, ChevronLeft, Youtube, RefreshCw } from "lucide-react";
+import { Heart, Share2, Bookmark, MessageCircle, Music2, Plus, Loader2, Trash2, ChevronLeft, RefreshCw, Filter } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import BottomNav from "@/components/layout/BottomNav";
 import AddReelDialog from "@/components/reels/AddReelDialog";
 import ReelCommentsSheet from "@/components/reels/ReelCommentsSheet";
 import { useReels } from "@/hooks/useReels";
-import { useYouTubeVideos, type YouTubeVideo } from "@/hooks/useYouTubeVideos";
+import { useYouTubeVideos, CHANNEL_NAMES } from "@/hooks/useYouTubeVideos";
 import { useAuth } from "@/hooks/useAuth";
 import { useSavedItems } from "@/hooks/useSavedItems";
 import { useToast } from "@/hooks/use-toast";
 
-// --- Unified Reel Item type ---
 interface ReelItem {
   id: string;
   type: "youtube" | "community";
   title: string;
   description?: string;
   channelTitle?: string;
-  // YouTube specific
+  channelHandle?: string;
   videoUrl?: string;
   thumbnail?: string;
-  // Community specific
   video_url?: string;
   audio_name?: string;
   author_name?: string;
@@ -31,7 +29,6 @@ interface ReelItem {
   user_id?: string;
 }
 
-// --- Full Screen Reel View ---
 const ReelViewer = ({
   items, currentIndex, setCurrentIndex, likedIds, toggleLike,
   savedItems, user, deleteReel, navigate, createReel
@@ -98,11 +95,10 @@ const ReelViewer = ({
         onWheel={(e) => { e.deltaY > 30 ? goToNext() : e.deltaY < -30 ? goToPrev() : null; }}
         onClick={() => handleDoubleTap(current)}>
 
-        {/* Video Content */}
         {current.type === "youtube" ? (
           <iframe
             key={current.id}
-            src={`${current.videoUrl}?autoplay=1&rel=0&controls=0&modestbranding=1&playsinline=1&loop=1&playlist=${current.id}`}
+            src={`${current.videoUrl}?autoplay=1&rel=0&controls=0&modestbranding=1&playsinline=1&loop=1&playlist=${current.id}&showinfo=0&iv_load_policy=3`}
             className="h-full w-full"
             allow="autoplay; encrypted-media; fullscreen"
             allowFullScreen
@@ -123,13 +119,6 @@ const ReelViewer = ({
         {showHeart && <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-40">
           <Heart className="h-20 w-20 text-secondary fill-secondary animate-ping" />
         </div>}
-
-        {/* YouTube badge */}
-        {current.type === "youtube" && (
-          <div className="absolute top-3 right-3 z-30 bg-destructive/90 text-white text-[10px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
-            <Youtube className="h-3 w-3" /> YouTube
-          </div>
-        )}
 
         {/* Actions sidebar */}
         <div className="absolute left-2 bottom-28 flex flex-col items-center gap-3 z-30">
@@ -182,9 +171,7 @@ const ReelViewer = ({
               </>
             ) : (
               <>
-                <div className="h-6 w-6 rounded-full bg-destructive/30 backdrop-blur-sm flex items-center justify-center">
-                  <Youtube className="h-3 w-3 text-white" />
-                </div>
+                <div className="h-6 w-6 rounded-full bg-primary/30 backdrop-blur-sm flex items-center justify-center text-xs">🎬</div>
                 <span className="text-white font-bold text-[10px] drop-shadow">{current.channelTitle}</span>
               </>
             )}
@@ -215,7 +202,6 @@ const ReelViewer = ({
   );
 };
 
-// --- Main Page ---
 const VideosPage = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -225,10 +211,22 @@ const VideosPage = () => {
   const savedItems = useSavedItems();
 
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [channelFilter, setChannelFilter] = useState<string | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => { fetchVideos(); }, []);
 
-  // Merge YouTube videos and community reels into unified feed
+  const handleChannelFilter = (handle: string | null) => {
+    setChannelFilter(handle);
+    setShowFilters(false);
+    setCurrentIndex(0);
+    if (handle) {
+      fetchVideos(handle);
+    } else {
+      fetchVideos();
+    }
+  };
+
   const allItems: ReelItem[] = [
     ...ytVideos.map(v => ({
       id: v.id,
@@ -236,10 +234,11 @@ const VideosPage = () => {
       title: v.title,
       description: v.description,
       channelTitle: v.channelTitle,
+      channelHandle: v.channelHandle,
       videoUrl: v.videoUrl,
       thumbnail: v.thumbnail,
     })),
-    ...reels.map((r: any) => ({
+    ...(!channelFilter ? reels.map((r: any) => ({
       id: r.id,
       type: "community" as const,
       title: r.title,
@@ -252,7 +251,7 @@ const VideosPage = () => {
       comments_count: r.comments_count,
       shares_count: r.shares_count,
       user_id: r.user_id,
-    })),
+    })) : []),
   ];
 
   const isLoading = ytLoading && reelsLoading;
@@ -260,12 +259,14 @@ const VideosPage = () => {
   return (
     <div className="fixed inset-0 bg-black">
       <div className="h-full w-full pb-[60px] flex flex-col">
-        {/* Minimal header overlay */}
         <header className="absolute top-0 left-0 right-0 z-40 px-4 pt-3 pb-2 bg-gradient-to-b from-black/60 to-transparent">
           <div className="flex items-center justify-between" dir="rtl">
             <h1 className="text-sm font-bold text-white font-amiri drop-shadow">الريلز</h1>
             <div className="flex items-center gap-2">
-              <button onClick={() => { fetchVideos(); }} className="h-8 w-8 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
+              <button onClick={() => setShowFilters(!showFilters)} className={`h-8 w-8 rounded-full backdrop-blur-sm flex items-center justify-center ${channelFilter ? 'bg-primary/60' : 'bg-white/10'}`}>
+                <Filter className="h-4 w-4 text-white" />
+              </button>
+              <button onClick={() => { fetchVideos(channelFilter || undefined); }} className="h-8 w-8 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
                 <RefreshCw className={`h-4 w-4 text-white ${ytLoading ? 'animate-spin' : ''}`} />
               </button>
               <button onClick={() => navigate(-1)} className="h-8 w-8 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
@@ -273,9 +274,24 @@ const VideosPage = () => {
               </button>
             </div>
           </div>
+
+          {/* Channel Filter Dropdown */}
+          {showFilters && (
+            <div className="mt-2 bg-black/80 backdrop-blur-lg rounded-xl p-2 max-h-60 overflow-y-auto" dir="rtl">
+              <button onClick={() => handleChannelFilter(null)}
+                className={`w-full text-right px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${!channelFilter ? 'bg-primary text-primary-foreground' : 'text-white hover:bg-white/10'}`}>
+                الكل
+              </button>
+              {Object.entries(CHANNEL_NAMES).map(([handle, name]) => (
+                <button key={handle} onClick={() => handleChannelFilter(handle)}
+                  className={`w-full text-right px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${channelFilter === handle ? 'bg-primary text-primary-foreground' : 'text-white hover:bg-white/10'}`}>
+                  {name}
+                </button>
+              ))}
+            </div>
+          )}
         </header>
 
-        {/* Content */}
         <div className="flex-1 overflow-hidden">
           {isLoading ? (
             <div className="h-full flex items-center justify-center">

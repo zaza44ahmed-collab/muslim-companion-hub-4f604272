@@ -7,44 +7,43 @@ export interface YouTubeVideo {
   description: string;
   thumbnail: string;
   channelTitle: string;
+  channelHandle: string;
   publishedAt: string;
   videoUrl: string;
 }
 
-const SEARCH_QUERIES = [
-  'مقاطع إسلامية قصيرة shorts',
-  'تلاوة قرآن كريم shorts',
-  'أذكار وأدعية shorts',
-  'دروس دينية قصيرة',
-  'قصص إسلامية shorts',
-];
+export const CHANNEL_NAMES: Record<string, string> = {
+  'alshuwayer9': 'الشيخ عبد السلام الشويعر',
+  '3hkmz': 'أحكام',
+  'qutofosaimi': 'قطوف العصيمي',
+  'sahihalfiqh': 'صحيح الفقه',
+  'salman_alfaresi': 'سلمان الفارسي',
+  'tawhydullah': 'التوحيد حق الله',
+  'fatawa24.': 'فتاوى ودروس',
+  'aluthaymeen': 'ابن عثيمين',
+  'k_d_rd': 'مسائل دينية',
+  'miloudabuslem': 'ميلود أبو سليم',
+  'alislam28': 'الإسلام',
+};
 
 export function useYouTubeVideos() {
   const [videos, setVideos] = useState<YouTubeVideo[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [nextPageToken, setNextPageToken] = useState<string | null>(null);
 
-  const fetchVideos = useCallback(async (query?: string, pageToken?: string) => {
+  const fetchVideos = useCallback(async (channelFilter?: string) => {
     setLoading(true);
     setError(null);
 
     try {
-      const searchQuery = query || SEARCH_QUERIES[Math.floor(Math.random() * SEARCH_QUERIES.length)];
-
       const { data, error: fnError } = await supabase.functions.invoke('youtube-search', {
-        body: { query: searchQuery, pageToken, maxResults: 20 },
+        body: { channel: channelFilter || undefined },
       });
 
       if (fnError) throw new Error(fnError.message);
       if (data?.error) throw new Error(data.error);
 
-      if (pageToken) {
-        setVideos(prev => [...prev, ...(data.videos || [])]);
-      } else {
-        setVideos(data.videos || []);
-      }
-      setNextPageToken(data.nextPageToken || null);
+      setVideos(data.videos || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'خطأ في جلب الفيديوهات');
     } finally {
@@ -52,11 +51,5 @@ export function useYouTubeVideos() {
     }
   }, []);
 
-  const loadMore = useCallback(() => {
-    if (nextPageToken && !loading) {
-      fetchVideos(undefined, nextPageToken);
-    }
-  }, [nextPageToken, loading, fetchVideos]);
-
-  return { videos, loading, error, fetchVideos, loadMore, hasMore: !!nextPageToken };
+  return { videos, loading, error, fetchVideos };
 }
